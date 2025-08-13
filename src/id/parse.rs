@@ -16,13 +16,12 @@ pub fn number_and_version_len_3(
             tail @ ..,
         ] => {
             let number =
-                100 * ((*b1 - b'0') as u16) + 10 * ((*b2 - b'0') as u16) + ((*b3 - b'0') as u16);
-            let nz_number = match NonZero::new(number) {
-                Some(nz) => nz,
-                None => {
-                    return Err(IdentifierError::NumberOutOfRange);
-                }
+                100 * u16::from(*b1 - b'0') + 10 * u16::from(*b2 - b'0') + u16::from(*b3 - b'0');
+
+            let Some(nz_number) = NonZero::new(number) else {
+                return Err(IdentifierError::NumberOutOfRange);
             };
+
             match tail {
                 [b'v', ver @ ..] => Ok((nz_number, Some(version(ver)?))),
                 [] => Ok((nz_number, None)),
@@ -45,14 +44,13 @@ pub fn number_and_version_len_4(
             b4 @ b'0'..=b'9',
             tail @ ..,
         ] => {
-            let number = 1000 * ((*b1 - b'0') as u32)
-                + 100 * ((*b2 - b'0') as u32)
-                + 10 * ((*b3 - b'0') as u32)
-                + ((*b4 - b'0') as u32);
+            let number = 1000 * u32::from(*b1 - b'0')
+                + 100 * u32::from(*b2 - b'0')
+                + 10 * u32::from(*b3 - b'0')
+                + u32::from(*b4 - b'0');
 
-            let nz_number = match NonZero::new(number) {
-                Some(nz) => nz,
-                None => return Err(IdentifierError::NumberOutOfRange),
+            let Some(nz_number) = NonZero::new(number) else {
+                return Err(IdentifierError::NumberOutOfRange);
             };
 
             match tail {
@@ -78,15 +76,14 @@ pub fn number_and_version_len_5(
             b5 @ b'0'..=b'9',
             tail @ ..,
         ] => {
-            let number = 10000 * ((*b1 - b'0') as u32)
-                + 1000 * ((*b2 - b'0') as u32)
-                + 100 * ((*b3 - b'0') as u32)
-                + 10 * ((*b4 - b'0') as u32)
-                + ((*b5 - b'0') as u32);
+            let number = 10000 * u32::from(*b1 - b'0')
+                + 1000 * u32::from(*b2 - b'0')
+                + 100 * u32::from(*b3 - b'0')
+                + 10 * u32::from(*b4 - b'0')
+                + u32::from(*b5 - b'0');
 
-            let nz_number = match NonZero::new(number) {
-                Some(nz) => nz,
-                None => return Err(IdentifierError::NumberOutOfRange),
+            let Some(nz_number) = NonZero::new(number) else {
+                return Err(IdentifierError::NumberOutOfRange);
             };
 
             match tail {
@@ -201,7 +198,7 @@ fn version(version: &[u8]) -> Result<NonZero<u8>, IdentifierError> {
         }
         [d1 @ b'1'..=b'9', d2 @ b'0'..=b'9', d3 @ b'0'..=b'9'] => {
             let overflow: u16 =
-                100 * ((d1 - b'0') as u16) + 10 * ((d2 - b'0') as u16) + ((d3 - b'0') as u16);
+                100 * u16::from(d1 - b'0') + 10 * u16::from(d2 - b'0') + u16::from(d3 - b'0');
             u8::try_from(overflow)
                 // SAFETY: overflow is non-zero since d1 is non-zero, so if it fits into the u8, it
                 // is still non-zero

@@ -12,6 +12,8 @@ categories = ["text-processing", "parser-implementations"]
 [features]
 
 [dependencies]
+url = "2.5.4"
+chrono = "0.4"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }

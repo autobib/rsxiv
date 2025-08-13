@@ -14,7 +14,7 @@ use super::{Identifier, IdentifierError, parse};
 ///
 /// [arxiv]: https://info.arxiv.org/help/arxiv_identifier.html
 /// [preferred]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct OldID {
     archive: Archive,
     years_since_epoch: u8, // this is the number of years after the earliest possible year, i.e. 1991
@@ -57,7 +57,7 @@ impl Identifier for OldID {
     /// Return the year corresponding to the identifier. Guaranteed to land in the range
     /// `[1991..=2007]`.
     fn year(&self) -> u16 {
-        1991 + (self.years_since_epoch as u16)
+        1991 + u16::from(self.years_since_epoch)
     }
 
     /// Return the month corresponding to the identifer. Guaranteed to land in the range
@@ -69,7 +69,7 @@ impl Identifier for OldID {
     /// Return the number of the identifier. Guaranteed to land in the range `[1..=999]`.
     fn number(&self) -> NonZero<u32> {
         // SAFETY: the number is initially non-zero
-        unsafe { NonZero::new_unchecked(self.number.get() as u32) }
+        unsafe { NonZero::new_unchecked(u32::from(self.number.get())) }
     }
 
     /// Return the version of the identifier. The version may not be present.
@@ -85,8 +85,7 @@ impl FromStr for OldID {
         match archive::strip_archive_prefix(s.as_bytes()) {
             Some((archive, tail)) => {
                 let date_number = match tail {
-                    [b'.', b'A'..=b'Z', b'A'..=b'Z', b'/', tail @ ..] => tail,
-                    tail => tail,
+                    [b'.', b'A'..=b'Z', b'A'..=b'Z', b'/', tail @ ..] | tail => tail,
                 };
                 let parse::DateNumber {
                     years_since_epoch,
@@ -128,7 +127,7 @@ impl fmt::Display for OldID {
 }
 
 /// The possible archives present in an old-style arxiv identifier
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u8)]
 pub enum Archive {
     /// Accelerator Physics
@@ -202,6 +201,7 @@ pub enum Archive {
 }
 
 impl Archive {
+    #[must_use]
     pub fn to_id(&self) -> &'static str {
         match self {
             Archive::AccPhys => "acc-phys",
@@ -241,10 +241,12 @@ impl Archive {
         }
     }
 
+    #[must_use]
     pub fn from_id(id: &str) -> Option<Self> {
         Self::from_id_bytes(id.as_bytes())
     }
 
+    #[must_use]
     pub fn from_id_bytes(id: &[u8]) -> Option<Self> {
         match archive::strip_archive_prefix(id) {
             Some((archive, b"")) => Some(archive),

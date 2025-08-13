@@ -54,7 +54,7 @@ use super::{Identifier, IdentifierError, parse};
 /// ```
 ///
 /// [arxiv]: https://info.arxiv.org/help/arxiv_identifier.html
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct NewID {
     years_since_epoch: u8, // this is the number of years after the earliest possible year, i.e. 1991
     month: u8,
@@ -65,6 +65,7 @@ pub struct NewID {
 impl NewID {
     /// Return if the new identifier is 'short-style': that is, the number is at most `9999` and is
     /// padded to 4 digits. This is the case for new-style identifiers from 2014 or earlier.
+    #[must_use]
     pub fn is_short(&self) -> bool {
         // 23 = 2014 - 1991; see https://info.arxiv.org/help/arxiv_identifier.html
         self.years_since_epoch <= 23
@@ -86,14 +87,12 @@ impl NewID {
             return Err(IdentifierError::DateOutOfRange);
         }
 
-        let threshold = if year <= 2014 { 10000 } else { 100000 };
+        let threshold = if year <= 2014 { 10_000 } else { 100_000 };
         if number >= threshold {
             return Err(IdentifierError::NumberOutOfRange);
         }
 
-        let number = if let Some(number) = NonZero::new(number) {
-            number
-        } else {
+        let Some(number) = NonZero::new(number) else {
             return Err(IdentifierError::NumberOutOfRange);
         };
 
@@ -119,7 +118,7 @@ impl Identifier for NewID {
     /// `[2007..=2106]`.
     #[inline]
     fn year(&self) -> u16 {
-        1991 + (self.years_since_epoch as u16)
+        1991 + u16::from(self.years_since_epoch)
     }
 
     /// Return the month corresponding to the identifer. Guaranteed to land in the range
