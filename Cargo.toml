@@ -12,3 +12,10 @@ categories = ["text-processing", "parser-implementations"]
 [features]
 
 [dependencies]
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "id"
+harness = false
