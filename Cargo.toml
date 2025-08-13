@@ -1,0 +1,14 @@
+[package]
+name = "rsxiv"
+description = "Tools for working with arXiv and the arXiv API"
+version = "0.1.0"
+edition = "2024"
+authors = ["Alex Rutar <alex@rutar.org>"]
+keywords = ["bibtex", "serde", "serialization"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/autobib/rsxiv"
+categories = ["text-processing", "parser-implementations"]
+
+[features]
+
+[dependencies]
