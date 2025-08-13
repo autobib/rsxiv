@@ -1,3 +1,5 @@
+mod archive;
+
 use std::{fmt, num::NonZero, str::FromStr};
 
 use super::{Identifier, IdentifierError, parse};
@@ -22,23 +24,6 @@ pub struct OldID {
 }
 
 impl OldID {
-    fn from_split(archive: &[u8], date_number: &[u8]) -> Result<Self, IdentifierError> {
-        let archive = parse::archive(archive)?;
-        let parse::DateNumber {
-            years_since_epoch,
-            month,
-            number,
-            version,
-        } = parse::date_number(date_number)?;
-        Ok(Self {
-            archive,
-            years_since_epoch,
-            month,
-            number,
-            version,
-        })
-    }
-
     pub fn new(
         archive: Archive,
         year: u16,
@@ -97,8 +82,26 @@ impl FromStr for OldID {
     type Err = IdentifierError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.split_once('/') {
-            Some((arch, date_number)) => Self::from_split(arch.as_bytes(), date_number.as_bytes()),
+        match archive::strip_archive_prefix(s.as_bytes()) {
+            Some((archive, tail)) => {
+                let date_number = match tail {
+                    [b'.', b'A'..=b'Z', b'A'..=b'Z', b'/', tail @ ..] => tail,
+                    tail => tail,
+                };
+                let parse::DateNumber {
+                    years_since_epoch,
+                    month,
+                    number,
+                    version,
+                } = parse::date_number(date_number)?;
+                Ok(Self {
+                    archive,
+                    years_since_epoch,
+                    month,
+                    number,
+                    version,
+                })
+            }
             None => Err(IdentifierError::InvalidArchive),
         }
     }
@@ -243,41 +246,8 @@ impl Archive {
     }
 
     pub fn from_id_bytes(id: &[u8]) -> Option<Self> {
-        match id {
-            b"acc-phys" => Some(Archive::AccPhys),
-            b"adap-org" => Some(Archive::AdapOrg),
-            b"alg-geom" => Some(Archive::AlgGeom),
-            b"ao-sci" => Some(Archive::AoSci),
-            b"astro-ph" => Some(Archive::AstroPh),
-            b"atom-ph" => Some(Archive::AtomPh),
-            b"bayes-an" => Some(Archive::BayesAn),
-            b"chao-dyn" => Some(Archive::ChaoDyn),
-            b"chem-ph" => Some(Archive::ChemPh),
-            b"cmp-lg" => Some(Archive::CmpLg),
-            b"comp-gas" => Some(Archive::CompGas),
-            b"cond-mat" => Some(Archive::CondMat),
-            b"cs" => Some(Archive::Cs),
-            b"dg-ga" => Some(Archive::DgGa),
-            b"funct-an" => Some(Archive::FunctAn),
-            b"gr-qc" => Some(Archive::GrQc),
-            b"hep-ex" => Some(Archive::HepEx),
-            b"hep-lat" => Some(Archive::HepLat),
-            b"hep-ph" => Some(Archive::HepPh),
-            b"hep-th" => Some(Archive::HepTh),
-            b"math" => Some(Archive::Math),
-            b"math-ph" => Some(Archive::MathPh),
-            b"mtrl-th" => Some(Archive::MtrlTh),
-            b"nlin" => Some(Archive::Nlin),
-            b"nucl-ex" => Some(Archive::NuclEx),
-            b"nucl-th" => Some(Archive::NuclTh),
-            b"patt-sol" => Some(Archive::PattSol),
-            b"physics" => Some(Archive::Physics),
-            b"plasm-ph" => Some(Archive::PlasmPh),
-            b"q-alg" => Some(Archive::QAlg),
-            b"q-bio" => Some(Archive::QBio),
-            b"quant-ph" => Some(Archive::QuantPh),
-            b"solv-int" => Some(Archive::SolvInt),
-            b"supr-con" => Some(Archive::SuprCon),
+        match archive::strip_archive_prefix(id) {
+            Some((archive, b"")) => Some(archive),
             _ => None,
         }
     }

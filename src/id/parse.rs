@@ -3,7 +3,7 @@ mod tests;
 
 use std::num::NonZero;
 
-use super::{IdentifierError, old::Archive};
+use super::IdentifierError;
 
 pub fn number_and_version_len_3(
     number_and_version: &[u8],
@@ -191,17 +191,6 @@ pub fn date_old(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
         }
         _ => Err(IdentifierError::InvalidDate),
     }
-}
-
-pub fn archive(arch_bytes: &[u8]) -> Result<Archive, IdentifierError> {
-    // the arxiv API automatically squashes the subject class as long as it looks like a
-    // subject class; it does not have to be valid
-    let archive = match arch_bytes {
-        [archive @ .., b'.', b'A'..=b'Z', b'A'..=b'Z'] => archive,
-        archive => archive,
-    };
-
-    Archive::from_id_bytes(archive).ok_or(IdentifierError::InvalidArchive)
 }
 
 fn version(version: &[u8]) -> Result<NonZero<u8>, IdentifierError> {
