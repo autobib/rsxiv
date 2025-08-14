@@ -5,7 +5,19 @@ use std::num::NonZero;
 
 use super::IdentifierError;
 
-pub fn number_and_version_len_3(
+/// Implement `?` propogation in const context.
+macro_rules! tri {
+    ($e:expr $(,)?) => {
+        match $e {
+            core::result::Result::Ok(val) => val,
+            core::result::Result::Err(err) => return core::result::Result::Err(err),
+        }
+    };
+}
+
+pub(crate) use tri;
+
+pub const fn number_and_version_len_3(
     number_and_version: &[u8],
 ) -> Result<(NonZero<u16>, Option<NonZero<u8>>), IdentifierError> {
     match number_and_version {
@@ -15,15 +27,16 @@ pub fn number_and_version_len_3(
             b3 @ b'0'..=b'9',
             tail @ ..,
         ] => {
-            let number =
-                100 * u16::from(*b1 - b'0') + 10 * u16::from(*b2 - b'0') + u16::from(*b3 - b'0');
+            let number = 100 * (b1.saturating_sub(b'0') as u16)
+                + 10 * (b2.saturating_sub(b'0') as u16)
+                + (b3.saturating_sub(b'0') as u16);
 
             let Some(nz_number) = NonZero::new(number) else {
                 return Err(IdentifierError::NumberOutOfRange);
             };
 
             match tail {
-                [b'v', ver @ ..] => Ok((nz_number, Some(version(ver)?))),
+                [b'v', ver @ ..] => Ok((nz_number, Some(tri!(version(ver))))),
                 [] => Ok((nz_number, None)),
                 [b'0'..=b'9'] => Err(IdentifierError::NumberOutOfRange),
                 _ => Err(IdentifierError::InvalidVersion),
@@ -33,7 +46,7 @@ pub fn number_and_version_len_3(
     }
 }
 
-pub fn number_and_version_len_4(
+pub const fn number_and_version_len_4(
     number_and_version: &[u8],
 ) -> Result<(NonZero<u32>, Option<NonZero<u8>>), IdentifierError> {
     match number_and_version {
@@ -44,17 +57,17 @@ pub fn number_and_version_len_4(
             b4 @ b'0'..=b'9',
             tail @ ..,
         ] => {
-            let number = 1000 * u32::from(*b1 - b'0')
-                + 100 * u32::from(*b2 - b'0')
-                + 10 * u32::from(*b3 - b'0')
-                + u32::from(*b4 - b'0');
+            let number = 1000 * (b1.saturating_sub(b'0') as u32)
+                + 100 * (b2.saturating_sub(b'0') as u32)
+                + 10 * (b3.saturating_sub(b'0') as u32)
+                + (b4.saturating_sub(b'0') as u32);
 
             let Some(nz_number) = NonZero::new(number) else {
                 return Err(IdentifierError::NumberOutOfRange);
             };
 
             match tail {
-                [b'v', ver @ ..] => Ok((nz_number, Some(version(ver)?))),
+                [b'v', ver @ ..] => Ok((nz_number, Some(tri!(version(ver))))),
                 [] => Ok((nz_number, None)),
                 [b'0'..=b'9'] => Err(IdentifierError::NumberOutOfRange),
                 _ => Err(IdentifierError::InvalidVersion),
@@ -64,7 +77,7 @@ pub fn number_and_version_len_4(
     }
 }
 
-pub fn number_and_version_len_5(
+pub const fn number_and_version_len_5(
     number_and_version: &[u8],
 ) -> Result<(NonZero<u32>, Option<NonZero<u8>>), IdentifierError> {
     match number_and_version {
@@ -76,18 +89,18 @@ pub fn number_and_version_len_5(
             b5 @ b'0'..=b'9',
             tail @ ..,
         ] => {
-            let number = 10000 * u32::from(*b1 - b'0')
-                + 1000 * u32::from(*b2 - b'0')
-                + 100 * u32::from(*b3 - b'0')
-                + 10 * u32::from(*b4 - b'0')
-                + u32::from(*b5 - b'0');
+            let number = 10000 * (b1.saturating_sub(b'0') as u32)
+                + 1000 * (b2.saturating_sub(b'0') as u32)
+                + 100 * (b3.saturating_sub(b'0') as u32)
+                + 10 * (b4.saturating_sub(b'0') as u32)
+                + (b5.saturating_sub(b'0') as u32);
 
             let Some(nz_number) = NonZero::new(number) else {
                 return Err(IdentifierError::NumberOutOfRange);
             };
 
             match tail {
-                [b'v', ver @ ..] => Ok((nz_number, Some(version(ver)?))),
+                [b'v', ver @ ..] => Ok((nz_number, Some(tri!(version(ver))))),
                 [] => Ok((nz_number, None)),
                 [b'0'..=b'9'] => Err(IdentifierError::NumberOutOfRange),
                 _ => Err(IdentifierError::InvalidVersion),
@@ -100,7 +113,7 @@ pub fn number_and_version_len_5(
 /// Parse a new-style date block, checking length and checking for validity of dates.
 ///
 /// Returns `(a, b)`, where the year is `a + 1991` and `b` lands in the range `[1..=12]`, indicating the month.
-pub fn date_new(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
+pub const fn date_new(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
     match date {
         [b1 @ b'0'..=b'9', b2 @ b'0'..=b'9', b3, b4] => {
             let y1 = b1 - b'0';
@@ -111,7 +124,7 @@ pub fn date_new(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
             let m2 = b4.overflowing_sub(b'0').0;
 
             // month is invalid format
-            if !(m1 == 0 && (1..=9).contains(&m2) || m1 == 1 && m1 <= 2) {
+            if !(m1 == 0 && (1 <= m2 && m2 <= 9) || m1 == 1 && m1 <= 2) {
                 return Err(IdentifierError::InvalidDate);
             }
 
@@ -131,6 +144,7 @@ pub fn date_new(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct DateNumber {
     pub years_since_epoch: u8,
     pub month: u8,
@@ -138,11 +152,11 @@ pub struct DateNumber {
     pub version: Option<NonZero<u8>>,
 }
 
-pub fn date_number(datestamp: &[u8]) -> Result<DateNumber, IdentifierError> {
+pub const fn date_number(datestamp: &[u8]) -> Result<DateNumber, IdentifierError> {
     match datestamp {
         [b1, b2, b3, b4, tail @ ..] => {
-            let (years_since_epoch, month) = date_old([*b1, *b2, *b3, *b4])?;
-            let (number, version) = number_and_version_len_3(tail)?;
+            let (years_since_epoch, month) = tri!(date_old([*b1, *b2, *b3, *b4]));
+            let (number, version) = tri!(number_and_version_len_3(tail));
             Ok(DateNumber {
                 years_since_epoch,
                 month,
@@ -155,7 +169,7 @@ pub fn date_number(datestamp: &[u8]) -> Result<DateNumber, IdentifierError> {
 }
 
 /// Parse an old-style date block.
-pub fn date_old(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
+pub const fn date_old(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
     match date {
         [b1 @ b'0'..=b'9', b2 @ b'0'..=b'9', b3, b4] => {
             // convert bytes to values and check ranges
@@ -166,12 +180,12 @@ pub fn date_old(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
             let m2 = b4.overflowing_sub(b'0').0;
 
             // month is invalid format
-            if !(m1 == 0 && (1..=9).contains(&m2) || m1 == 1 && m2 <= 2) {
+            if !(m1 == 0 && (1 <= m2 && m2 <= 9) || m1 == 1 && m2 <= 2) {
                 return Err(IdentifierError::InvalidDate);
             }
 
             // earliest date is August 1991 and latest is March 2007
-            if !(y1 == 9 && (1..=9).contains(&y2) || y1 == 0 && y2 <= 7)
+            if !(y1 == 9 && (1 <= y2 && y2 <= 9) || y1 == 0 && y2 <= 7)
                 || (y1 == 9 && y2 == 1 && m2 <= 7)
                 || (y1 == 0 && y2 == 7 && m2 >= 4)
             {
@@ -190,20 +204,23 @@ pub fn date_old(date: [u8; 4]) -> Result<(u8, u8), IdentifierError> {
     }
 }
 
-fn version(version: &[u8]) -> Result<NonZero<u8>, IdentifierError> {
+const fn version(version: &[u8]) -> Result<NonZero<u8>, IdentifierError> {
     match version {
-        [d @ b'1'..=b'9'] => Ok(unsafe { NonZero::new_unchecked(d - b'0') }),
-        [d1 @ b'1'..=b'9', d2 @ b'0'..=b'9'] => {
-            Ok(unsafe { NonZero::new_unchecked(10 * (d1 - b'0') + d2 - b'0') })
-        }
+        [d @ b'1'..=b'9'] => Ok(unsafe { NonZero::new_unchecked(d.saturating_sub(b'0')) }),
+        [d1 @ b'1'..=b'9', d2 @ b'0'..=b'9'] => Ok(unsafe {
+            NonZero::new_unchecked(10 * d1.saturating_sub(b'0') + d2.saturating_sub(b'0'))
+        }),
         [d1 @ b'1'..=b'9', d2 @ b'0'..=b'9', d3 @ b'0'..=b'9'] => {
-            let overflow: u16 =
-                100 * u16::from(d1 - b'0') + 10 * u16::from(d2 - b'0') + u16::from(d3 - b'0');
-            u8::try_from(overflow)
+            let overflow: u16 = 100 * (d1.saturating_sub(b'0') as u16)
+                + 10 * (d2.saturating_sub(b'0') as u16)
+                + (d3.saturating_sub(b'0') as u16);
+            if overflow > 255 {
+                Err(IdentifierError::InvalidVersion)
+            } else {
                 // SAFETY: overflow is non-zero since d1 is non-zero, so if it fits into the u8, it
                 // is still non-zero
-                .map(|lt| unsafe { NonZero::new_unchecked(lt) })
-                .map_err(|_| IdentifierError::InvalidVersion)
+                unsafe { Ok(NonZero::new_unchecked(overflow as u8)) }
+            }
         }
         _ => Err(IdentifierError::InvalidVersion),
     }

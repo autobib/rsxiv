@@ -1,6 +1,54 @@
 use super::*;
 
 #[test]
+fn test_date_number() {
+    assert_eq!(
+        date_number(b"0412987"),
+        Ok(DateNumber {
+            years_since_epoch: 13,
+            month: 12,
+            number: NonZero::new(987).unwrap(),
+            version: NonZero::new(0),
+        })
+    );
+
+    assert_eq!(
+        date_number(b"0001001v1"),
+        Ok(DateNumber {
+            years_since_epoch: 9,
+            month: 1,
+            number: NonZero::new(1).unwrap(),
+            version: NonZero::new(1),
+        })
+    );
+
+    assert!(date_number(b"0001001v").is_err());
+    assert!(date_number(b"000101").is_err());
+    assert!(date_number(b"9001101").is_err());
+    assert!(date_number(b"9100101").is_err());
+}
+
+#[test]
+fn test_version() {
+    assert_eq!(version(b"123"), Ok(NonZero::new(123).unwrap()));
+    assert_eq!(version(b"255"), Ok(NonZero::new(255).unwrap()));
+    assert_eq!(version(b"1"), Ok(NonZero::new(1).unwrap()));
+
+    assert_eq!(version(b""), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"0"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"01"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"a"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"/"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b" "), Err(IdentifierError::InvalidVersion));
+
+    // we only permit version <= 255
+    assert_eq!(version(b"256"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"257"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"2550"), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b"999"), Err(IdentifierError::InvalidVersion));
+}
+
+#[test]
 fn test_date_old() {
     assert_eq!(date_old([b'0', b'7', b'0', b'3']), Ok((16, 3)));
     assert_eq!(date_old([b'0', b'4', b'1', b'0']), Ok((13, 10)));
