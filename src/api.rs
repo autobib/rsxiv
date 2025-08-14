@@ -1,12 +1,15 @@
 #[cfg(test)]
 mod tests;
 
-pub mod search;
+mod search;
 
-use std::fmt::{Display, Write as _};
+pub use search::{BooleanOp, Field, FieldGroup, Search};
+
+use std::fmt::Write as _;
 
 use url::Url;
 
+use self::search::SearchQuery;
 use crate::id::Identifier;
 
 /// The ordering by which to sort the query results.
@@ -31,6 +34,47 @@ pub enum SortOrder {
     Descending,
 }
 
+pub struct IdList<'q> {
+    buffer: &'q mut String,
+}
+
+impl<'q> IdList<'q> {
+    /// Add a single identifier to the list.
+    pub fn push<I: Identifier>(&mut self, id: I) -> &mut Self {
+        if !self.buffer.is_empty() {
+            let _ = write!(self.buffer, ",");
+        }
+        let _ = write!(self.buffer, "{id}");
+        self
+    }
+
+    /// Add identifiers to the list from an iterator.
+    pub fn extend<I: Identifier, T: IntoIterator<Item = I>>(&mut self, ids: T) -> &mut Self {
+        let mut id_iter = ids.into_iter();
+
+        // if the id list is empty, write the first identifier without a comma
+        if self.buffer.is_empty() {
+            match id_iter.next() {
+                Some(first) => {
+                    let _ = write!(self.buffer, "{first}");
+                }
+                None => return self,
+            }
+        }
+
+        for id in id_iter {
+            let _ = write!(self.buffer, ",{id}");
+        }
+
+        self
+    }
+}
+
+/// A validated arXiv API query.
+///
+/// A [`Query`] is a representation of an [arXiv API query][api].
+///
+/// [api]: https://info.arxiv.org/help/api/user-manual.html#51-details-of-query-construction
 #[derive(Debug, Default, Clone)]
 pub struct Query {
     search_query: String,
@@ -47,11 +91,6 @@ impl Query {
         Self::default()
     }
 
-    /// The default base url for the arXiv API query.
-    const fn base_url() -> &'static str {
-        "https://export.arxiv.org/api/query"
-    }
-
     /// Returns if the query is empty; that is, if there is no `search_query` and no `id_list`
     /// present.
     #[must_use]
@@ -62,7 +101,7 @@ impl Query {
     /// Convert the [`Query`] into a [`Url`] to which the arXiv API request can be made.
     #[must_use]
     pub fn url(&self) -> Url {
-        let mut url = Url::parse(Self::base_url()).unwrap();
+        let mut url = Url::parse("https://export.arxiv.org/api/query").unwrap();
 
         // set scheme
         if self.http {
@@ -125,33 +164,18 @@ impl Query {
         self
     }
 
-    pub fn clear_search_query(&mut self) {
-        self.search_query.clear();
+    /// Obtain a handle to set a search query.
+    pub fn search_query<'q>(&'q mut self) -> SearchQuery<'q> {
+        SearchQuery {
+            buffer: &mut self.search_query,
+        }
     }
 
-    /// Set a search query, replacing the existing query (if any).
-    pub fn set_search_query<D: Display>(&mut self, query: D) -> &mut Self {
-        self.search_query.clear();
-        let _ = write!(self.search_query, "{query}");
-        self
-    }
-
-    /// Set an identifier list, replacing the existing list (if any).
-    pub fn set_id_list<I: Identifier, T: IntoIterator<Item = I>>(&mut self, ids: T) -> &mut Self {
-        self.id_list.clear();
-        let mut id_iter = ids.into_iter();
-        match id_iter.next() {
-            Some(first) => {
-                let _ = write!(self.id_list, "{first}");
-            }
-            None => return self,
+    /// Obtain a handle to set an identifier list.
+    pub fn id_list<'q>(&'q mut self) -> IdList<'q> {
+        IdList {
+            buffer: &mut self.id_list,
         }
-
-        for id in id_iter {
-            let _ = write!(self.id_list, ",{id}");
-        }
-
-        self
     }
 
     /// Limit the number of results, with pagination starting from `start` and containing
@@ -169,7 +193,7 @@ impl Query {
     }
 
     /// Sort the API response using a given ordering function and in ascending or descending order.
-    pub fn sorted(&mut self, by: SortBy, order: SortOrder) -> &mut Self {
+    pub fn sort(&mut self, by: SortBy, order: SortOrder) -> &mut Self {
         self.sort = Some((by, order));
         self
     }

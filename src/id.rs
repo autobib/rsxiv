@@ -66,7 +66,7 @@ impl ArticleId {
 
     pub const fn parse_bytes(id: &[u8]) -> Result<Self, IdentifierError> {
         match id.first() {
-            Some(b'1'..=b'9') => match NewId::parse_bytes(id) {
+            Some(b'0'..=b'9') => match NewId::parse_bytes(id) {
                 Ok(n) => Ok(ArticleId::New(n)),
                 Err(e) => Err(e),
             },
