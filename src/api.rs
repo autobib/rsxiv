@@ -9,46 +9,6 @@ use url::Url;
 
 use crate::id::Identifier;
 
-// /// A list of arxiv identifiers, such as an [`id::ArticleID`](crate::id::ArticleID),
-// /// [`id::OldID`](crate::id::OldID), or a [`id::NewID`](crate::id::NewID).
-// #[derive(Debug, Clone, Default)]
-// pub struct IdList {
-//     ids: Vec<ArticleID>,
-// }
-
-// impl IdList {
-//     /// Construct a new identifier list containing no identifiers.
-//     pub const fn new() -> Self {
-//         Self { ids: Vec::new() }
-//     }
-
-//     /// Append a new identifier to the list.
-//     pub fn push(&mut self, id: ArticleID) {
-//         self.ids.push(id);
-//     }
-
-//     /// Returns the number of identifiers in the list.
-//     pub fn len(&mut self) -> usize {
-//         self.ids.len()
-//     }
-
-//     /// Returns whether there are any identifiers in the list.
-//     pub fn is_empty(&mut self) -> bool {
-//         self.ids.is_empty()
-//     }
-
-//     /// Returns whether there are any identifiers in the list.
-//     pub fn clear(&mut self) {
-//         self.ids.clear()
-//     }
-// }
-
-// impl Extend<ArticleID> for IdList {
-//     fn extend<T: IntoIterator<Item = ArticleID>>(&mut self, iter: T) {
-//         self.ids.extend(iter);
-//     }
-// }
-
 /// The ordering by which to sort the query results.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum SortBy {

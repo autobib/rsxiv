@@ -8,8 +8,8 @@ mod parse;
 mod tests;
 
 pub use self::{
-    new::NewID,
-    old::{Archive, OldID},
+    new::NewId,
+    old::{Archive, OldId},
 };
 
 pub trait Identifier: Display + FromStr<Err = IdentifierError> + Sized {
@@ -44,20 +44,20 @@ pub enum IdentifierError {
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub enum ArticleID {
-    Old(OldID),
-    New(NewID),
+pub enum ArticleId {
+    Old(OldId),
+    New(NewId),
 }
 
-impl ArticleID {
+impl ArticleId {
     #[must_use]
     pub const fn is_old_style(&self) -> bool {
-        matches!(self, ArticleID::Old(_))
+        matches!(self, ArticleId::Old(_))
     }
 
     #[must_use]
     pub const fn is_new_style(&self) -> bool {
-        matches!(self, ArticleID::New(_))
+        matches!(self, ArticleId::New(_))
     }
 
     pub const fn parse(id: &str) -> Result<Self, IdentifierError> {
@@ -66,58 +66,58 @@ impl ArticleID {
 
     pub const fn parse_bytes(id: &[u8]) -> Result<Self, IdentifierError> {
         match id.first() {
-            Some(b'1'..=b'9') => match NewID::parse_bytes(id) {
-                Ok(n) => Ok(ArticleID::New(n)),
+            Some(b'1'..=b'9') => match NewId::parse_bytes(id) {
+                Ok(n) => Ok(ArticleId::New(n)),
                 Err(e) => Err(e),
             },
-            _ => match OldID::parse_bytes(id) {
-                Ok(n) => Ok(ArticleID::Old(n)),
+            _ => match OldId::parse_bytes(id) {
+                Ok(n) => Ok(ArticleId::Old(n)),
                 Err(e) => Err(e),
             },
         }
     }
 }
 
-impl Identifier for ArticleID {
+impl Identifier for ArticleId {
     type Archive = Option<Archive>;
 
     fn archive(&self) -> Option<Archive> {
         match self {
-            ArticleID::Old(old_id) => Some(old_id.archive()),
-            ArticleID::New(_) => None,
+            ArticleId::Old(old_id) => Some(old_id.archive()),
+            ArticleId::New(_) => None,
         }
     }
 
     fn year(&self) -> u16 {
         match self {
-            ArticleID::Old(old_id) => old_id.year(),
-            ArticleID::New(new_id) => new_id.year(),
+            ArticleId::Old(old_id) => old_id.year(),
+            ArticleId::New(new_id) => new_id.year(),
         }
     }
 
     fn month(&self) -> u8 {
         match self {
-            ArticleID::Old(old_id) => old_id.month(),
-            ArticleID::New(new_id) => new_id.month(),
+            ArticleId::Old(old_id) => old_id.month(),
+            ArticleId::New(new_id) => new_id.month(),
         }
     }
 
     fn number(&self) -> NonZero<u32> {
         match self {
-            ArticleID::Old(old_id) => old_id.number(),
-            ArticleID::New(new_id) => new_id.number(),
+            ArticleId::Old(old_id) => old_id.number(),
+            ArticleId::New(new_id) => new_id.number(),
         }
     }
 
     fn version(&self) -> Option<NonZero<u8>> {
         match self {
-            ArticleID::Old(old_id) => old_id.version(),
-            ArticleID::New(new_id) => new_id.version(),
+            ArticleId::Old(old_id) => old_id.version(),
+            ArticleId::New(new_id) => new_id.version(),
         }
     }
 }
 
-impl FromStr for ArticleID {
+impl FromStr for ArticleId {
     type Err = IdentifierError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -125,11 +125,11 @@ impl FromStr for ArticleID {
     }
 }
 
-impl Display for ArticleID {
+impl Display for ArticleId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ArticleID::Old(old_id) => old_id.fmt(f),
-            ArticleID::New(new_id) => new_id.fmt(f),
+            ArticleId::Old(old_id) => old_id.fmt(f),
+            ArticleId::New(new_id) => new_id.fmt(f),
         }
     }
 }

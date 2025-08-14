@@ -4,7 +4,7 @@ use super::*;
 fn test_new_id() {
     fn assert_ok(id: &str, year: u16, month: u8, number: u32, version: Option<NonZero<u8>>) {
         // check the fields
-        let new_id = NewID::from_str(id).unwrap();
+        let new_id = NewId::from_str(id).unwrap();
         assert_eq!(new_id.year(), year);
         assert_eq!(new_id.month(), month);
         assert_eq!(new_id.number().get(), number);
@@ -16,12 +16,12 @@ fn test_new_id() {
         // check that it is equal to constructing from parameters
         assert_eq!(
             Ok(new_id),
-            NewID::new(year, month, NonZero::new(number).unwrap(), version)
+            NewId::new(year, month, NonZero::new(number).unwrap(), version)
         );
 
-        // check the ArticleID variants as well
-        let art_id = ArticleID::from_str(id).unwrap();
-        assert_eq!(ArticleID::New(new_id), art_id);
+        // check the ArticleId variants as well
+        let art_id = ArticleId::from_str(id).unwrap();
+        assert_eq!(ArticleId::New(new_id), art_id);
         assert_eq!(id, art_id.to_string());
     }
     assert_ok("1304.0567", 2013, 4, 567, None);
@@ -32,18 +32,18 @@ fn test_new_id() {
     assert_ok("0703.99999v255", 2107, 3, 99999, NonZero::new(255));
     assert_ok("0001.00001", 2100, 1, 1, None);
 
-    assert!(NewID::from_str("").is_err());
-    assert!(NewID::from_str("13").is_err());
-    assert!(NewID::from_str("0703.9999").is_err());
-    assert!(NewID::from_str("0703.99999v").is_err());
-    assert!(NewID::from_str("0703.99999v0").is_err());
-    assert!(NewID::from_str("0704.99999").is_err());
+    assert!(NewId::from_str("").is_err());
+    assert!(NewId::from_str("13").is_err());
+    assert!(NewId::from_str("0703.9999").is_err());
+    assert!(NewId::from_str("0703.99999v").is_err());
+    assert!(NewId::from_str("0703.99999v0").is_err());
+    assert!(NewId::from_str("0704.99999").is_err());
 }
 
 #[test]
 fn test_old_id() {
     fn assert_fields(
-        id: OldID,
+        id: OldId,
         archive: Archive,
         year: u16,
         month: u8,
@@ -66,7 +66,7 @@ fn test_old_id() {
         number: u16,
         version: Option<NonZero<u8>>,
     ) {
-        let old_id = OldID::from_str(id).unwrap();
+        let old_id = OldId::from_str(id).unwrap();
 
         assert_fields(old_id, archive, year, month, number, version);
 
@@ -76,7 +76,7 @@ fn test_old_id() {
         // check that it is equal to constructing from parameters
         assert_eq!(
             Ok(old_id),
-            OldID::new(archive, year, month, NonZero::new(number).unwrap(), version)
+            OldId::new(archive, year, month, NonZero::new(number).unwrap(), version)
         );
     }
 
@@ -118,27 +118,27 @@ fn test_old_id() {
         NonZero::new(1),
     );
 
-    assert!(OldID::from_str("nlin.Z/0101010v1").is_err());
-    assert!(OldID::from_str("nlin.zz/0101010v1").is_err());
-    assert!(OldID::from_str("nlin./0101010v1").is_err());
-    assert!(OldID::from_str("./0101010v1").is_err());
-    assert!(OldID::from_str("a./0101010v1").is_err());
-    assert!(OldID::from_str("a/0101010v1").is_err());
-    assert!(OldID::from_str("a\\0101010v1").is_err());
-    assert!(OldID::from_str("a.0101010v1").is_err());
-    assert!(OldID::from_str("0101010v1").is_err());
+    assert!(OldId::from_str("nlin.Z/0101010v1").is_err());
+    assert!(OldId::from_str("nlin.zz/0101010v1").is_err());
+    assert!(OldId::from_str("nlin./0101010v1").is_err());
+    assert!(OldId::from_str("./0101010v1").is_err());
+    assert!(OldId::from_str("a./0101010v1").is_err());
+    assert!(OldId::from_str("a/0101010v1").is_err());
+    assert!(OldId::from_str("a\\0101010v1").is_err());
+    assert!(OldId::from_str("a.0101010v1").is_err());
+    assert!(OldId::from_str("0101010v1").is_err());
 
-    assert!(OldID::from_str("").is_err());
-    assert!(OldID::from_str("nlin.ZZ/0101010v0").is_err());
-    assert!(OldID::from_str("bad/0101010v0").is_err());
+    assert!(OldId::from_str("").is_err());
+    assert!(OldId::from_str("nlin.ZZ/0101010v0").is_err());
+    assert!(OldId::from_str("bad/0101010v0").is_err());
 
-    assert!(OldID::from_str("hep-lat.ZZ/9108001").is_ok());
-    assert!(OldID::from_str("hep-lat.ZZ/9107001").is_err());
-    assert!(OldID::from_str("hep-lat/9107001").is_err());
-    assert!(OldID::from_str("hep-lat.ZZ/910801").is_err());
-    assert!(OldID::from_str("hep-lat.ZZ/9108000").is_err());
-    assert!(OldID::from_str("hep-lat/910801").is_err());
-    assert!(OldID::from_str("hep-lat/9108000").is_err());
+    assert!(OldId::from_str("hep-lat.ZZ/9108001").is_ok());
+    assert!(OldId::from_str("hep-lat.ZZ/9107001").is_err());
+    assert!(OldId::from_str("hep-lat/9107001").is_err());
+    assert!(OldId::from_str("hep-lat.ZZ/910801").is_err());
+    assert!(OldId::from_str("hep-lat.ZZ/9108000").is_err());
+    assert!(OldId::from_str("hep-lat/910801").is_err());
+    assert!(OldId::from_str("hep-lat/9108000").is_err());
 }
 
 #[test]

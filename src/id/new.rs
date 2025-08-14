@@ -13,7 +13,7 @@ use super::{
 /// use the [`Identifier`] implementation.
 /// ```
 /// use std::num::NonZero;
-/// use rsxiv::id::{Identifier, NewID};
+/// use rsxiv::id::{Identifier, NewId};
 ///
 /// // new-style identifier after 2014, with 5-digit number and version
 /// let new_id = NewId::parse("1903.00015v2").unwrap();
@@ -25,15 +25,15 @@ use super::{
 /// ```
 /// The identifier need not correspond to an actual record.
 /// ```
-/// # use rsxiv::id::NewID;
-/// assert!(NewID::parse("0901.9999").is_ok());
+/// # use rsxiv::id::NewId;
+/// assert!(NewId::parse("0901.9999").is_ok());
 /// ```
 /// Construct an identifier from the raw parts.
 /// ```
-/// # use rsxiv::id::{Identifier, NewID};
+/// # use rsxiv::id::{Identifier, NewId};
 /// use std::num::NonZero;
 ///
-/// let new_id = NewID::new(2015, 12, NonZero::new(152).unwrap(), NonZero::new(5)).unwrap();
+/// let new_id = NewId::new(2015, 12, NonZero::new(152).unwrap(), NonZero::new(5)).unwrap();
 ///
 /// assert_eq!(new_id.year(), 2015);
 /// assert_eq!(new_id.month(), 12);
@@ -44,30 +44,30 @@ use super::{
 /// ```
 /// # use std::str::FromStr;
 /// # use std::num::NonZero;
-/// # use rsxiv::id::NewID;
+/// # use rsxiv::id::NewId;
 /// use rsxiv::id::IdentifierError;
 ///
 /// // new identifiers have dates after 2007/04
-/// assert_eq!(NewID::new(2001, 01, NonZero::new(1).unwrap(), None), Err(IdentifierError::DateOutOfRange));
+/// assert_eq!(NewId::new(2001, 01, NonZero::new(1).unwrap(), None), Err(IdentifierError::DateOutOfRange));
 ///
 /// // identifiers for years before 2014 only have 4 digits
-/// assert_eq!(NewID::from_str("0902.12345"), Err(IdentifierError::NumberOutOfRange));
+/// assert_eq!(NewId::from_str("0902.12345"), Err(IdentifierError::NumberOutOfRange));
 /// ```
 ///
 /// [arxiv]: https://info.arxiv.org/help/arxiv_identifier.html
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub struct NewID {
+pub struct NewId {
     years_since_epoch: u8, // this is the number of years after the earliest possible year, i.e. 1991
     month: u8,
     number: NonZero<u32>,
     version: Option<NonZero<u8>>,
 }
 
-impl NewID {
+impl NewId {
     /// Return if the new identifier is 'short-style': that is, the number is at most `9999` and is
     /// padded to 4 digits. This is the case for new-style identifiers from 2014 or earlier.
     #[must_use]
-    pub fn is_short(&self) -> bool {
+    pub const fn is_short(&self) -> bool {
         // 23 = 2014 - 1991; see https://info.arxiv.org/help/arxiv_identifier.html
         self.years_since_epoch <= 23
     }
@@ -117,7 +117,7 @@ impl NewID {
                 } else {
                     tri!(parse::number_and_version_len_5(number))
                 };
-                Ok(NewID {
+                Ok(NewId {
                     years_since_epoch,
                     month,
                     number,
@@ -129,7 +129,7 @@ impl NewID {
     }
 }
 
-impl Identifier for NewID {
+impl Identifier for NewId {
     /// A new-style identifier does not contain an archive.
     type Archive = ();
 
@@ -164,7 +164,7 @@ impl Identifier for NewID {
     }
 }
 
-impl FromStr for NewID {
+impl FromStr for NewId {
     type Err = IdentifierError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -172,7 +172,7 @@ impl FromStr for NewID {
     }
 }
 
-impl fmt::Display for NewID {
+impl fmt::Display for NewId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,

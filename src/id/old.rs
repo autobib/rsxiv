@@ -16,7 +16,7 @@ pub use archive::Archive;
 /// [arxiv]: https://info.arxiv.org/help/arxiv_identifier.html
 /// [preferred]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub struct OldID {
+pub struct OldId {
     archive: Archive,
     years_since_epoch: u8, // this is the number of years after the earliest possible year, i.e. 1991
     month: u8,
@@ -24,7 +24,7 @@ pub struct OldID {
     version: Option<NonZero<u8>>,
 }
 
-impl OldID {
+impl OldId {
     /// Construct an old-style identifier from its constitutent parts.
     ///
     /// See the [module-level documentation](crate::id) for syntax.
@@ -99,7 +99,7 @@ impl OldID {
     }
 }
 
-impl Identifier for OldID {
+impl Identifier for OldId {
     type Archive = Archive;
 
     fn archive(&self) -> Self::Archive {
@@ -131,15 +131,19 @@ impl Identifier for OldID {
     }
 }
 
-impl FromStr for OldID {
+impl FromStr for OldId {
     type Err = IdentifierError;
 
+    /// Parse an old-style identifier from a string slice.
+    ///
+    /// This is identical to the [`OldId::parse`] method, but implemented using [`FromStr`] for
+    /// convenience. Since [`OldId::parse`] is a `const fn`, it is a better method for construction of one-of identifiers since identifier errors will be identified at compile-time.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::parse(s)
     }
 }
 
-impl fmt::Display for OldID {
+impl fmt::Display for OldId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.archive.to_id())?;
         f.write_str("/")?;
