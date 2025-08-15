@@ -10,7 +10,7 @@ use std::fmt::Write as _;
 use url::Url;
 
 use self::search::SearchQuery;
-use crate::id::Identifier;
+use crate::id::ArticleId;
 
 /// The ordering by which to sort the query results.
 #[derive(Debug, Clone, Copy, Default)]
@@ -40,7 +40,7 @@ pub struct IdList<'q> {
 
 impl<'q> IdList<'q> {
     /// Add a single identifier to the list.
-    pub fn push<I: Identifier>(&mut self, id: I) -> &mut Self {
+    pub fn push(&mut self, id: ArticleId) -> &mut Self {
         if !self.buffer.is_empty() {
             let _ = write!(self.buffer, ",");
         }
@@ -49,7 +49,7 @@ impl<'q> IdList<'q> {
     }
 
     /// Add identifiers to the list from an iterator.
-    pub fn extend<I: Identifier, T: IntoIterator<Item = I>>(&mut self, ids: T) -> &mut Self {
+    pub fn extend<T: IntoIterator<Item = ArticleId>>(&mut self, ids: T) -> &mut Self {
         let mut id_iter = ids.into_iter();
 
         // if the id list is empty, write the first identifier without a comma
@@ -91,14 +91,13 @@ impl Query {
         Self::default()
     }
 
-    /// Returns if the query is empty; that is, if there is no `search_query` and no `id_list`
-    /// present.
+    /// Returns if the query corresponds to no results; namely, that the `search_query` and `id_list` are not present.
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.search_query.is_empty() && self.id_list.is_empty()
     }
 
-    /// Convert the [`Query`] into a [`Url`] to which the arXiv API request can be made.
+    /// Returns a [`Url`] representing the arXiv API request.
     #[must_use]
     pub fn url(&self) -> Url {
         let mut url = Url::parse("https://export.arxiv.org/api/query").unwrap();
@@ -164,7 +163,7 @@ impl Query {
         self
     }
 
-    /// Obtain a handle to set a search query.
+    /// Obtain a handle to set the search query.
     pub fn search_query<'q>(&'q mut self) -> SearchQuery<'q> {
         SearchQuery {
             buffer: &mut self.search_query,
@@ -192,7 +191,7 @@ impl Query {
         }
     }
 
-    /// Sort the API response using a given ordering function and in ascending or descending order.
+    /// Sort the API response using the ordering function, in ascending or descending order.
     pub fn sort(&mut self, by: SortBy, order: SortOrder) -> &mut Self {
         self.sort = Some((by, order));
         self

@@ -8,7 +8,7 @@ fn test_date_number() {
             years_since_epoch: 13,
             month: 12,
             number: NonZero::new(987).unwrap(),
-            version: NonZero::new(0),
+            version: 0,
         })
     );
 
@@ -18,7 +18,7 @@ fn test_date_number() {
             years_since_epoch: 9,
             month: 1,
             number: NonZero::new(1).unwrap(),
-            version: NonZero::new(1),
+            version: 1,
         })
     );
 
@@ -30,22 +30,22 @@ fn test_date_number() {
 
 #[test]
 fn test_version() {
-    assert_eq!(version(b"123"), Ok(NonZero::new(123).unwrap()));
-    assert_eq!(version(b"255"), Ok(NonZero::new(255).unwrap()));
-    assert_eq!(version(b"1"), Ok(NonZero::new(1).unwrap()));
+    assert_eq!(version(b"123"), Ok(123));
+    assert_eq!(version(b"65535"), Ok(65535));
+    assert_eq!(version(b"1"), Ok(1));
 
-    assert_eq!(version(b""), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"0"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"01"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"a"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"/"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b" "), Err(IdentifierError::InvalidVersion));
+    assert_eq!(version(b""), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"0"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"01"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"a"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"/"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b" "), Err(IdError::InvalidVersion));
 
-    // we only permit version <= 255
-    assert_eq!(version(b"256"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"257"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"2550"), Err(IdentifierError::InvalidVersion));
-    assert_eq!(version(b"999"), Err(IdentifierError::InvalidVersion));
+    // we only permit version <= 65535
+    assert_eq!(version(b"65536"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"65537"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"214003"), Err(IdError::InvalidVersion));
+    assert_eq!(version(b"111111"), Err(IdError::InvalidVersion));
 }
 
 #[test]
@@ -57,11 +57,11 @@ fn test_date_old() {
 
     assert_eq!(
         date_old([b'0', b'7', b'0', b'4']),
-        Err(IdentifierError::DateOutOfRange)
+        Err(IdError::DateOutOfRange)
     );
     assert_eq!(
         date_old([b'9', b'1', b'0', b'7']),
-        Err(IdentifierError::DateOutOfRange)
+        Err(IdError::DateOutOfRange)
     );
     assert!(date_old([b'0', b'4', b'0', b'0']).is_err());
     assert!(date_old([b'6', b'9', b'0', b'1']).is_err());
@@ -122,53 +122,44 @@ fn test_date_new() {
 
 #[test]
 fn test_number_and_version_ok() {
-    fn assert_nv_ok(len: u8, input: &[u8], number: u32, version: Option<u8>) {
+    fn assert_nv_ok(len: u8, input: &[u8], number: u32, version: u16) {
         match len {
             3 => {
                 assert_eq!(
                     number_and_version_len_3(input),
-                    Ok((
-                        NonZero::new(number as u16).unwrap(),
-                        version.map(|v| NonZero::new(v).unwrap())
-                    ))
+                    Ok((NonZero::new(number).unwrap(), version))
                 );
             }
             4 => {
                 assert_eq!(
                     number_and_version_len_4(input),
-                    Ok((
-                        NonZero::new(number).unwrap(),
-                        version.map(|v| NonZero::new(v).unwrap())
-                    ))
+                    Ok((NonZero::new(number).unwrap(), version))
                 );
             }
             5 => {
                 assert_eq!(
                     number_and_version_len_5(input),
-                    Ok((
-                        NonZero::new(number).unwrap(),
-                        version.map(|v| NonZero::new(v).unwrap())
-                    ))
+                    Ok((NonZero::new(number).unwrap(), version))
                 );
             }
             _ => panic!("Test called with invalid version len"),
         }
     }
-    assert_nv_ok(3, b"001", 1, None);
-    assert_nv_ok(3, b"999", 999, None);
-    assert_nv_ok(3, b"999v1", 999, Some(1));
-    assert_nv_ok(3, b"123v92", 123, Some(92));
+    assert_nv_ok(3, b"001", 1, 0);
+    assert_nv_ok(3, b"999", 999, 0);
+    assert_nv_ok(3, b"999v1", 999, 1);
+    assert_nv_ok(3, b"123v92", 123, 92);
 
-    assert_nv_ok(4, b"0001", 1, None);
-    assert_nv_ok(4, b"9999", 9999, None);
-    assert_nv_ok(4, b"9999v1", 9999, Some(1));
-    assert_nv_ok(4, b"0123v92", 123, Some(92));
+    assert_nv_ok(4, b"0001", 1, 0);
+    assert_nv_ok(4, b"9999", 9999, 0);
+    assert_nv_ok(4, b"9999v1", 9999, 1);
+    assert_nv_ok(4, b"0123v92", 123, 92);
 
-    assert_nv_ok(5, b"00001", 1, None);
-    assert_nv_ok(5, b"99999", 99999, None);
-    assert_nv_ok(5, b"99999v1", 99999, Some(1));
-    assert_nv_ok(5, b"01234v92", 1234, Some(92));
-    assert_nv_ok(5, b"02030v8", 2030, Some(8));
+    assert_nv_ok(5, b"00001", 1, 0);
+    assert_nv_ok(5, b"99999", 99999, 0);
+    assert_nv_ok(5, b"99999v1", 99999, 1);
+    assert_nv_ok(5, b"01234v92", 1234, 92);
+    assert_nv_ok(5, b"02030v8", 2030, 8);
 }
 
 #[test]

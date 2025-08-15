@@ -1,74 +1,95 @@
-/// The possible archives present in an old-style arxiv identifier
+/// The possible archives present in an old-style arxiv identifier.
+///
+/// ## String representation
+/// The string representation of an [`Archive`] variant is the variant name in kebab-case.
+/// ```
+/// use rsxiv::id::Archive;
+///
+/// ```
+///
+/// ## Niche
+/// The layout is chosen so that the non-presence of an [`Archive`] can be represented by `0`. This
+/// is generally the case `Option<Archive>`, but this cannot be safely depended on. In the
+/// serialized format of the [`Archive`] (in the [in-memory
+/// representation](crate::id#in-memory-representation)), `0` is used to denote that the archive is
+/// not set.
+// SAFETY: Do not change the layout of this enum.
+//
+// 1. The 0 discriminant is free to help the compiler optimize around Option<Archive>.
+// 2. The discriminants must be continguous, starting at 1 and in increasing order (to ensure
+//    correct ordering).
+// 3. The maximum discriminant must be `Archive::SuprCon`.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[repr(u8)]
 pub enum Archive {
     /// Accelerator Physics
-    AccPhys,
+    AccPhys = 1,
     /// Adaptation and Self-Organizing Systems
-    AdapOrg,
+    AdapOrg = 2,
     /// Algebraic Geometry
-    AlgGeom,
+    AlgGeom = 3,
     /// Atmospheric and Oceanic Physics
-    AoSci,
+    AoSci = 4,
     /// Astrophysics
-    AstroPh,
+    AstroPh = 5,
     /// Atomic Physics
-    AtomPh,
+    AtomPh = 6,
     /// Bayesian Analysis
-    BayesAn,
+    BayesAn = 7,
     /// Chaotic Dynamics
-    ChaoDyn,
+    ChaoDyn = 8,
     /// Chemical Physics
-    ChemPh,
+    ChemPh = 9,
     /// Computation and Language
-    CmpLg,
+    CmpLg = 10,
     /// Cellular Automata and Lattice Gases
-    CompGas,
+    CompGas = 11,
     /// Condensed Matter
-    CondMat,
+    CondMat = 12,
     /// Computer Science
-    Cs,
+    Cs = 13,
     /// Differential Geometry
-    DgGa,
+    DgGa = 14,
     /// Functional Analysis
-    FunctAn,
+    FunctAn = 15,
     /// General Relativity and Quantum Cosmology
-    GrQc,
+    GrQc = 16,
     /// High Energy Physics - Experiment
-    HepEx,
+    HepEx = 17,
     /// High Energy Physics - Lattice
-    HepLat,
+    HepLat = 18,
     /// High Energy Physics - Phenomenology
-    HepPh,
+    HepPh = 19,
     /// High Energy Physics - Theory
-    HepTh,
+    HepTh = 20,
     /// Mathematics,
-    Math,
+    Math = 21,
     /// Mathematical Physics
-    MathPh,
+    MathPh = 22,
     /// Materials Science
-    MtrlTh,
+    MtrlTh = 23,
     /// Nonlinear Sciences
-    Nlin,
+    Nlin = 24,
     /// Nuclear Experiment
-    NuclEx,
+    NuclEx = 25,
     /// Nuclear Theory
-    NuclTh,
+    NuclTh = 26,
     /// Pattern Formation and Solitons
-    PattSol,
+    PattSol = 27,
     /// Physics
-    Physics,
+    Physics = 28,
     /// Plasma Physics
-    PlasmPh,
+    PlasmPh = 29,
     /// Quantum Algebra
-    QAlg,
+    QAlg = 30,
     /// Quantitative Biology
-    QBio,
+    QBio = 31,
     /// Quantum Physics
-    QuantPh,
+    QuantPh = 32,
     /// Exactly Solvable and Integrable Systems
-    SolvInt,
+    SolvInt = 33,
     /// Superconductivity
-    SuprCon,
+    SuprCon = 34,
 }
 
 impl Archive {
@@ -154,7 +175,7 @@ impl Archive {
 
 /// Strip a valid archive prefix from a `&[u8]`, returning the matched archive and trailing character.
 ///
-/// This is implemented as a large match table so the compiler can optimize the lookup against the
+/// This is implemented as a match table so the compiler can optimize the lookup against the
 /// character sets. This also makes this method a `const fn`.
 #[inline]
 pub const fn strip_prefix(s: &[u8]) -> Option<(Archive, &[u8])> {
