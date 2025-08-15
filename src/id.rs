@@ -186,7 +186,7 @@
 //!
 //! [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
 //! [arxivscheme]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
-use std::{fmt::Display, mem::transmute, num::NonZero, str::FromStr};
+use std::{error::Error, fmt::Display, mem::transmute, num::NonZero, str::FromStr};
 
 mod archive;
 mod parse;
@@ -221,16 +221,55 @@ pub const fn is_valid(s: &str) -> bool {
     ArticleId::parse(s).is_ok()
 }
 
+/// The error when parsing an [`ArticleId`] from a string or parameter list.
+///
+/// # Examples
+/// ```
+/// use rsxiv::id::{Archive, ArticleId, IdError};
+/// use std::num::NonZero;
+///
+/// // new-style identifiers before 2014 only have 4 digits
+/// let id_err = ArticleId::new(
+///     2009,
+///     03,
+///     None,
+///     NonZero::new(12345).unwrap(),
+///     None,
+/// );
+///
+/// assert_eq!(id_err, Err(IdError::NumberOutOfRange));
+/// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum IdError {
+    /// The date is invalid for the given format.
     DateOutOfRange,
+    /// The number is invalid for the given format.
     NumberOutOfRange,
+    /// Failed to parse the date.
     InvalidDate,
+    /// Failed to parse the number.
     InvalidNumber,
+    /// Failed to parse the version.
     InvalidVersion,
+    /// Failed to parse the archive.
     InvalidArchive,
-    IncorrectSeparator,
 }
+
+impl Display for IdError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            IdError::DateOutOfRange => "Date invalid for the given format",
+            IdError::NumberOutOfRange => "Number invalid for the given format",
+            IdError::InvalidDate => "Failed to parse the date",
+            IdError::InvalidNumber => "Failed to parse the number",
+            IdError::InvalidVersion => "Failed to parse the version",
+            IdError::InvalidArchive => "Failed to parse the archive",
+        };
+        f.write_str(s)
+    }
+}
+
+impl Error for IdError {}
 
 /// A validated arXiv identifier.
 ///
