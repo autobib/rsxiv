@@ -181,6 +181,9 @@
 //! - `archive`: 2 highest bits (max value is `34`)
 //! - `number`: 7 highest bits (max value is `99999`)
 //!
+//! See [`SERIALIZED_BITMASK`] for a bitmask indicating precisely which bits are used in the
+//! serialized format.
+//!
 //! [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
 //! [arxivscheme]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
 use std::{fmt::Display, mem::transmute, num::NonZero, str::FromStr};
@@ -242,6 +245,7 @@ pub enum IdError {
 ///
 /// [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct ArticleId {
     // Layout safety:
     // - The number(u24) bytes *must* be non-zero.
