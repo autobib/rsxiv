@@ -3,108 +3,24 @@
 //! This module implements a typed representation of [arXiv identifiers][arxivid]; that is, the
 //! (alpha)numerical string such as `1501.00001`, `0706.0001`, or `math/0309136`.
 //!
-//! The primary entrypoint in this module is the [`ArticleId`] type, which represents a validated article identifier.
+//! There are two primary entrypoints in this module.
+//!
+//! 1. [`ArticleId`]: A portable validated identifier format with efficient data access.
+//!    Use this format if you want:
+//!    - the data stored within the identifier.
+//!    - a memory-efficient representation (fits inside a `u64`).
+//!    - serialization and deserialization, or otherwise plan to store and load
+//!      identifiers.
+//!    - `const fn` methods.
+//!    - identifier comparison with `PartialEq`, `Eq`, `Ord` implementations.
+//! 2. [`Validated`]: A wrapper around an [`AsRef<str>`] type which has been validated by
+//!    the identifier rules. Use this format if you:
+//!    - only care that the identifier is valid but not about its contents.
+//!    - mostly need to work with the string representation.
 //!
 //! This module *only validates the format*: an identifier may or may not correspond to an actual
-//! record in the arXiv database. A convenience [`is_valid`] function can be used to check if a
+//! record in the arXiv database. A convenience [`validate`] function can be used to check if a
 //! given string corresponds to a valid arXiv identifier.
-//!
-//! ## Using the [`ArticleId`]
-//! ### Parsing and displaying
-//! An [`ArticleId`] can be obtained from a raw string using the [`ArticleId::parse`] method. The
-//! string can be obtained again using its [`Display`] implementation. The [`ArticleId::parse`] method is
-//! equivalent to the [`FromStr`] implementation, with the added feature that [`ArticleId::parse`] is a
-//! `const fn`.
-//!
-//! For example,
-//! ```
-//! use rsxiv::id::ArticleId;
-//!
-//! let id_str = "math/0309136v2";
-//! let id = ArticleId::parse(id_str).unwrap();
-//! assert_eq!(id_str, id.to_string());
-//! ```
-//!
-//! ### Accessing fields.
-//! A variety of fields can be accessed using [`ArticleId`] methods.
-//! ```
-//! use rsxiv::id::{Archive, ArticleId};
-//!
-//! let id = ArticleId::parse("hep-th/0309013v1").unwrap();
-//! assert_eq!(id.year(), 2003);
-//! assert_eq!(id.month(), 9);
-//! assert_eq!(id.number().get(), 13);
-//! assert_eq!(id.version().unwrap().get(), 1);
-//! assert_eq!(id.archive(), Some(Archive::HepTh));
-//!
-//! // a new-style identifier does not contain an archive
-//! let id = ArticleId::parse("1204.0012").unwrap();
-//! assert!(id.archive().is_none());
-//! ```
-//!
-//! ### No subject class
-//! The subject class in old-style identifiers is not stored. ArXiv does not check
-//! validity of the subject class in their API, and the [official recommendation][arxivscheme] is to drop the subject class
-//! from old-style identifiers when present.
-//! ```
-//! # use rsxiv::id::ArticleId;
-//!
-//! // the identifier is automatically trimmed and the subject class is dropped
-//! let id = ArticleId::parse("math.PR/0002012").unwrap();
-//! assert_eq!(id.to_string(), "math/0002012");
-//!
-//! // the subject class need not be valid as long as it is in the format `.[A-Z][A-Z]`:
-//! assert_eq!(ArticleId::parse("math.ZZ/0002012"), Ok(id));
-//! ```
-//!
-//! ### Ordering
-//! The [`ArticleId`]s implement [`Ord`] and are sorted according in order of the following
-//! parameters:
-//! 1. Year
-//! 2. Month
-//! 3. Archive (if old-style ID)
-//! 4. Number
-//! 5. Version (no version, followed by `v1`, `v2`, etc.)
-//!
-//! This is different than the lexicographic order of the identifier (as a string), which sorts by Archive first (if present) before the other parameters and
-//! only takes into account the last two digits of the year.
-//! ```
-//! use rsxiv::id::ArticleId;
-//! // sorts by year before archive
-//! assert!(
-//!     ArticleId::parse("hep-th/0502001").unwrap() <= ArticleId::parse("astro-ph/0703999").unwrap()
-//! );
-//!
-//! // a new-style identifier date before 07/04 corresponds to a date in 2100:
-//! // `0903...` is 2009/03
-//! // `0407...` is 2104/07
-//! assert!(
-//!     ArticleId::parse("0903.0001").unwrap() <= ArticleId::parse("0407.00001").unwrap()
-//! );
-//! ```
-//!
-//! ### Maximum version
-//! In principle, the version could be any positive integer. In practice, the version is required
-//! to fit in a `u16`; that is, it can be at most `65535`. Since an arXiv version can only be
-//! incremented at most once per day, this gives about 179 years worth of version labels. Currently
-//! (August 15, 2025), the largest valid version of any article on arXiv is `0901.2093v152`.
-//!
-//! ### (De)serialization
-//! Serialization and deserialization can be done with the [`ArticleId::deserialize`] and [`ArticleId::serialize`] methods.
-//! ```
-//! use rsxiv::id::ArticleId;
-//!
-//! let id = ArticleId::parse("0903.0001").unwrap();
-//! let n = 1297881117612900352;
-//!
-//! assert_eq!(id.serialize(), n);
-//! assert_eq!(ArticleId::deserialize(n), Some(id));
-//! ```
-//! Internally, an [`ArticleId`] is actually a `u64`, so serialization is free and deserialization
-//! amounts to verifying that the `u64` corresponds to an actual identifier.
-//!
-//! The deserialization format is guaranteed to remain unchanged for major versions of this crate. See the [in-memory representation](#in-memory-representation) section for
-//! more detail.
 //!
 //! ## Detailed format description
 //! This is a reproduction of the [arXiv identifier documentation][arxivid], and gives a complete
@@ -150,43 +66,22 @@
 //! 7. The year must lie in the range `2014..=2107`.
 //! 8. If `year == 2107`, then `month <= 3`.
 //!
-//!
-//! ## In-memory representation
-//! Internally, an [`ArticleId`] is just a [`u64`]. The big-endian memory layout is as follows:
-//! ```txt
-//! years_since_epoch(u8) month(u8) archive(u8) number(u24) version(u16)
-//! ```
-//! The various parameters are defined as follows:
-//!
-//! - `years_since_epoch`: the value is the number of years since the arXiv epoch (`1991`, which is the constant [`ARXIV_EPOCH`]). For example,
-//!   `2` is equivalent to `1993`.
-//! - `month`: the month in the range `1..=12` starting with `Jan = 1`, etc.
-//! - `archive`: the `#[repr(u8)]` value of [`Archive`], with the special value `0` used
-//!   to indicate that the archive is not present (as is the case for new-style identifiers).
-//! - `number`: the article number, which fits in the range since `2^24 - 1 = 16_777_215` gives
-//!   sufficient space to store up to 7 digits.
-//! - `version`: the version, as a `u16`, with the value `0` indicating that the version is not
-//!   present.
-//!
-//! In particular, the ordering and equality checks for an [`ArticleId`] are equivalent to the ordering and
-//! equality checks of the underlying `u64`.
-//!
-//! ### Unused bits
-//! There are 14 bits which are always set to `0`. Note that the implementation *assumes* for
-//! correctness that these bits are set to `0`, and therefore cannot be used to pack additional
-//! information.
-//!
-//! - `years_since_epoch`: 1 highest bit (max value is `116`)
-//! - `month`: 4 highest bits (max value is `12`)
-//! - `archive`: 2 highest bits (max value is `34`)
-//! - `number`: 7 highest bits (max value is `99999`)
-//!
-//! See [`SERIALIZED_BITMASK`] for a bitmask indicating precisely which bits are used in the
-//! serialized format.
+//! ## Maximum version
+//! In principle, the version could be any positive integer. In practice, the version is required
+//! to fit in a `u16`; that is, it can be at most `65535`. Since an arXiv version can only be
+//! incremented at most once per day, this gives about 179 years worth of version labels. Currently
+//! (August 15, 2025), the largest valid version of any article on arXiv is `0901.2093v152`.
 //!
 //! [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
 //! [arxivscheme]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
-use std::{error::Error, fmt::Display, mem::transmute, num::NonZero, str::FromStr};
+use std::{
+    borrow::Cow,
+    error::Error,
+    fmt::{Debug, Display},
+    mem::transmute,
+    num::NonZero,
+    str::FromStr,
+};
 
 mod archive;
 mod parse;
@@ -212,16 +107,20 @@ pub enum Style {
 /// # Example
 /// Check if an identifier is valid.
 /// ```
-/// use rsxiv::id::is_valid;
+/// use rsxiv::id::validate;
 ///
-/// assert!(is_valid("math/0309136v2"));
-/// assert!(!is_valid("bad-archive/0309136v2"));
+/// assert!(validate("math/0309136v2").is_ok());
+/// assert!(validate("bad-archive/0309136v2").is_err());
 /// ```
-pub const fn is_valid(s: &str) -> bool {
-    ArticleId::parse(s).is_ok()
+#[inline]
+pub const fn validate(s: &str) -> Result<(), IdError> {
+    match ArticleId::parse(s) {
+        Ok(_) => Ok(()),
+        Err(err) => Err(err),
+    }
 }
 
-/// The error when parsing an [`ArticleId`] from a string or parameter list.
+/// An error which may result when parsing or validating an arXiv identifier.
 ///
 /// # Examples
 /// ```
@@ -271,9 +170,9 @@ impl Display for IdError {
 
 impl Error for IdError {}
 
-/// A validated arXiv identifier.
+/// A portable validated identifier format with efficient data access.
 ///
-/// This is a compact and performant representation of an [arXiv identifier][arxivid]. For more
+/// This is compact `u64` representation of an [arXiv identifier][arxivid]. For more
 /// details on the arXiv identifier format and other details, see the [module-level docs](crate::id).
 ///
 /// To construct a new identifier, use:
@@ -281,8 +180,132 @@ impl Error for IdError {}
 /// - [`ArticleId::parse`] to read from an identifier string, or
 /// - [`ArticleId::new`] to construct directly from parameters.
 ///
+/// ## Using the [`ArticleId`]
+/// ### Parsing and displaying
+/// An [`ArticleId`] can be obtained from a raw string using the [`ArticleId::parse`] method. The
+/// string can be obtained again using its [`Display`] implementation, with the caveat that the [subject class will be removed](#no-subject-class). The [`ArticleId::parse`] method is
+/// equivalent to the [`FromStr`] implementation, with the added feature that [`ArticleId::parse`] is a
+/// `const fn`.
+///
+/// For example,
+/// ```
+/// use rsxiv::id::ArticleId;
+///
+/// let id_str = "math/0309136v2";
+/// let id = ArticleId::parse(id_str).unwrap();
+/// assert_eq!(id_str, id.to_string());
+/// ```
+///
+/// ### Accessing fields.
+/// A variety of fields can be accessed using [`ArticleId`] methods.
+/// ```
+/// use rsxiv::id::{Archive, ArticleId};
+///
+/// let id = ArticleId::parse("hep-th/0309013v1").unwrap();
+/// assert_eq!(id.year(), 2003);
+/// assert_eq!(id.month(), 9);
+/// assert_eq!(id.number().get(), 13);
+/// assert_eq!(id.version().unwrap().get(), 1);
+/// assert_eq!(id.archive(), Some(Archive::HepTh));
+///
+/// // a new-style identifier does not contain an archive
+/// let id = ArticleId::parse("1204.0012").unwrap();
+/// assert!(id.archive().is_none());
+/// ```
+///
+/// ### No subject class
+/// The subject class in old-style identifiers is not stored. ArXiv does not check
+/// validity of the subject class in their API, and the [official recommendation][arxivscheme] is to drop the subject class
+/// from old-style identifiers when present.
+/// ```
+/// # use rsxiv::id::ArticleId;
+///
+/// // the identifier is automatically trimmed and the subject class is dropped
+/// let id = ArticleId::parse("math.PR/0002012").unwrap();
+/// assert_eq!(id.to_string(), "math/0002012");
+///
+/// // the subject class need not be valid as long as it is in the format `.[A-Z][A-Z]`:
+/// assert_eq!(ArticleId::parse("math.ZZ/0002012"), Ok(id));
+/// ```
+///
+/// ### Ordering
+/// The [`ArticleId`]s implement [`Ord`] and are sorted according in order of the following
+/// parameters:
+/// 1. Year
+/// 2. Month
+/// 3. Archive (if old-style ID)
+/// 4. Number
+/// 5. Version (no version, followed by `v1`, `v2`, etc.)
+///
+/// This is different than the lexicographic order of the identifier (as a string), which sorts by Archive first (if present) before the other parameters and
+/// only takes into account the last two digits of the year.
+/// ```
+/// use rsxiv::id::ArticleId;
+/// // sorts by year before archive
+/// assert!(
+///     ArticleId::parse("hep-th/0502001").unwrap() <= ArticleId::parse("astro-ph/0703999").unwrap()
+/// );
+///
+/// // a new-style identifier date before 07/04 corresponds to a date in 2100:
+/// // `0903...` is 2009/03
+/// // `0407...` is 2104/07
+/// assert!(
+///     ArticleId::parse("0903.0001").unwrap() <= ArticleId::parse("0407.00001").unwrap()
+/// );
+/// ```
+///
+/// ### (De)serialization
+/// Serialization and deserialization can be done with the [`ArticleId::deserialize`] and [`ArticleId::serialize`] methods.
+/// ```
+/// use rsxiv::id::ArticleId;
+///
+/// let id = ArticleId::parse("0903.0001").unwrap();
+/// let n = 1297881117612900352;
+///
+/// assert_eq!(id.serialize(), n);
+/// assert_eq!(ArticleId::deserialize(n), Some(id));
+/// ```
+/// Internally, an [`ArticleId`] is actually a `u64`, so serialization is free and deserialization
+/// amounts to verifying that the `u64` corresponds to an actual identifier.
+///
+/// The deserialization format is guaranteed to remain unchanged for major versions of this crate. See the [in-memory representation](#in-memory-representation) section for
+/// more detail.
+///
+/// ## In-memory representation
+/// Internally, an [`ArticleId`] is just a [`u64`]. The big-endian memory layout is as follows:
+/// ```txt
+/// years_since_epoch(u8) month(u8) archive(u8) number(u24) version(u16)
+/// ```
+/// The various parameters are defined as follows:
+///
+/// - `years_since_epoch`: the value is the number of years since the arXiv epoch (`1991`, which is the constant [`ARXIV_EPOCH`]). For example,
+///   `2` is equivalent to `1993`.
+/// - `month`: the month in the range `1..=12` starting with `Jan = 1`, etc.
+/// - `archive`: the `#[repr(u8)]` value of [`Archive`], with the special value `0` used
+///   to indicate that the archive is not present (as is the case for new-style identifiers).
+/// - `number`: the article number, which fits in the range since `2^24 - 1 = 16_777_215` gives
+///   sufficient space to store up to 7 digits.
+/// - `version`: the version, as a `u16`, with the value `0` indicating that the version is not
+///   present.
+///
+/// In particular, the ordering and equality checks for an [`ArticleId`] are equivalent to the ordering and
+/// equality checks of the underlying `u64`.
+///
+/// ### Unused bits
+/// There are 14 bits which are always set to `0`. Note that the implementation *assumes* for
+/// correctness that these bits are set to `0`, and therefore cannot be used to pack additional
+/// information.
+///
+/// - `years_since_epoch`: 1 highest bit (max value is `116`)
+/// - `month`: 4 highest bits (max value is `12`)
+/// - `archive`: 2 highest bits (max value is `34`)
+/// - `number`: 7 highest bits (max value is `99999`)
+///
+/// See [`ArticleId::SERIALIZED_BITMASK`] for a bitmask indicating precisely which bits are used in the
+/// serialized format.
 ///
 /// [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
+/// [arxivscheme]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct ArticleId {
@@ -308,46 +331,6 @@ pub const ARXIV_EPOCH: u16 = 1991;
 /// );
 /// ```
 pub const MAX_ID_FORMATTED_LEN: usize = 22;
-
-/// A bitmask indicating which bits are currently used in the [binary
-/// format](crate::id#in-memory-representation).
-///
-/// The bitmask is set to `1` if the bit is used, and `0` if the bit is always 0.
-///
-/// ### Examples
-/// Masking with the bitmask never changes the serialized value.
-/// ```
-/// use rsxiv::id::{ArticleId, SERIALIZED_BITMASK};
-/// let id = ArticleId::parse("math/0309136v2").unwrap();
-/// let serialized = id.serialize();
-/// assert_eq!(serialized, serialized & SERIALIZED_BITMASK);
-/// ```
-/// Store extra data inside the unused bits.
-/// ```
-/// # use rsxiv::id::{ArticleId, SERIALIZED_BITMASK};
-/// let extra_data = 1039382085632;
-///
-/// // confirm that our data is stored inside the unused bits
-/// assert_eq!(extra_data & !SERIALIZED_BITMASK, extra_data);
-///
-/// // obtain the serialized representation
-/// let id = ArticleId::parse("math/0309136v2").unwrap();
-/// let serialized = id.serialize();
-///
-/// // store our extra data inside the union
-/// let union = serialized | extra_data;
-///
-/// // .. do some work, or send the data somewhere
-///
-/// // recover the original data
-/// assert_eq!(ArticleId::deserialize(union & SERIALIZED_BITMASK), Some(id));
-/// assert_eq!(union & !SERIALIZED_BITMASK, extra_data);
-///
-/// // failing to reset the bits will result in failed deserialization
-/// assert!(ArticleId::deserialize(union).is_none());
-/// ```
-pub const SERIALIZED_BITMASK: u64 =
-    0b01111111_00001111_00111111_00000001_11111111_11111111_11111111_11111111;
 
 impl ArticleId {
     /// Obtain a new [`ArticleId`] by reading from its string representation.
@@ -375,6 +358,7 @@ impl ArticleId {
     /// let id = ArticleId::parse_bytes(id_bytes).unwrap();
     /// assert_eq!(id_bytes, id.to_string().as_bytes());
     /// ```
+    #[inline]
     pub const fn parse_bytes(id: &[u8]) -> Result<Self, IdError> {
         // it is not sufficient to check if the 5th byte is a `.`, since this will result in a
         // false-positive match on identifiers like `math.CA/`
@@ -508,6 +492,7 @@ impl ArticleId {
     }
 
     /// Construct the identifier from raw parts.
+    #[must_use]
     const fn from_raw(
         years_since_epoch: u8,
         month: u8,
@@ -536,24 +521,28 @@ impl ArticleId {
 
     /// The identifier year, minus [`ARXIV_EPOCH`].
     #[inline]
+    #[must_use]
     pub const fn years_since_epoch(&self) -> u8 {
         raw::years_since_epoch(self.raw)
     }
 
     /// The identifier year.
     #[inline]
+    #[must_use]
     pub const fn year(&self) -> u16 {
         ARXIV_EPOCH + (self.years_since_epoch() as u16)
     }
 
     /// The identifier month, in the range `1..=12`.
     #[inline]
+    #[must_use]
     pub const fn month(&self) -> u8 {
         raw::month(self.raw)
     }
 
     /// Returns the archive if this is an old-style identifier, and otherwise `None`.
     #[inline]
+    #[must_use]
     pub const fn archive(&self) -> Option<Archive> {
         let a = raw::archive(self.raw);
 
@@ -579,6 +568,7 @@ impl ArticleId {
     /// assert_eq!(ArticleId::parse("1912.00002").unwrap().style(), Style::NewLong);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn style(&self) -> Style {
         if raw::is_new_style(self.raw) {
             if self.years_since_epoch() <= 23 {
@@ -593,6 +583,7 @@ impl ArticleId {
 
     /// The article number.
     #[inline]
+    #[must_use]
     pub const fn number(&self) -> NonZero<u32> {
         let n = raw::number(self.raw);
 
@@ -602,6 +593,7 @@ impl ArticleId {
 
     /// Returns the version, if present.
     #[inline]
+    #[must_use]
     pub const fn version(&self) -> Option<NonZero<u16>> {
         NonZero::new(raw::version(self.raw))
     }
@@ -617,6 +609,7 @@ impl ArticleId {
     ///
     /// assert_eq!(id.serialize(), n);
     /// ```
+    #[must_use]
     pub const fn serialize(&self) -> u64 {
         self.raw
     }
@@ -638,6 +631,7 @@ impl ArticleId {
     /// # use rsxiv::id::ArticleId;
     /// assert!(ArticleId::deserialize(12345).is_none());
     /// ```
+    #[must_use]
     pub const fn deserialize(raw: u64) -> Option<Self> {
         // we need to check that the raw format is valid; mainly the `number` and `archive` fields
         // (since these are required to uphold safety guarantees) and then the date, depending on
@@ -654,7 +648,7 @@ impl ArticleId {
 
         if number == 0 {
             return None;
-        };
+        }
 
         // invalid archive number
         if archive > 34 {
@@ -696,6 +690,22 @@ impl ArticleId {
 
         Some(Self { raw })
     }
+
+    /// A bitmask indicating which bits are currently used in the [binary
+    /// format](crate::id::ArticleId#in-memory-representation).
+    ///
+    /// The bitmask is set to `1` if the bit is used, and `0` if the bit is always 0.
+    ///
+    /// ### Examples
+    /// Masking with the bitmask never changes the serialized value.
+    /// ```
+    /// use rsxiv::id::ArticleId;
+    /// let id = ArticleId::parse("math/0309136v2").unwrap();
+    /// let serialized = id.serialize();
+    /// assert_eq!(serialized, serialized & ArticleId::SERIALIZED_BITMASK);
+    /// ```
+    pub const SERIALIZED_BITMASK: u64 =
+        0b01111111_00001111_00111111_00000001_11111111_11111111_11111111_11111111;
 }
 
 impl FromStr for ArticleId {
@@ -708,33 +718,30 @@ impl FromStr for ArticleId {
 
 impl Display for ArticleId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self.archive() {
-            Some(archive) => {
-                // old-style
-                f.write_str(archive.to_id())?;
-                f.write_str("/")?;
-                write!(
-                    f,
-                    "{:02}{:02}{:03}",
-                    self.years_since_epoch().wrapping_add(91).rem_euclid(100),
-                    self.month(),
-                    self.number()
-                )?;
-            }
-            None => {
-                // new-style
-                write!(
-                    f,
-                    "{:02}{:02}.",
-                    self.years_since_epoch().wrapping_add(91).rem_euclid(100),
-                    self.month(),
-                )?;
+        if let Some(archive) = self.archive() {
+            // old-style
+            f.write_str(archive.to_id())?;
+            f.write_str("/")?;
+            write!(
+                f,
+                "{:02}{:02}{:03}",
+                self.years_since_epoch().wrapping_add(91).rem_euclid(100),
+                self.month(),
+                self.number()
+            )?;
+        } else {
+            // new-style
+            write!(
+                f,
+                "{:02}{:02}.",
+                self.years_since_epoch().wrapping_add(91).rem_euclid(100),
+                self.month(),
+            )?;
 
-                if self.years_since_epoch() <= 23 {
-                    write!(f, "{:04}", self.number())?;
-                } else {
-                    write!(f, "{:05}", self.number())?;
-                }
+            if self.years_since_epoch() <= 23 {
+                write!(f, "{:04}", self.number())?;
+            } else {
+                write!(f, "{:05}", self.number())?;
             }
         }
 
@@ -793,4 +800,179 @@ mod raw {
         const MASK: u64 = u64::from_be_bytes([0, 0, 0xFF, 0, 0, 0, 0, 0]);
         raw & MASK == 0
     }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct Validated<S> {
+    inner: S,
+}
+
+impl<S: AsRef<str>> Display for Validated<S> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = self.inner.as_ref();
+        match unsafe { split_subject_class_unchecked(s) } {
+            Some((l, r)) => {
+                f.write_str(l)?;
+                f.write_str(r)
+            }
+            None => f.write_str(s),
+        }
+    }
+}
+
+/// Split a string slice at a 'subject class'
+///
+/// The string must have originally resulted from a valid arxiv identifier.
+unsafe fn split_subject_class_unchecked(s: &str) -> Option<(&str, &str)> {
+    // TODO: come up with a better implementation
+    unsafe {
+        if let Some((l, r)) = s.split_once('.') {
+            // SAFETY: every identifier contains at least one character following the `.`
+            if r.as_bytes().get_unchecked(0).is_ascii_uppercase() {
+                // SAFETY: we matched a subject class
+                let rest = r.get_unchecked(2..);
+                return Some((l, rest));
+            }
+        }
+    }
+    None
+}
+
+/// A special error type used by [`Validated::parse`].
+#[derive(Debug)]
+pub struct ValidationError<S> {
+    pub invalid: S,
+    pub id_err: IdError,
+}
+
+impl<S: Display> Display for ValidationError<S> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "error parsing {}: {}", self.invalid, self.id_err)
+    }
+}
+
+impl<S: Display + Debug> Error for ValidationError<S> {}
+
+impl<S: AsRef<str>> Validated<S> {
+    /// Construct a new validated identifier.
+    ///
+    /// # Examples
+    /// ```
+    /// use rsxiv::id::Validated;
+    ///
+    /// ```
+    pub fn parse(s: S) -> Result<Self, ValidationError<S>> {
+        match validate(s.as_ref()) {
+            Ok(()) => Ok(Self { inner: s }),
+            Err(id_err) => Err(ValidationError { invalid: s, id_err }),
+        }
+    }
+
+    /// Return the original type, unmodified.
+    pub fn into_inner(self) -> S {
+        self.inner
+    }
+}
+
+macro_rules! validated_from_impl {
+    ($target:ty) => {
+        impl<S: AsRef<str>> From<$target> for ArticleId {
+            fn from(value: $target) -> Self {
+                // SAFETY: There are only two ways to construct a `Validated<S>`.
+                //
+                // 1. Via the `::parse` method, which is internally a call to ArticleId::parse and which
+                //    discards the resulting identifier. Since ArticleId::parse is a const fn, it is
+                //    guaranteed that
+                //    the subsequent calls will result in the same output.
+                // 2. Via the `::from` implementation, which internally uses the ArticleId Display
+                //    implementation and therefore results in an identifier which is valid.
+                unsafe { ArticleId::parse(value.inner.as_ref()).unwrap_unchecked() }
+            }
+        }
+    };
+}
+
+validated_from_impl!(Validated<S>);
+validated_from_impl!(&Validated<S>);
+validated_from_impl!(&mut Validated<S>);
+
+impl FromStr for Validated<String> {
+    type Err = IdError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::parse(s.to_owned()).map_err(|err| err.id_err)
+    }
+}
+
+impl From<ArticleId> for Validated<String> {
+    fn from(value: ArticleId) -> Self {
+        Self {
+            inner: value.to_string(),
+        }
+    }
+}
+
+pub trait Identifier: private::Sealed {
+    /// Append the identifier to the provided string buffer.
+    ///
+    /// This is the equivalent to using [`Identifier::identifier`], but potentially without
+    /// intermediate allocations.
+    /// ```
+    /// use rsxiv::id::{Validated, Identifier};
+    /// let validated_id = Validated::parse("math.CA/0001004v3").unwrap();
+    ///
+    /// let mut buffer = "arXiv:".to_owned();
+    /// validated_id.write_identifier(&mut buffer);
+    ///
+    /// assert_eq!(buffer, "arXiv:math/0001004v3");
+    /// ```
+    fn write_identifier(&self, buffer: &mut String);
+
+    /// Obtain the identifier text corresponding to the identifier.
+    fn identifier(&self) -> Cow<'_, str> {
+        let mut buffer = String::with_capacity(MAX_ID_FORMATTED_LEN);
+        self.write_identifier(&mut buffer);
+        Cow::Owned(buffer)
+    }
+}
+
+impl Identifier for ArticleId {
+    fn write_identifier(&self, buffer: &mut String) {
+        use std::fmt::Write;
+        let _ = write!(buffer, "{self}");
+    }
+}
+
+impl<S: AsRef<str>> Identifier for Validated<S> {
+    fn identifier(&self) -> Cow<'_, str> {
+        let s = self.inner.as_ref();
+        match unsafe { split_subject_class_unchecked(s) } {
+            Some((l, r)) => {
+                let mut owned = String::with_capacity(l.len() + r.len());
+                owned.push_str(l);
+                owned.push_str(r);
+                Cow::Owned(owned)
+            }
+            None => Cow::Borrowed(s),
+        }
+    }
+
+    fn write_identifier(&self, buffer: &mut String) {
+        let s = self.inner.as_ref();
+        match unsafe { split_subject_class_unchecked(s) } {
+            Some((l, r)) => {
+                buffer.push_str(l);
+                buffer.push_str(r);
+            }
+            None => buffer.push_str(s),
+        }
+    }
+}
+
+mod private {
+    use super::{ArticleId, Validated};
+
+    pub trait Sealed {}
+    impl Sealed for ArticleId {}
+    impl<S: AsRef<str>> Sealed for Validated<S> {}
 }

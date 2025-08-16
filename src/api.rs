@@ -10,7 +10,7 @@ use std::fmt::Write as _;
 use url::Url;
 
 use self::search::SearchQuery;
-use crate::id::ArticleId;
+use crate::id::Identifier;
 
 /// The ordering by which to sort the query results.
 #[derive(Debug, Clone, Copy, Default)]
@@ -38,32 +38,32 @@ pub struct IdList<'q> {
     buffer: &'q mut String,
 }
 
-impl<'q> IdList<'q> {
+impl IdList<'_> {
     /// Add a single identifier to the list.
-    pub fn push(&mut self, id: ArticleId) -> &mut Self {
+    pub fn push<I: Identifier>(&mut self, id: &I) -> &mut Self {
         if !self.buffer.is_empty() {
-            let _ = write!(self.buffer, ",");
+            self.buffer.push(',');
         }
-        let _ = write!(self.buffer, "{id}");
+        id.write_identifier(self.buffer);
         self
     }
 
     /// Add identifiers to the list from an iterator.
-    pub fn extend<T: IntoIterator<Item = ArticleId>>(&mut self, ids: T) -> &mut Self {
+    pub fn extend<I: Identifier, T: IntoIterator<Item = I>>(&mut self, ids: T) -> &mut Self {
         let mut id_iter = ids.into_iter();
 
         // if the id list is empty, write the first identifier without a comma
         if self.buffer.is_empty() {
             match id_iter.next() {
                 Some(first) => {
-                    let _ = write!(self.buffer, "{first}");
+                    first.write_identifier(self.buffer);
                 }
                 None => return self,
             }
         }
 
         for id in id_iter {
-            let _ = write!(self.buffer, ",{id}");
+            id.write_identifier(self.buffer);
         }
 
         self
@@ -164,14 +164,14 @@ impl Query {
     }
 
     /// Obtain a handle to set the search query.
-    pub fn search_query<'q>(&'q mut self) -> SearchQuery<'q> {
+    pub fn search_query(&mut self) -> SearchQuery<'_> {
         SearchQuery {
             buffer: &mut self.search_query,
         }
     }
 
     /// Obtain a handle to set an identifier list.
-    pub fn id_list<'q>(&'q mut self) -> IdList<'q> {
+    pub fn id_list(&mut self) -> IdList<'_> {
         IdList {
             buffer: &mut self.id_list,
         }

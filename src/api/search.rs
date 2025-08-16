@@ -198,20 +198,20 @@ pub struct NonEmptySearchQuery<'q> {
     pub(super) buffer: &'q mut String,
 }
 
-impl<'q> Display for NonEmptySearchQuery<'q> {
+impl Display for NonEmptySearchQuery<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.buffer.fmt(f)
     }
 }
 
-impl<'q, D: Display> Search<Field<D>> for NonEmptySearchQuery<'q> {
+impl<D: Display> Search<Field<D>> for NonEmptySearchQuery<'_> {
     fn push(&mut self, op: BooleanOp, element: Field<D>) -> &mut Self {
         let _ = write!(self.buffer, "{op}{element}");
         self
     }
 }
 
-impl<'q> Search<FieldGroup> for NonEmptySearchQuery<'q> {
+impl Search<FieldGroup> for NonEmptySearchQuery<'_> {
     fn push(&mut self, op: BooleanOp, element: FieldGroup) -> &mut Self {
         let _ = write!(self.buffer, "{op}{element}");
         self

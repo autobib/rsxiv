@@ -58,7 +58,7 @@ fn test_new_id() {
         assert_eq!(ArticleId::deserialize(ser), Some(new_id));
 
         // check correctness of bitmask
-        assert_eq!(ser, ser & SERIALIZED_BITMASK);
+        assert_eq!(ser, ser & ArticleId::SERIALIZED_BITMASK);
     }
     assert_ok("1304.0567", 2013, 4, 567, None);
     assert_ok("1304.0001v12", 2013, 4, 1, NonZero::new(12));
@@ -95,6 +95,31 @@ fn test_old_id() {
         assert_eq!(id.version(), version);
     }
 
+    fn assert_validation_round_trip(id_sc: &str, id: &str) {
+        let a = ArticleId::from_str(id).unwrap();
+        let b = ArticleId::from_str(id_sc).unwrap();
+        let c = Validated::parse(id).unwrap();
+        let d = Validated::parse(id_sc).unwrap();
+
+        assert_eq!(a, (&c).into());
+        assert_eq!(a, (&d).into());
+        assert_eq!(b, (&c).into());
+        assert_eq!(b, (&d).into());
+
+        assert_eq!(a.to_string(), b.to_string());
+        assert_eq!(b.to_string(), c.to_string());
+        assert_eq!(c.to_string(), d.to_string());
+        assert_eq!(d.to_string(), a.to_string());
+
+        assert_eq!(a.to_string(), a.identifier());
+        assert_eq!(b.to_string(), b.identifier());
+        assert_eq!(c.to_string(), c.identifier());
+        assert_eq!(d.to_string(), d.identifier());
+
+        assert_eq!(id, Validated::<String>::from(a).to_string());
+        assert_eq!(id, Validated::<String>::from(b).to_string());
+    }
+
     fn assert_ok(
         id: &str,
         archive: Archive,
@@ -107,6 +132,8 @@ fn test_old_id() {
 
         assert_fields(old_id, archive, year, month, number, version);
 
+        assert_validation_round_trip(id, id);
+
         // check that it displays in the same way
         let displayed = old_id.to_string();
         assert_eq!(id, displayed);
@@ -117,7 +144,7 @@ fn test_old_id() {
         assert_eq!(ArticleId::deserialize(ser), Some(old_id));
 
         // check correctness of bitmask
-        assert_eq!(ser, ser & SERIALIZED_BITMASK);
+        assert_eq!(ser, ser & ArticleId::SERIALIZED_BITMASK);
 
         // check that it is equal to constructing from parameters
         assert_eq!(
@@ -163,22 +190,8 @@ fn test_old_id() {
     );
 
     // check that the subject class is pruned correctly
-    assert_fields(
-        "math.CA/9310001".parse().unwrap(),
-        Archive::Math,
-        1993,
-        10,
-        1,
-        None,
-    );
-    assert_fields(
-        "nlin.ZZ/0101010v1".parse().unwrap(),
-        Archive::Nlin,
-        2001,
-        1,
-        10,
-        NonZero::new(1),
-    );
+    assert_validation_round_trip("math.CA/9310001", "math/9310001");
+    assert_validation_round_trip("nlin.ZZ/0101010v1", "nlin/0101010v1");
 
     assert!(ArticleId::from_str("nlin.Z/0101010v1").is_err());
     assert!(ArticleId::from_str("nlin.zz/0101010v1").is_err());
