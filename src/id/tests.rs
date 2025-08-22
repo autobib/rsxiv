@@ -1,6 +1,29 @@
 use super::*;
 
 #[test]
+fn test_set_version() {
+    for (a, b, v) in [
+        ("hep-th/0501001", "hep-th/0501001v256", 256),
+        ("hep-th/0501001", "hep-th/0501001v65535", 65535),
+        ("hep-th/0501001", "hep-th/0501001v1", 1),
+        ("hep-th/0501001", "hep-th/0501001", 0),
+        ("2212.99999", "2212.99999v65535", 65535),
+        ("2212.99999", "2212.99999v1", 1),
+        ("2212.99999", "2212.99999", 0),
+    ] {
+        let a_id = ArticleId::parse(a).unwrap();
+        let b_id = ArticleId::parse(b).unwrap();
+
+        let bp = b_id.clear_version();
+        assert_eq!(a_id, bp);
+        assert_eq!(a, a_id.to_string());
+        assert_eq!(a, bp.to_string());
+
+        assert_eq!(b_id, a_id.set_version(NonZero::new(v)));
+    }
+}
+
+#[test]
 fn test_sort_order() {
     fn assert_strictly_increasing(lst: &[&str]) {
         let order_1 = lst.iter();

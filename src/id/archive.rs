@@ -4,17 +4,11 @@
 /// The string representation of an [`Archive`] variant is the variant name in kebab-case.
 /// ```
 /// use rsxiv::id::Archive;
-///
+/// assert_eq!(Archive::ChaoDyn.to_id(), "chao-dyn");
+/// assert_eq!(Archive::from_id("funct-an"), Some(Archive::FunctAn));
 /// ```
 ///
-/// ## Niche
-/// The layout is chosen so that the non-presence of an [`Archive`] can be represented by `0`. This
-/// is generally the case `Option<Archive>`, but this cannot be safely depended on. In the
-/// serialized format of the [`Archive`] (in the [in-memory
-/// representation](crate::id#in-memory-representation)), `0` is used to denote that the archive is
-/// not set.
 // SAFETY: Do not change the layout of this enum.
-//
 // 1. The 0 discriminant is free to help the compiler optimize around Option<Archive>.
 // 2. The discriminants must be continguous, starting at 1 and in increasing order (to ensure
 //    correct ordering).
@@ -166,19 +160,33 @@ impl Archive {
     /// ```
     #[must_use]
     pub const fn from_id_bytes(id: &[u8]) -> Option<Self> {
-        match strip_prefix(id) {
+        match strip_archive_prefix_bytes(id) {
             Some((archive, b"")) => Some(archive),
             _ => None,
         }
     }
 }
 
-/// Strip a valid archive prefix from a `&[u8]`, returning the matched archive and trailing character.
+/// Strip an archive prefix, returning the archive and trailing characters if matched.
 ///
-/// This is implemented as a match table so the compiler can optimize the lookup against the
-/// character sets. This also makes this method a `const fn`.
+/// ```
+/// use rsxiv::id::{Archive, strip_archive_prefix};
+///
+/// assert_eq!(strip_archive_prefix("alg-geomabc"), Some((Archive::AlgGeom, "abc")));
+/// ```
 #[inline]
-pub const fn strip_prefix(s: &[u8]) -> Option<(Archive, &[u8])> {
+pub const fn strip_archive_prefix(s: &str) -> Option<(Archive, &str)> {
+    match strip_archive_prefix_bytes(s.as_bytes()) {
+        Some((archive, tail)) => unsafe { Some((archive, std::str::from_utf8_unchecked(tail))) },
+        None => None,
+    }
+}
+
+/// Strip an archive prefix, returning the archive and trailing characters if matched.
+///
+/// This is implemented as a const match table which gets optimized quite well by the compiler.
+#[inline]
+pub const fn strip_archive_prefix_bytes(s: &[u8]) -> Option<(Archive, &[u8])> {
     match s {
         [b'a', b'c', b'c', b'-', b'p', b'h', b'y', b's', t @ ..] => Some((Archive::AccPhys, t)),
         [b'a', b'd', b'a', b'p', b'-', b'o', b'r', b'g', t @ ..] => Some((Archive::AdapOrg, t)),

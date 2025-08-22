@@ -1,9 +1,8 @@
 //! # Typed representation of arXiv identifiers
 //!
-//! This module implements a typed representation of [arXiv identifiers][arxivid]; that is, the
-//! (alpha)numerical string such as `1501.00001`, `0706.0001`, or `math/0309136`.
+//! This module implements a typed representation of [arXiv identifiers][arxivid] such as `1501.00001`, `0706.0001`, or `math/0309136`.
 //!
-//! There are two primary entrypoints in this module.
+//! There are three primary entrypoints in this module.
 //!
 //! 1. [`ArticleId`]: A portable validated identifier format with efficient data access.
 //!    Use this format if you want:
@@ -17,10 +16,10 @@
 //!    the identifier rules. Use this format if you:
 //!    - only care that the identifier is valid but not about its contents.
 //!    - mostly need to work with the string representation.
+//! 3. [`validate`]: A function which checks if a given string satisfies the identifier rules.
 //!
 //! This module *only validates the format*: an identifier may or may not correspond to an actual
-//! record in the arXiv database. A convenience [`validate`] function can be used to check if a
-//! given string corresponds to a valid arXiv identifier.
+//! record in the arXiv database.
 //!
 //! ## Detailed format description
 //! This is a reproduction of the [arXiv identifier documentation][arxivid], and gives a complete
@@ -89,7 +88,7 @@ mod parse;
 mod tests;
 
 use self::parse::tri;
-pub use archive::Archive;
+pub use archive::{Archive, strip_archive_prefix};
 
 /// The [identifier style](crate::id#detailed-format-description).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -196,7 +195,7 @@ impl Error for IdError {}
 /// assert_eq!(id_str, id.to_string());
 /// ```
 ///
-/// ### Accessing fields.
+/// ### Accessing fields
 /// A variety of fields can be accessed using [`ArticleId`] methods.
 /// ```
 /// use rsxiv::id::{Archive, ArticleId};
@@ -213,6 +212,60 @@ impl Error for IdError {}
 /// assert!(id.archive().is_none());
 /// ```
 ///
+/// ### Updating fields
+/// Generally speaking, fields cannot be updated in-place since the new values may not be valid for
+/// the given data. The suggested approach is to construct a new identifier using the fields of the
+/// old identifier.
+/// ```
+/// use std::num::NonZero;
+/// use rsxiv::id::{ArticleId, IdError};
+///
+/// /// Update the article number of an identifier.
+/// fn update_number(id: ArticleId, new_number: NonZero<u32>) -> Result<ArticleId, IdError> {
+///     ArticleId::new(
+///         id.year(),
+///         id.month(),
+///         id.archive(),
+///         new_number,
+///         id.version(),
+///     )
+/// }
+///
+/// let id = ArticleId::parse("7209.01532v5").unwrap();
+/// let new = update_number(id, NonZero::new(12).unwrap()).unwrap();
+///
+/// assert_eq!(
+///     new.to_string(),
+///     "7209.00012v5"
+/// );
+///
+/// let id = ArticleId::parse("0801.0001").unwrap();
+/// assert!(update_number(id, NonZero::new(12942).unwrap()).is_err());
+/// ```
+/// The exception is the article version, since the version is always valid if it is of the correct
+/// type, and updating the version is a common operation for a given identifier.
+/// ```
+/// use std::num::NonZero;
+/// use rsxiv::id::{ArticleId, IdError};
+///
+/// let id = ArticleId::parse("7209.01532v5").unwrap();
+///
+/// // setting the version always succeeds
+/// assert_eq!(
+///     id.set_version(NonZero::new(12)).to_string(),
+///     "7209.01532v12"
+/// );
+///
+/// // clear the version using `clear_version`
+/// assert_eq!(
+///     id.clear_version().to_string(),
+///     "7209.01532"
+/// );
+///
+/// // or equivalently by setting the version to `None`
+/// assert_eq!(id.clear_version(), id.set_version(None));
+/// ```
+///
 /// ### No subject class
 /// The subject class in old-style identifiers is not stored. ArXiv does not check
 /// validity of the subject class in their API, and the [official recommendation][arxivscheme] is to drop the subject class
@@ -220,7 +273,7 @@ impl Error for IdError {}
 /// ```
 /// # use rsxiv::id::ArticleId;
 ///
-/// // the identifier is automatically trimmed and the subject class is dropped
+/// // the subject class is dropped
 /// let id = ArticleId::parse("math.PR/0002012").unwrap();
 /// assert_eq!(id.to_string(), "math/0002012");
 ///
@@ -229,7 +282,7 @@ impl Error for IdError {}
 /// ```
 ///
 /// ### Ordering
-/// The [`ArticleId`]s implement [`Ord`] and are sorted according in order of the following
+/// [`ArticleId`] implements [`Ord`] and is sorted according in order of the following
 /// parameters:
 /// 1. Year
 /// 2. Month
@@ -306,7 +359,7 @@ impl Error for IdError {}
 ///
 /// [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
 /// [arxivscheme]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct ArticleId {
     // Layout safety:
@@ -381,7 +434,7 @@ impl ArticleId {
                     version,
                 ))
             }
-            _ => match archive::strip_prefix(id) {
+            _ => match archive::strip_archive_prefix_bytes(id) {
                 Some((archive, tail)) => {
                     let date_number = match tail {
                         [b'/', tail @ ..]
@@ -522,28 +575,28 @@ impl ArticleId {
     /// The identifier year, minus [`ARXIV_EPOCH`].
     #[inline]
     #[must_use]
-    pub const fn years_since_epoch(&self) -> u8 {
+    pub const fn years_since_epoch(self) -> u8 {
         raw::years_since_epoch(self.raw)
     }
 
     /// The identifier year.
     #[inline]
     #[must_use]
-    pub const fn year(&self) -> u16 {
+    pub const fn year(self) -> u16 {
         ARXIV_EPOCH + (self.years_since_epoch() as u16)
     }
 
     /// The identifier month, in the range `1..=12`.
     #[inline]
     #[must_use]
-    pub const fn month(&self) -> u8 {
+    pub const fn month(self) -> u8 {
         raw::month(self.raw)
     }
 
     /// Returns the archive if this is an old-style identifier, and otherwise `None`.
     #[inline]
     #[must_use]
-    pub const fn archive(&self) -> Option<Archive> {
+    pub const fn archive(self) -> Option<Archive> {
         let a = raw::archive(self.raw);
 
         // This implementation should generate assembly equivalent to `transmute(a) but without being
@@ -569,7 +622,7 @@ impl ArticleId {
     /// ```
     #[inline]
     #[must_use]
-    pub const fn style(&self) -> Style {
+    pub const fn style(self) -> Style {
         if raw::is_new_style(self.raw) {
             if self.years_since_epoch() <= 23 {
                 Style::NewShort
@@ -584,7 +637,7 @@ impl ArticleId {
     /// The article number.
     #[inline]
     #[must_use]
-    pub const fn number(&self) -> NonZero<u32> {
+    pub const fn number(self) -> NonZero<u32> {
         let n = raw::number(self.raw);
 
         // SAFETY: the number is guaranteed to be non-zero
@@ -594,8 +647,24 @@ impl ArticleId {
     /// Returns the version, if present.
     #[inline]
     #[must_use]
-    pub const fn version(&self) -> Option<NonZero<u16>> {
+    pub const fn version(self) -> Option<NonZero<u16>> {
         NonZero::new(raw::version(self.raw))
+    }
+
+    /// Change the version to the specified value. Passing `None` clears the version identifier.
+    pub const fn set_version(self, v: Option<NonZero<u16>>) -> Self {
+        // SAFETY: Option<NonZero<u16>> has the same layout as u16
+        let v = unsafe { transmute::<Option<NonZero<u16>>, u16>(v) };
+        Self {
+            raw: raw::set_version(self.raw, v),
+        }
+    }
+
+    /// Clear the version, leaving the remaining fields unchanged.
+    #[inline]
+    #[must_use]
+    pub const fn clear_version(self) -> Self {
+        self.set_version(None)
     }
 
     /// Serialize this value to a `u64`.
@@ -610,12 +679,11 @@ impl ArticleId {
     /// assert_eq!(id.serialize(), n);
     /// ```
     #[must_use]
-    pub const fn serialize(&self) -> u64 {
+    pub const fn serialize(self) -> u64 {
         self.raw
     }
 
-    /// Deserialize the value from a `u64` previously constructed by the [`ArticleId::serialize`]
-    /// method.
+    /// Deserialize the value from a `u64` previously obtained by [`ArticleId::serialize`].
     ///
     /// # Examples
     /// ```
@@ -753,6 +821,15 @@ impl Display for ArticleId {
     }
 }
 
+impl Debug for ArticleId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ArticleId")
+            .field("id", &format_args!("{}", self))
+            .field("raw", &self.raw)
+            .finish()
+    }
+}
+
 mod raw {
     /// The years since `ARXIV_EPOCH`.
     #[inline]
@@ -794,6 +871,14 @@ mod raw {
         raw as u16
     }
 
+    /// Clear the version, leaving the remaining fields unchanged.
+    #[inline]
+    pub const fn set_version(raw: u64, v: u16) -> u64 {
+        // let [_, _, _, _, _, _, v1, v2] = self.raw.to_be_bytes();
+        // let v = u16::from_be_bytes([v1, v2]);
+        (raw & 0xFFFF_FFFF_FFFF_0000) | (v as u64)
+    }
+
     #[inline]
     pub const fn is_new_style(raw: u64) -> bool {
         // Just need to check if the archive is not 0
@@ -802,10 +887,61 @@ mod raw {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+/// A wrapper satisfying the arXiv identifier rules.
+///
+/// ### Ignored subject class
+/// The subject class is [automatically dropped](crate::id::ArticleId#no-subject-class) in the [`Display`] and [`PartialEq`]
+/// implementations.
+/// ```
+/// use rsxiv::id::Validated;
+/// let valid = Validated::parse("math.CA/9203001").unwrap();
+/// let valid_no_sc = Validated::parse("math/9203001").unwrap();
+///
+/// assert_eq!(valid, valid_no_sc);
+/// assert_eq!(valid.to_string(), "math/9203001");
+///
+/// // the inner string is not modified
+/// assert_eq!(valid.into_inner(), "math.CA/9203001");
+/// ```
+/// This is also the case for the [`Identifier::identifier`] method.
+/// ```
+/// use rsxiv::id::Identifier;
+/// use std::borrow::Cow;
+/// # use rsxiv::id::Validated;
+/// # let valid = Validated::parse("math.CA/9203001").unwrap();
+/// # let valid_no_sc = Validated::parse("math/9203001").unwrap();
+///
+/// // the subject class `.CA` must be dropped, which requires allocating
+/// assert!(matches!(valid.identifier(), Cow::Owned(_)));
+/// assert_eq!(valid.identifier(), "math/9203001");
+/// // without a subject class, we can borrow from the internal buffer
+/// assert!(matches!(valid_no_sc.identifier(), Cow::Borrowed(_)));
+///
+/// ```
+///
+/// ### Field access
+/// In order to access the various fields, first convert to an [`ArticleId`].
+///
+/// The conversion to an [`ArticleId`] is cheaper than using [`ArticleId::parse`] since the format
+/// is guaranteed to be valid.
+/// ```
+/// use rsxiv::id::{ArticleId, Validated};
+/// let valid = Validated::parse("7304.01823v4234").unwrap();
+/// let id = ArticleId::from(&valid);
+/// assert_eq!(id.year(), 2073);
+/// ```
+#[derive(Debug, Clone)]
 pub struct Validated<S> {
     inner: S,
 }
+
+impl<S: AsRef<str>, I: Identifier> PartialEq<I> for Validated<S> {
+    fn eq(&self, other: &I) -> bool {
+        self.identifier().eq(&other.identifier())
+    }
+}
+
+impl<S: AsRef<str>> Eq for Validated<S> {}
 
 impl<S: AsRef<str>> Display for Validated<S> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -838,11 +974,18 @@ unsafe fn split_subject_class_unchecked(s: &str) -> Option<(&str, &str)> {
     None
 }
 
-/// A special error type used by [`Validated::parse`].
-#[derive(Debug)]
+/// A special error type used by [`Validated::parse`] to return the original argument in the
+/// presence of an error.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationError<S> {
     pub invalid: S,
     pub id_err: IdError,
+}
+
+impl<S> From<ValidationError<S>> for IdError {
+    fn from(value: ValidationError<S>) -> Self {
+        value.id_err
+    }
 }
 
 impl<S: Display> Display for ValidationError<S> {
@@ -868,7 +1011,7 @@ impl<S: AsRef<str>> Validated<S> {
         }
     }
 
-    /// Return the original type, unmodified.
+    /// Return the unmodified inner component.
     pub fn into_inner(self) -> S {
         self.inner
     }
@@ -912,10 +1055,14 @@ impl From<ArticleId> for Validated<String> {
     }
 }
 
+/// Types which are arXiv identifiers.
+///
+/// This trait is sealed and cannot be implemented outside this crate.
+/// It is implemented by [`ArticleId`] and [`Validated<S>`].
 pub trait Identifier: private::Sealed {
     /// Append the identifier to the provided string buffer.
     ///
-    /// This is the equivalent to using [`Identifier::identifier`], but potentially without
+    /// This is the equivalent to using [`Identifier::identifier`], but without
     /// intermediate allocations.
     /// ```
     /// use rsxiv::id::{Validated, Identifier};

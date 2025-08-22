@@ -12,8 +12,10 @@ categories = ["text-processing", "parser-implementations"]
 [features]
 
 [dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+quick-xml = { version = "0.38", features = ["serialize"] }
 url = "2.5.4"
-chrono = "0.4"
+serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }

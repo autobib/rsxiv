@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="http://arxiv.org/api/query?search_query%3Dall%3Aelectron%20AND%20all%3Aproton%26id_list%3D%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
+  <title type="html">ArXiv Query: search_query=all:electron AND all:proton&amp;id_list=&amp;start=0&amp;max_results=10</title>
+  <id>http://arxiv.org/api/5SM+U4Y158JiJuDXkggxPJF18mw</id>
+  <updated>2025-08-20T00:00:00-04:00</updated>
+  <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">7370</opensearch:totalResults>
+  <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
+  <entry>
+    <id>http://arxiv.org/abs/astro-ph/9904306v1</id>
+    <updated>1999-04-22T15:54:59Z</updated>
+    <published>1999-04-22T15:54:59Z</published>
+    <title>Improved scenario of baryogenesis</title>
+    <summary>  It is assumed that, in the primordial plasma, at the temperatures above the
+mass of electron, fermions are in the neutral state being the superposition of
+particle and antiparticle. There exists neutral proton-electron symmetry.
+Proton-electron equilibrium is defined by the proton-electron mass difference.
+At the temperature equal to the mass of electron, pairs of neutral electrons
+annihilate into photons, and pairs of neutral protons and electrons survive as
+protons and electrons.
+</summary>
+    <author>
+      <name>D. L. Khokhlov</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">3 pages LaTeX</arxiv:comment>
+    <link href="http://arxiv.org/abs/astro-ph/9904306v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/astro-ph/9904306v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/hep-ph/9411242v1</id>
+    <updated>1994-11-08T11:19:41Z</updated>
+    <published>1994-11-08T11:19:41Z</published>
+    <title>Proton-ring and Electron-linac Collider (PRELC) as a (first)
+  TeV-rangeelectron-proton or photon-proton collider</title>
+    <summary>  The use of the existing proton storage rings combined with electron linear
+accelerator as a ring-linac type electron-proton or photon-proton collider is
+investigated. The total CM-energy of Proton-ring and Electron-linac Collider
+(PRELC) is in the range of 1.0 TeV. The most important physical issues are
+listed and the most critical machine aspects of the PRELC are studied. It is
+shown that the luminosities in the range of $10^{31}$ to $10^{32}$ could be
+achieved. The PRELC could be used simultaneously with the $e^+e^-$-collider if
+the refocused electron beam could be used as the electron beam for the PRELC.
+</summary>
+    <author>
+      <name>Raimo Vuopionperä</name>
+      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">SEFT, Univ. Helsinki</arxiv:affiliation>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">4 pages, revtex</arxiv:comment>
+    <link href="http://arxiv.org/abs/hep-ph/9411242v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/hep-ph/9411242v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1706.01836v2</id>
+    <updated>2017-09-24T14:21:38Z</updated>
+    <published>2017-06-06T16:12:51Z</published>
+    <title>Development of a Practical Multicomponent Density Functional for
+  Electron-Proton Correlation to Produce Accurate Proton Densities</title>
+    <summary>  Multicomponent density functional theory (DFT) enables the consistent quantum
+mechanical treatment of both electrons and protons. A major challenge has been
+the design of electron-proton correlation functionals that produce even
+qualitatively accurate proton densities. Herein an electron-proton correlation
+functional, epc17, is derived analogously to the Colle-Salvetti formalism for
+electron correlation and is implemented within the nuclear-electronic orbital
+(NEO) framework. The NEO-DFT/epc17 method produces accurate proton densities
+efficiently and is promising for diverse applications.
+</summary>
+    <author>
+      <name>Yang Yang</name>
+    </author>
+    <author>
+      <name>Kurt R. Brorsen</name>
+    </author>
+    <author>
+      <name>Tanner Culpitt</name>
+    </author>
+    <author>
+      <name>Michael V. Pak</name>
+    </author>
+    <author>
+      <name>Sharon Hammes-Schiffer</name>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1063/1.4996038</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1063/1.4996038" rel="related"/>
+    <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">The Journal of Chemical Physics 147, 114113 (2017)</arxiv:journal_ref>
+    <link href="http://arxiv.org/abs/1706.01836v2" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1706.01836v2" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="physics.chem-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="physics.chem-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/astro-ph/9901367v1</id>
+    <updated>1999-01-26T16:05:34Z</updated>
+    <published>1999-01-26T16:05:34Z</published>
+    <title>Scenario of baryogenesis</title>
+    <summary>  Scenario of baryogenesis is considered in which primordial plasma starting
+from the Planck scale consists of primordial particles being the precursors of
+electrons and clusters of particles being the precursors of protons.
+Equilibrium between the precursors of protons and the precursors of electrons
+is defined by the proton-electron mass difference. At the temperature equal to
+the mass of electron, primordial particles transit into protons, electrons,
+photons.
+</summary>
+    <author>
+      <name>D. L. Khokhlov</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">2 pages, LaTeX</arxiv:comment>
+    <link href="http://arxiv.org/abs/astro-ph/9901367v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/astro-ph/9901367v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1207.3978v1</id>
+    <updated>2012-07-17T12:58:05Z</updated>
+    <published>2012-07-17T12:58:05Z</published>
+    <title>Relativistic Ohm and Fourier laws for binary mixtures of electrons with
+  protons and photons</title>
+    <summary>  Binary mixtures of electrons with protons and of electrons with photons
+subjected to external electromagnetic fields are analyzed by using the Anderson
+and Witting model equation. The relativistic laws of Ohm and Fourier are
+determined as well as general expressions for the electrical and thermal
+conductivities for relativistic ionized gas mixtures. Explicit expressions for
+the transport coefficients are given for the particular cases: a
+non-relativistic mixture of protons and non-degenerate electrons; an
+ultra-relativistic mixture of photons and non-degenerate electrons; a
+non-relativistic mixture of protons and completely degenerate electrons; an
+ultra-relativistic mixture of photons and completely degenerate electrons and a
+mixture of non-relativistic protons and ultra-relativistic completely
+degenerate electrons.
+</summary>
+    <author>
+      <name>Gilberto M. Kremer</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">17 pages</arxiv:comment>
+    <link href="http://arxiv.org/abs/1207.3978v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1207.3978v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cond-mat.stat-mech" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cond-mat.stat-mech" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/0806.3233v1</id>
+    <updated>2008-06-19T16:39:33Z</updated>
+    <published>2008-06-19T16:39:33Z</published>
+    <title>Shuttle-mediated proton pumping across the inner mitochondrial membrane</title>
+    <summary>  Shuttle-assisted charge transfer is pivotal for the efficient energy
+transduction from the food-stuff electrons to protons in the respiratory chain
+of animal cells and bacteria. The respiratory chain consists of four
+metalloprotein Complexes (I-IV) embedded in the inner membrane of a
+mitochondrion. Three of these complexes pump protons across the membrane,
+fuelled by the energy of food-stuff electrons. Despite extensive biochemical
+and biophysical studies, the physical mechanism of this proton pumping is still
+not well understood. Here we present a nanoelectromechanical model of the
+electron-driven proton pump related to the second loop of the respiratory
+chain, where a lipid-soluble ubiquinone molecule shuttles between the Complex I
+and Complex III, carrying two electrons and two protons. We show that the
+energy of electrons can be converted to the transmembrane proton potential
+gradient via the electrostatic interaction between electrons and protons on the
+shuttle. We find that the system can operate either as a proton pump, or, in
+the reverse regime, as an electron pump. For membranes with various
+viscosities, we demonstrate that the uphill proton current peaks near the body
+temperature $T \approx 37 ^{\circ}$C.
+</summary>
+    <author>
+      <name>Anatoly Yu. Smirnov</name>
+    </author>
+    <author>
+      <name>Sergey E. Savel'ev</name>
+    </author>
+    <author>
+      <name>Franco Nori</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">22 pages, 6 figures</arxiv:comment>
+    <link href="http://arxiv.org/abs/0806.3233v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/0806.3233v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cond-mat.other" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cond-mat.other" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="physics.bio-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="q-bio.SC" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1602.03411v1</id>
+    <updated>2016-02-10T15:36:31Z</updated>
+    <published>2016-02-10T15:36:31Z</published>
+    <title>Effects of electron temperature anisotropy on proton mirror instability
+  evolution</title>
+    <summary>  Proton mirror modes are large amplitude nonpropagating structures frequently
+observed in the magnetosheath. It has been suggested that electron temperature
+anisotropy can enhance the proton mirror instability growth rate while leaving
+the proton cyclotron instability largely unaffected, therefore causing the
+proton mirror instability to dominate the proton cyclotron instability in
+Earth's magnetosheath. Here, we use particle-in-cell simulations to investigate
+the electron temperature anisotropy effects on proton mirror instability
+evolution. Contrary to the hypothesis, electron temperature anisotropy leads to
+excitement of the electron whistler instability. Our results show that the
+electron whistler instability grows much faster than the proton mirror
+instability and quickly consumes the electron free energy, so that there is no
+electron temperature anisotropy left to significantly impact the evolution of
+the proton mirror instability.
+</summary>
+    <author>
+      <name>Narges Ahmadi</name>
+    </author>
+    <author>
+      <name>Kai Germaschewski</name>
+    </author>
+    <author>
+      <name>Joachim Raeder</name>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1002/2016JA022429</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1002/2016JA022429" rel="related"/>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">11 pages, 19 figures</arxiv:comment>
+    <link href="http://arxiv.org/abs/1602.03411v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1602.03411v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="physics.plasm-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="physics.plasm-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="physics.space-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2507.06488v1</id>
+    <updated>2025-07-09T02:18:06Z</updated>
+    <published>2025-07-09T02:18:06Z</published>
+    <title>High Proton Conductivity of HxWO3 at Intermediate Temperatures:
+  Unlocking Its Application as a Mixed Ionic-Electronic Conductor</title>
+    <summary>  Hydrogen tungsten bronzes (HxWO3), known for their mixed protonic-electronic
+conduction near room temperature, are extensively studied for electrochromic
+and gasochromic applications. However, their proton transport properties at
+elevated temperatures, particularly in the intermediate-temperature range
+(200-500 {\deg}C), remain unexplored. This study revealed the proton transport
+behavior of HxWO3, focusing on its potential as a proton-conducting mixed
+ionic-electronic conductor (MIEC) for intermediate-temperature electrochemical
+applications. By employing a proton-conducting phosphate glass as an
+electron-blocking electrode, we selectively measured the partial proton
+conductivity of sintered HxWO3. Hydrogen incorporation into the sintered WO3
+pellet was found to occur preferentially near the surface, forming an
+approximately 500-micrometer-thick hydrogen-rich region. This region reached a
+composition of x = 0.24 and exhibited proton conductivity exceeding 10^-1 S/cm
+at 275 {\deg}C, well above those of state-of-the-art perovskite proton
+conductors. Impedance spectroscopy revealed distinct features of proton
+transport, including an isotope effect. The proton diffusion coefficient was
+100-1000 times greater than that of H0.0001TiO2, which exhibits mixed
+protonic-electronic conduction via hydrogen dissolution. The larger proton
+diffusion coefficient of H0.24WO3 suggests that large polaron formation
+enhances proton mobility.These findings unlock new functionality of HxWO3 as a
+MIEC in the intermediate-temperature range, paving the way for the development
+of next-generation hydrogen energy conversion systems.
+</summary>
+    <author>
+      <name>Rantaro Matsuo</name>
+    </author>
+    <author>
+      <name>Tomoyuki Yamasaki</name>
+    </author>
+    <author>
+      <name>Takahisa Omata</name>
+    </author>
+    <link href="http://arxiv.org/abs/2507.06488v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2507.06488v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cond-mat.mtrl-sci" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cond-mat.mtrl-sci" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cond-mat.dis-nn" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1403.6944v1</id>
+    <updated>2014-03-27T08:10:23Z</updated>
+    <published>2014-03-27T08:10:23Z</published>
+    <title>Particle production from the Color Glass Condensate: proton-nucleus
+  collisions in light of the HERA data</title>
+    <summary>  We compute single inclusive hadron production in proton-proton and
+proton-nucleus collisions consistently within the CGC framework. The parameters
+in the calculations are obtained from electron-proton DIS and standard nuclear
+geometry. We obtain a good description of the DIS data without an anomalous
+dimension in the initial condition of the BK evolution and get a good agreement
+with the available single inclusive proton-proton and proton-nucleus data.
+</summary>
+    <author>
+      <name>T. Lappi</name>
+    </author>
+    <author>
+      <name>H. Mäntysaari</name>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1016/j.nuclphysa.2014.08.038</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1016/j.nuclphysa.2014.08.038" rel="related"/>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">4 pages, 4 figures, talk given at the 6th International Conference on
+  Hard and Electromagnetic Probes of High-Energy Nuclear Collisions (Hard
+  Probes 2013), November 4-8, 2013 (Cape Town, South Africa)</arxiv:comment>
+    <link href="http://arxiv.org/abs/1403.6944v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1403.6944v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2407.11707v1</id>
+    <updated>2024-07-16T13:25:36Z</updated>
+    <published>2024-07-16T13:25:36Z</published>
+    <title>The neutron skin-thickness of 208 Pb determined by electron and proton
+  scattering</title>
+    <summary>  The consistency between electron-scattering and proton-scattering is examined
+through the fourth moment of the charge distribution.
+</summary>
+    <author>
+      <name>Toshio Suzuki</name>
+    </author>
+    <author>
+      <name>Rika Danjo</name>
+    </author>
+    <author>
+      <name>Toshimi Suda</name>
+    </author>
+    <link href="http://arxiv.org/abs/2407.11707v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2407.11707v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>

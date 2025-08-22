@@ -1,18 +1,27 @@
+//! # ArXiv API query builder
+//!
+//! This module provides a interface interface to build query URLs for the [arXiv API][api]. The
+//! main entry point is the query builder [`Query`] struct.
+//!
+//! [api]: https://info.arxiv.org/help/api/user-manual.html
+mod field;
+mod search;
 #[cfg(test)]
 mod tests;
-
-mod search;
-
-pub use search::{BooleanOp, Field, FieldGroup, Search};
 
 use std::fmt::Write as _;
 
 use url::Url;
 
-use self::search::SearchQuery;
+pub use self::{
+    field::{BooleanOp, Combine, Field, FieldGroup, FieldType},
+    search::{NonEmptySearchQuery, SearchQuery},
+};
 use crate::id::Identifier;
 
 /// The ordering by which to sort the query results.
+///
+/// See the [`Query::paginate`] method for more detail.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum SortBy {
     /// Sort by relevance
@@ -25,6 +34,8 @@ pub enum SortBy {
 }
 
 /// Whether to sort in ascending or descending order.
+///
+/// See the [`Query::paginate`] method for more detail.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum SortOrder {
     /// Sort in ascending order
@@ -34,6 +45,9 @@ pub enum SortOrder {
     Descending,
 }
 
+/// A handle used to update the identifier list in a query.
+///
+/// See the [`Query::id_list`] method for more detail.
 pub struct IdList<'q> {
     buffer: &'q mut String,
 }
@@ -68,11 +82,75 @@ impl IdList<'_> {
 
         self
     }
+
+    /// Clear the identifier list.
+    pub fn clear(&mut self) -> &mut Self {
+        self.buffer.clear();
+        self
+    }
 }
 
 /// A validated arXiv API query.
 ///
-/// A [`Query`] is a representation of an [arXiv API query][api].
+/// A [`Query`] is a typed representation of an [arXiv API query][api].
+///
+/// ### Example
+/// Build a [`Query`] from components.
+/// ```
+/// use rsxiv::query::{Combine, Field, FieldGroup, Query, SortBy, SortOrder};
+///
+/// let mut query = Query::new();
+///
+/// query
+///     // use http
+///     .http()
+///     // sort the results
+///     .sort(SortBy::SubmittedDate, SortOrder::Ascending)
+///     // access handle to the search query
+///     .search_query()
+///     // require title matching 'proton'
+///     .init(Field::ti("Proton").unwrap())
+///     // and require author `Bob`, or author `John`
+///     .and(FieldGroup::init(Field::au("Bob").unwrap()).or(Field::au("John").unwrap()));
+///
+/// assert_eq!(
+///     String::from(query.url()),
+///     "http://export.arxiv.org/api/query?search_query=ti%3AProton+AND+%28au%3ABob+OR+au%3AJohn%29&sortBy=submittedDate&sortOrder=ascending"
+/// );
+/// ```
+/// ### Component escaping
+/// The query components are automatically escaped.
+/// ```
+/// use rsxiv::{query::{Field, Query}, id::Validated};
+///
+/// let mut query = Query::new();
+/// query
+///     .search_query()
+///     // attempt to 'manually escape'
+///     .init(Field::all(r#"""&id_list=2301.00001"#).unwrap());
+///
+/// assert_eq!(
+///     String::from(query.url()),
+///     // the '&' and '=' characters are escaped, so the query becomes a literal
+///     // `all:""&id_list=2301.00001`
+///     "https://export.arxiv.org/api/query?search_query=all%3A%22%22%26id_list%3D2301.00001"
+/// );
+///
+/// let mut query = Query::new();
+/// query
+///     .search_query()
+///     .init(Field::all(r#""""#).unwrap());
+///
+/// query
+///     .id_list()
+///     .push(&Validated::parse("2301.00001").unwrap());
+///
+/// assert_eq!(
+///     String::from(query.url()),
+///     // setting the `id_list` normally yields a different URL
+///     "https://export.arxiv.org/api/query?search_query=all%3A%22%22&id_list=2301.00001"
+/// );
+/// ```
 ///
 /// [api]: https://info.arxiv.org/help/api/user-manual.html#51-details-of-query-construction
 #[derive(Debug, Default, Clone)]
@@ -163,14 +241,16 @@ impl Query {
         self
     }
 
-    /// Obtain a handle to set the search query.
+    /// Returns a handle to modify the search parameters.
+    ///
+    /// See the [`SearchQuery`] documentation for examples and more detail.
     pub fn search_query(&mut self) -> SearchQuery<'_> {
         SearchQuery {
             buffer: &mut self.search_query,
         }
     }
 
-    /// Obtain a handle to set an identifier list.
+    /// Returns a handle to modify the identifier list.
     pub fn id_list(&mut self) -> IdList<'_> {
         IdList {
             buffer: &mut self.id_list,
@@ -182,6 +262,10 @@ impl Query {
     ///
     /// This method returns `None` if `start > 30000` or `max_results > 2000`, in which case
     /// the pagination will not be updated.
+    ///
+    /// Corresponds to [§3.1.1.2 of the API manual][api].
+    ///
+    /// [api]: https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging
     pub fn paginate(&mut self, start: u16, max_results: u16) -> Option<&mut Self> {
         if start <= 30000 && max_results <= 2000 {
             self.pagination = Some((start, max_results));
@@ -192,6 +276,10 @@ impl Query {
     }
 
     /// Sort the API response using the ordering function, in ascending or descending order.
+    ///
+    /// Corresponds to [§3.1.1.3 of the API manual][api].
+    ///
+    /// [api]: https://info.arxiv.org/help/api/user-manual.html#3113-sort-order-for-return-results
     pub fn sort(&mut self, by: SortBy, order: SortOrder) -> &mut Self {
         self.sort = Some((by, order));
         self
