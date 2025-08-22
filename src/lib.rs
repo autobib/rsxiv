@@ -1,5 +1,5 @@
 //! # RsXiv
-//! This crate provides bindings related to the [arXiv identifiers][arxid] and the [arXiv api][api]:
+//! This crate provides bindings related to [arXiv identifiers][arxid] and the [arXiv api][api]:
 //!
 //! 1. The [`id`] module contains typed representations of arXiv identifiers, such as `2301.00001`.
 //! 2. The [`query`] module provides a builder interface to generate URLs to make requests to the
@@ -12,7 +12,6 @@
 //!
 //! [arxid]: https://info.arxiv.org/help/arxiv_identifier.html
 //! [api]: https://info.arxiv.org/help/api/user-manual.html
-
 
 pub mod id;
 pub mod query;
