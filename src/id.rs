@@ -1024,13 +1024,18 @@ impl<S> From<ValidationError<S>> for IdError {
     }
 }
 
-impl<S: Display> Display for ValidationError<S> {
+impl<S: AsRef<str>> Display for ValidationError<S> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "error parsing {}: {}", self.invalid, self.id_err)
+        write!(
+            f,
+            "error parsing {}: {}",
+            self.invalid.as_ref(),
+            self.id_err
+        )
     }
 }
 
-impl<S: Display + Debug> Error for ValidationError<S> {}
+impl<S: AsRef<str> + Debug> Error for ValidationError<S> {}
 
 impl<S: AsRef<str>> Validated<S> {
     /// Construct a new validated identifier.
@@ -1039,12 +1044,26 @@ impl<S: AsRef<str>> Validated<S> {
     /// ```
     /// use rsxiv::id::Validated;
     ///
+    /// let validated = Validated::parse("0004.01256v92").unwrap();
+    ///
+    ///
+    ///
+    /// assert!(Validated::parse("0004.01256v92").is_ok());
     /// ```
     pub fn parse(s: S) -> Result<Self, ValidationError<S>> {
         match validate(s.as_ref()) {
             Ok(()) => Ok(Self { inner: s }),
             Err(id_err) => Err(ValidationError { invalid: s, id_err }),
         }
+    }
+
+    /// Remove the subject class from the string representation, if present.
+    ///
+    /// Equivalent to [`normalize`] but guaranteed to succeed since the internal string has already
+    /// been validated.
+    pub fn normalize(&self) -> Option<(&str, &str)> {
+        // SAFETY: self.inner is valid for the identifier rules
+        unsafe { split_subject_class_unchecked(self.inner.as_ref()) }
     }
 
     /// Return the unmodified inner component.
@@ -1128,27 +1147,24 @@ impl Identifier for ArticleId {
 
 impl<S: AsRef<str>> Identifier for Validated<S> {
     fn identifier(&self) -> Cow<'_, str> {
-        let s = self.inner.as_ref();
-        // SAFETY: self.inner is valid for the identifier rules
-        match unsafe { split_subject_class_unchecked(s) } {
+        match self.normalize() {
             Some((l, r)) => {
                 let mut owned = String::with_capacity(l.len() + r.len());
                 owned.push_str(l);
                 owned.push_str(r);
                 Cow::Owned(owned)
             }
-            None => Cow::Borrowed(s),
+            None => Cow::Borrowed(self.inner.as_ref()),
         }
     }
 
     fn write_identifier(&self, buffer: &mut String) {
-        let s = self.inner.as_ref();
-        match unsafe { split_subject_class_unchecked(s) } {
+        match self.normalize() {
             Some((l, r)) => {
                 buffer.push_str(l);
                 buffer.push_str(r);
             }
-            None => buffer.push_str(s),
+            None => buffer.push_str(self.inner.as_ref()),
         }
     }
 }
