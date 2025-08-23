@@ -2,7 +2,7 @@
 //!
 //! This module implements a typed representation of [arXiv identifiers][arxivid] such as `1501.00001`, `0706.0001`, or `math/0309136`.
 //!
-//! There are three primary entrypoints in this module.
+//! There are four primary entrypoints in this module.
 //!
 //! 1. [`ArticleId`]: A portable validated identifier format with efficient data access.
 //!    Use this format if you want:
@@ -17,6 +17,8 @@
 //!    - only care that the identifier is valid but not about its contents.
 //!    - mostly need to work with the string representation.
 //! 3. [`validate`]: A function which checks if a given string satisfies the identifier rules.
+//! 4. [`normalize`]: A function which validates the arXiv identifier rules and also removes
+//!    the subject class, if present.
 //!
 //! This module *only validates the format*: an identifier may or may not correspond to an actual
 //! record in the arXiv database.
@@ -117,6 +119,28 @@ pub const fn validate(s: &str) -> Result<(), IdError> {
         Ok(_) => Ok(()),
         Err(err) => Err(err),
     }
+}
+
+/// Returns if the given string corresponds to a valid arXiv identifier, and returns the string
+/// split with the subject class removed (if present).
+///
+/// # Example
+/// ```
+/// use rsxiv::id::normalize;
+///
+/// assert_eq!(normalize("math/0309136v2"), Ok(None));
+/// assert_eq!(normalize("math.CA/0309136v2"), Ok(Some(("math", "/0309136v2"))));
+/// assert_eq!(normalize("2501.10435"), Ok(None));
+/// assert!(normalize("math.C/0309136v2").is_err());
+/// # assert!(normalize("math.").is_err());
+/// # assert!(normalize("math./0309136v2").is_err());
+/// # assert!(normalize("math.CCC/0309136v2").is_err());
+/// ```
+#[inline]
+pub const fn normalize(s: &str) -> Result<Option<(&str, &str)>, IdError> {
+    tri!(validate(s));
+    // SAFETY: we just checked that identifier is valid
+    unsafe { Ok(split_subject_class_unchecked(s)) }
 }
 
 /// An error which may result when parsing or validating an arXiv identifier.
@@ -958,20 +982,32 @@ impl<S: AsRef<str>> Display for Validated<S> {
 
 /// Split a string slice at a 'subject class'
 ///
-/// The string must have originally resulted from a valid arxiv identifier.
-unsafe fn split_subject_class_unchecked(s: &str) -> Option<(&str, &str)> {
-    // TODO: come up with a better implementation
+/// # Safety
+/// The string must have originally resulted from a valid arxiv identifier; i.e.
+/// `ArticleId::parse(s).is_ok()` or `validate(s).is_ok()`.
+#[inline]
+const unsafe fn split_subject_class_unchecked(s: &str) -> Option<(&str, &str)> {
+    // the possible archive lengths are 2, 4, 5, 6, 7, 8 and we check for a
+    // '.' immediately following one of these indices. the only extra case to
+    // handle is the 'new-style' identifier which has length 4 YYMM prefix, followed by a '.',
+    // followed by a number, which we manually exclude
+    let archive_len = match s.as_bytes() {
+        [_, _, b'.', ..] => 2,
+        [_, _, _, _, b'.', b'A'..=b'Z', ..] => 4,
+        [_, _, _, _, _, b'.', ..] => 5,
+        [_, _, _, _, _, _, b'.', ..] => 6,
+        [_, _, _, _, _, _, _, b'.', ..] => 7,
+        [_, _, _, _, _, _, _, _, b'.', ..] => 8,
+        _ => return None,
+    };
+    // SAFETY: the match arms and the identifier rules guarantee that 'archive_len' and
+    // 'archive_len + 3' are valid indices, and the bytes must be ASCII
     unsafe {
-        if let Some((l, r)) = s.split_once('.') {
-            // SAFETY: every identifier contains at least one character following the `.`
-            if r.as_bytes().get_unchecked(0).is_ascii_uppercase() {
-                // SAFETY: we matched a subject class
-                let rest = r.get_unchecked(2..);
-                return Some((l, rest));
-            }
-        }
+        Some((
+            std::str::from_utf8_unchecked(s.as_bytes().split_at_unchecked(archive_len).0),
+            std::str::from_utf8_unchecked(s.as_bytes().split_at_unchecked(archive_len + 3).1),
+        ))
     }
-    None
 }
 
 /// A special error type used by [`Validated::parse`] to return the original argument in the
@@ -1093,6 +1129,7 @@ impl Identifier for ArticleId {
 impl<S: AsRef<str>> Identifier for Validated<S> {
     fn identifier(&self) -> Cow<'_, str> {
         let s = self.inner.as_ref();
+        // SAFETY: self.inner is valid for the identifier rules
         match unsafe { split_subject_class_unchecked(s) } {
             Some((l, r)) => {
                 let mut owned = String::with_capacity(l.len() + r.len());
