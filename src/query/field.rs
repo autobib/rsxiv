@@ -4,7 +4,7 @@ use std::{
     ops::Range,
 };
 
-use chrono::naive::NaiveDateTime;
+use chrono::NaiveDateTime;
 
 /// A non-empty search query which can be extended with new components.
 pub trait Combine<E>: Display + Sized {
@@ -129,6 +129,7 @@ impl<S: AsRef<str>> Field<S> {
             || value.contains(" ANDNOT ")
             || value.contains(')')
             || value.contains('(')
+            || value.contains(':')
         {
             None
         } else {

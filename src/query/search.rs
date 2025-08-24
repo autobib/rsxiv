@@ -1,4 +1,9 @@
-use std::fmt::{Display, Write as _};
+use std::{
+    fmt::{Display, Write as _},
+    ops::Range,
+};
+
+use chrono::NaiveDateTime;
 
 use crate::query::{BooleanOp, Combine, Field, FieldGroup};
 
@@ -7,9 +12,19 @@ use crate::query::{BooleanOp, Combine, Field, FieldGroup};
 /// This struct is construted by the [`Query::search_query`](super::Query::search_query) method.
 ///
 /// ## Syntax
-/// A search query is a non-empty list of [search fields](Field) combined with [boolean operators](BooleanOp). In order to override the default operator precedence, search fields can be combined into [field groups](FieldGroup).
+/// A search query is a non-empty list of [search fields](Field) or [`Range<NaiveDateTime>`] combined with [boolean operators](BooleanOp).
 ///
+/// - A [`Field`] is a structured search component corresponding for example to the arXiv search
+///   syntax `ti:Title`. The field component must not contained a boolean operator or one of the
+///   characters `)<:`.
+/// - A [`Range<NaiveDateTime>`] is a constraint on the allowed submission dates returned by the
+///   query.
+///
+/// In order to override the default operator precedence, search fields can be combined into [field groups](FieldGroup).
+///
+/// ## Example
 /// ```
+/// use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
 /// use rsxiv::query::{Field, FieldGroup, Query, Combine};
 ///
 ///
@@ -26,18 +41,21 @@ use crate::query::{BooleanOp, Combine, Field, FieldGroup};
 ///     // unencoded query: (ti:a OR rn:b) AND all:c
 /// );
 ///
-/// // extend the search query with new elements
+/// // extend the search query with a submission date constraint
+/// let start = NaiveDateTime::new(NaiveDate::from_ymd_opt(2016, 7, 8).unwrap(), NaiveTime::MIN);
+/// let end = NaiveDateTime::new(NaiveDate::from_ymd_opt(2023, 2, 18).unwrap(), NaiveTime::MIN);
+///
 /// query
 ///     .search_query()
 ///     .extend()
 ///     // `extend()` returns `None` if the search query is not set
 ///     .unwrap()
-///     .and_not(Field::cat("ZZ").unwrap());
+///     .and_not(start..end);
 ///
 /// assert_eq!(
 ///     query.url().to_string(),
-///     "https://export.arxiv.org/api/query?search_query=%28ti%3Aa+OR+rn%3Ab%29+AND+all%3Ac+ANDNOT+cat%3AZZ"
-///     // unencoded query: (ti:a OR rn:b) AND all:c ANDNOT sc:ZZ
+///     "https://export.arxiv.org/api/query?search_query=%28ti%3Aa+OR+rn%3Ab%29+AND+all%3Ac+ANDNOT+submittedDate%3A%5B201607080000+TO+202302180000%5D"
+///     // unencoded query: (ti:a OR rn:b) AND all:c ANDNOT submittedDate:[201607080000 TO 202302180000]
 /// );
 /// ```
 ///
@@ -122,6 +140,19 @@ impl<S: AsRef<str>> Combine<Field<S>> for NonEmptySearchQuery<'_> {
 impl Combine<FieldGroup> for NonEmptySearchQuery<'_> {
     fn push(mut self, op: BooleanOp, element: FieldGroup) -> Self {
         let _ = write!(&mut self.buffer, "{op}{element}");
+        self
+    }
+}
+
+impl Combine<Range<NaiveDateTime>> for NonEmptySearchQuery<'_> {
+    fn push(mut self, op: BooleanOp, element: Range<NaiveDateTime>) -> Self {
+        let _ = write!(
+            &mut self.buffer,
+            "{}submittedDate:[{} TO {}]",
+            op,
+            element.start.format("%Y%m%d%H%M"),
+            element.end.format("%Y%m%d%H%M")
+        );
         self
     }
 }
