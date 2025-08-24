@@ -64,6 +64,46 @@ use crate::id::ArticleId;
 ///     "A Note on the Axisymmetric Diffusion equation"
 /// );
 /// ```
+/// Here is the [`Entry`] implementation.
+/// ```
+/// use std::borrow::Cow;
+///
+/// use chrono::{DateTime, FixedOffset};
+/// use serde::Deserialize;
+/// use rsxiv::{id::ArticleId, response::{deserialize_response_id, AuthorName}};
+///
+/// #[derive(Deserialize)]
+/// pub struct Entry<'r> {
+///     #[serde(deserialize_with = "deserialize_response_id")]
+///     pub id: ArticleId,
+///     pub updated: DateTime<FixedOffset>,
+///     pub published: DateTime<FixedOffset>,
+///     #[serde(borrow)]
+///     pub title: Cow<'r, str>,
+///     #[serde(borrow)]
+///     pub summary: Cow<'r, str>,
+///     pub author: Vec<Author<'r>>,
+///     #[serde(borrow)]
+///     pub comment: Option<Cow<'r, str>>,
+///     pub category: Vec<Category<'r>>,
+///     #[serde(borrow)]
+///     pub journal_ref: Option<Cow<'r, str>>,
+///     pub doi: Option<&'r str>,
+/// }
+///
+/// #[derive(Deserialize)]
+/// pub struct Category<'r> {
+///     #[serde(rename = "@term", borrow)]
+///     pub name: Cow<'r, str>,
+/// }
+///
+/// #[derive(Deserialize)]
+/// pub struct Author<'r> {
+///     pub name: AuthorName,
+///     #[serde(borrow)]
+///     pub affiliation: Option<Cow<'r, str>>,
+/// }
+/// ```
 ///
 /// [api]: https://info.arxiv.org/help/api/user-manual.html#332-entry-metadata
 #[derive(Debug, Clone, PartialEq)]
@@ -140,7 +180,7 @@ pub struct Entry<'r> {
     pub id: ArticleId,
     /// The date that the retrieved version of the article was submitted.
     pub updated: DateTime<FixedOffset>,
-    /// The date that `version 1` was submitted.
+    /// The date that version 1 was submitted.
     pub published: DateTime<FixedOffset>,
     /// The title of the article.
     #[serde(borrow)]
@@ -174,11 +214,219 @@ pub struct Category<'r> {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Author<'r> {
     /// The name of the author.
-    #[serde(borrow)]
-    pub name: Cow<'r, str>,
+    pub name: AuthorName,
     /// The affiliation of the author.
     #[serde(borrow)]
     pub affiliation: Option<Cow<'r, str>>,
+}
+
+fn join_into<'a, T: IntoIterator<Item = &'a str>>(target: &mut String, it: T) {
+    let mut iter = it.into_iter();
+
+    match iter.next() {
+        Some(e) => target.push_str(e),
+        None => return,
+    }
+
+    for e in iter {
+        target.push(' ');
+        target.push_str(e)
+    }
+}
+
+/// A representation of an arXiv author name.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct AuthorName {
+    /// Often the last name or surname.
+    pub keyname: String,
+    /// Other names or name fragments (such as initials)
+    pub firstnames: String,
+    /// A suffix, such as `Jr.` or `IV`
+    pub suffix: String,
+}
+
+impl AuthorName {
+    /// Parse an arxiv author name according to the arXiv name parsing rules from the [arXiv
+    /// repository][repo].
+    ///
+    /// # Parsing rules
+    /// This method assumes that the name is in the format
+    /// ```txt
+    /// <firstnames> <keyname> <suffix>
+    /// ```
+    /// and separated by ASCII whitespace.
+    ///
+    /// At most one suffix may be present, and must match the following pattern:
+    /// ```txt
+    /// "I" | "II" | "III" | "IV" | "Jr" | "Jr." | "Sr" | "Sr." | "V"
+    /// ```
+    ///
+    /// The `keyname` is the last element (not including the suffix), along with at most two
+    /// prefixes. Any prefix must match the following pattern:
+    /// ```txt
+    /// "da" | "de" | "del" | "della" | "dem" | "der" | "di" | "la" | "mac" | "ter" | "van" | "vaziri" | "von"
+    /// ```
+    /// Any remaining components are part of the `firstnames`.
+    ///
+    /// # Examples
+    /// For example, `Ursula von der Leyen` has firstnames "Ursula" and keyname "von der Leyen":
+    /// ```
+    /// use rsxiv::response::AuthorName;
+    ///
+    /// assert_eq!(
+    ///     AuthorName::from_arxiv("Ursula von der Leyen"),
+    ///     AuthorName {
+    ///         keyname: "von der Leyen".to_owned(),
+    ///         firstnames: "Ursula".to_owned(),
+    ///         suffix: String::new(),
+    ///     },
+    /// );
+    /// ```
+    ///
+    /// [repo]: https://github.com/arXiv/arxiv-base/blob/develop/arxiv/authors/__init__.py
+    pub fn from_arxiv(name: &str) -> Self {
+        let mut components = name.split_ascii_whitespace();
+
+        let mut keyname = String::new();
+        let mut firstnames = String::new();
+        let mut suffix = String::new();
+
+        // first, prune the suffix
+        let Some(maybe_suffix) = components.next_back() else {
+            // this should never happen
+            return Self {
+                keyname,
+                firstnames,
+                suffix,
+            };
+        };
+
+        // check if the suffix is a suffix
+        let last_name = if Self::is_arxiv_suffix(maybe_suffix) {
+            suffix.push_str(maybe_suffix);
+            match components.next_back() {
+                Some(last) => last,
+                // this should never happen
+                None => {
+                    return Self {
+                        keyname: suffix,
+                        firstnames,
+                        suffix: String::new(),
+                    };
+                }
+            }
+        } else {
+            maybe_suffix
+        };
+
+        // take two prefixes
+        let prefix1 = match components.next_back() {
+            Some(pref) if Self::is_arxiv_prefix(pref) => pref,
+            Some(not_pref) => {
+                join_into(&mut firstnames, components.chain(Some(not_pref)));
+                keyname.push_str(last_name);
+                return Self {
+                    keyname,
+                    firstnames,
+                    suffix,
+                };
+            }
+            None => {
+                // only one component, and it is the last name
+                keyname.push_str(last_name);
+                return Self {
+                    keyname,
+                    firstnames,
+                    suffix,
+                };
+            }
+        };
+
+        let prefix2 = match components.next_back() {
+            Some(pref) if Self::is_arxiv_prefix(pref) => pref,
+            Some(not_pref) => {
+                join_into(&mut firstnames, components.chain(Some(not_pref)));
+                keyname.reserve_exact(prefix1.len() + last_name.len() + 1);
+                keyname.push_str(prefix1);
+                keyname.push(' ');
+                keyname.push_str(last_name);
+                return Self {
+                    keyname,
+                    firstnames,
+                    suffix,
+                };
+            }
+            None => {
+                // only one component, and it is the last name
+                keyname.reserve_exact(prefix1.len() + last_name.len() + 1);
+                keyname.push_str(prefix1);
+                keyname.push(' ');
+                keyname.push_str(last_name);
+                return Self {
+                    keyname,
+                    firstnames,
+                    suffix,
+                };
+            }
+        };
+
+        // merge remaining components
+        join_into(&mut firstnames, components);
+
+        keyname.reserve_exact(prefix2.len() + prefix1.len() + last_name.len() + 2);
+        keyname.push_str(prefix2);
+        keyname.push(' ');
+        keyname.push_str(prefix1);
+        keyname.push(' ');
+        keyname.push_str(last_name);
+
+        Self {
+            keyname,
+            firstnames,
+            suffix,
+        }
+    }
+
+    /// Check if a name component is an arxiv prefix.
+    fn is_arxiv_prefix(s: &str) -> bool {
+        matches!(
+            s,
+            "da" | "de"
+                | "del"
+                | "della"
+                | "dem"
+                | "der"
+                | "di"
+                | "la"
+                | "mac"
+                | "ter"
+                | "van"
+                | "vaziri"
+                | "von"
+        )
+    }
+
+    /// Check if a name component is an arxiv suffix.
+    fn is_arxiv_suffix(s: &str) -> bool {
+        matches!(
+            s,
+            "I" | "II" | "III" | "IV" | "Jr" | "Jr." | "Sr" | "Sr." | "V"
+        )
+    }
+}
+
+impl<'de> Deserialize<'de> for AuthorName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // wrapper struct to borrow if possible
+        #[derive(Deserialize)]
+        struct Wrapper<'a>(#[serde(borrow)] Cow<'a, str>);
+
+        let Wrapper(v) = Wrapper::deserialize(deserializer)?;
+        Ok(AuthorName::from_arxiv(&v))
+    }
 }
 
 /// A helper function to deserialize the `id` field of an entry, for use with the serde
