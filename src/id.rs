@@ -1014,7 +1014,9 @@ const unsafe fn split_subject_class_unchecked(s: &str) -> Option<(&str, &str)> {
 /// presence of an error.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationError<S> {
+    /// The original unmodified argument.
     pub invalid: S,
+    /// The parse error.
     pub id_err: IdError,
 }
 

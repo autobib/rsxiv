@@ -13,6 +13,8 @@
 //! [arxid]: https://info.arxiv.org/help/arxiv_identifier.html
 //! [api]: https://info.arxiv.org/help/api/user-manual.html
 
+#![deny(missing_docs)]
+
 pub mod id;
 pub mod query;
 pub mod response;

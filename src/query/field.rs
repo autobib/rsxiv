@@ -60,6 +60,9 @@ impl Display for BooleanOp {
     }
 }
 
+/// The possible search field types as enumerated in the [API reference][ref].
+///
+/// [ref]: https://info.arxiv.org/help/api/user-manual.html#51-details-of-query-construction
 #[derive(Debug, Clone, Copy)]
 pub enum FieldType {
     /// Title
@@ -80,10 +83,13 @@ pub enum FieldType {
     All,
 }
 
-/// The possible search field types as enumerated in the [API reference][ref].
-///
-/// [ref]: https://info.arxiv.org/help/api/user-manual.html#51-details-of-query-construction
 impl FieldType {
+    /// Convert the field type to the arXiv prefix string.
+    ///
+    /// ```
+    /// use rsxiv::query::FieldType;
+    /// assert_eq!(FieldType::ReportNumber.as_prefix(), "rn");
+    /// ```
     pub fn as_prefix(&self) -> &'static str {
         match self {
             Self::Title => "ti",
@@ -98,6 +104,7 @@ impl FieldType {
     }
 }
 
+/// A single search term in a search query.
 #[derive(Debug, Clone)]
 pub struct Field<S> {
     field_type: FieldType,
@@ -179,6 +186,7 @@ pub struct FieldGroup {
 }
 
 impl FieldGroup {
+    /// Construct a new field group with an initial element.
     pub fn init<S: AsRef<str>>(initial: Field<S>) -> Self {
         let mut inner = String::new();
         let _ = write!(&mut inner, "{initial}");
