@@ -70,6 +70,7 @@ fn test_query_de() {
         /// The arXiv or ACM or MSC category for an article.
         #[serde(borrow)]
         pub categories: Vec<Cow<'r, str>>,
+        extra: Option<String>,
     }
 
     /// An article author.
