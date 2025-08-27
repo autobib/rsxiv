@@ -1074,27 +1074,19 @@ impl<S: AsRef<str>> Validated<S> {
     }
 }
 
-macro_rules! validated_from_impl {
-    ($target:ty) => {
-        impl<S: AsRef<str>> From<$target> for ArticleId {
-            fn from(value: $target) -> Self {
-                // SAFETY: There are only two ways to construct a `Validated<S>`.
-                //
-                // 1. Via the `::parse` method, which is internally a call to ArticleId::parse and which
-                //    discards the resulting identifier. Since ArticleId::parse is a const fn, it is
-                //    guaranteed that
-                //    the subsequent calls will result in the same output.
-                // 2. Via the `::from` implementation, which internally uses the ArticleId Display
-                //    implementation and therefore results in an identifier which is valid.
-                unsafe { ArticleId::parse(value.inner.as_ref()).unwrap_unchecked() }
-            }
-        }
-    };
+impl<S: AsRef<str>> From<&Validated<S>> for ArticleId {
+    fn from(value: &Validated<S>) -> Self {
+        // SAFETY: There are only two ways to construct a `Validated<S>`.
+        //
+        // 1. Via the `::parse` method, which is internally a call to ArticleId::parse and which
+        //    discards the resulting identifier. Since ArticleId::parse is a const fn, it is
+        //    guaranteed that
+        //    the subsequent calls will result in the same output.
+        // 2. Via the `::from` implementation, which internally uses the ArticleId Display
+        //    implementation and therefore results in an identifier which is valid.
+        unsafe { ArticleId::parse(value.inner.as_ref()).unwrap_unchecked() }
+    }
 }
-
-validated_from_impl!(Validated<S>);
-validated_from_impl!(&Validated<S>);
-validated_from_impl!(&mut Validated<S>);
 
 impl FromStr for Validated<String> {
     type Err = IdError;
@@ -1167,6 +1159,57 @@ impl<S: AsRef<str>> Identifier for Validated<S> {
                 buffer.push_str(r);
             }
             None => buffer.push_str(self.inner.as_ref()),
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
+mod serialize {
+    use super::ArticleId;
+    use serde::{
+        Deserializer,
+        de::{Deserialize, Visitor},
+    };
+
+    #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+    impl<'de> Deserialize<'de> for ArticleId {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            struct ArticleIdVisitor;
+
+            impl<'de> Visitor<'de> for ArticleIdVisitor {
+                type Value = ArticleId;
+
+                fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                    formatter.write_str("a str representing an arxiv identifier")
+                }
+
+                fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+                where
+                    E: serde::de::Error,
+                {
+                    ArticleId::parse_bytes(v).map_err(E::custom)
+                }
+
+                fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+                where
+                    E: serde::de::Error,
+                {
+                    ArticleId::parse(v).map_err(E::custom)
+                }
+
+                fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
+                where
+                    E: serde::de::Error,
+                {
+                    ArticleId::deserialize(v)
+                        .ok_or_else(|| E::custom("invalid binary format for identifier"))
+                }
+            }
+
+            deserializer.deserialize_bytes(ArticleIdVisitor)
         }
     }
 }

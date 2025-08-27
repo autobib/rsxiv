@@ -8,5 +8,65 @@ A [Rust](https://www.rust-lang.org/) library to provide an interface for [arXiv 
 Key features:
 
 - [Typed and validated representations](https://docs.rs/rsxiv/latest/rsxiv/id/index.html) of arXiv identifiers.
-- A arXiv API [query builder](https://docs.rs/rsxiv/latest/rsxiv/query/index.html) to programmatically construct query URLs for the arXiv API.
-- A [serde](https://serde.rs/) interface to [convert the arXiv API response](https://docs.rs/rsxiv/latest/rsxiv/response/index.html) to native Rust types.
+- An arXiv API [query builder](https://docs.rs/rsxiv/latest/rsxiv/query/index.html) to programmatically construct query URLs for the arXiv API.
+- An arXiv API [response parser](https://docs.rs/rsxiv/latest/rsxiv/response/index.html) to parse the API response.
+- A low-overhead [serde](https://serde.rs/) interface to [convert the arXiv API response](https://docs.rs/rsxiv/latest/rsxiv/de/index.html) to your own types.
+
+## Example
+Example using [ureq](https://crates.io/crates/ureq):
+```rust
+use std::{borrow::Cow, collections::BTreeMap};
+
+use rsxiv::{
+    ArticleId, Query, Response,
+    query::{Combine, Field, FieldGroup, SortBy, SortOrder},
+    response::AuthorName,
+};
+use serde::Deserialize;
+use ureq;
+
+#[derive(Deserialize)]
+struct Entry<'r> {
+    // Built-in author name parsing
+    authors: Vec<AuthorName>,
+    title: Cow<'r, str>,
+}
+
+fn main() -> anyhow::Result<()> {
+    let mut query = Query::new();
+    query
+        // sort the results
+        .sort(SortBy::SubmittedDate, SortOrder::Ascending)
+        // access handle to the search query
+        .search_query()
+        // require title matching 'proton'
+        .init(Field::ti("Proton").unwrap())
+        // and require author `Bob`, or author `John`
+        .and(FieldGroup::init(Field::au("Bob").unwrap()).or(Field::au("John").unwrap()));
+
+    // make the request using `ureq`
+    let response_body = ureq::get(query.url().as_ref())
+        .call()?
+        .into_body()
+        .read_to_vec()?;
+
+    // deserialize API response
+    let response = Response::<BTreeMap<ArticleId, Entry>>::from_xml(&response_body)?;
+
+    // sort by year, month, archive, number, version
+    for (id, entry) in response.entries.iter() {
+        println!(
+            "'{}' by {}{} [{id}]",
+            entry.title,
+            entry.authors[0],
+            if entry.authors.len() > 1 {
+                " et al."
+            } else {
+                ""
+            }
+        );
+    }
+
+    Ok(())
+}
+```
