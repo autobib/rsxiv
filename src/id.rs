@@ -382,6 +382,26 @@ impl Error for IdError {}
 /// See [`ArticleId::SERIALIZED_BITMASK`] for a bitmask indicating precisely which bits are used in the
 /// serialized format.
 ///
+/// ## Layout guarantees
+/// The layout of an [`ArticleId`] is guaranteed to be that of a single `u64`. However, *not every
+/// `u64` is valid*.
+/// ```
+/// # use rsxiv::id::ArticleId;
+/// let id = ArticleId::parse("5203.19523v792").unwrap();
+/// let serialized = id.serialize();
+///
+/// // SAFETY: layout of `ArticleId` is guaranteed to be equivalent to its
+/// // serialized format.
+/// let id_copy = unsafe {
+///     std::mem::transmute::<u64, ArticleId>(serialized)
+/// };
+/// assert_eq!(id_copy, id);
+///
+/// let undefined = unsafe {
+///     std::mem::transmute::<u64, ArticleId>(12345) // undefined behavior! ⚠️
+/// };
+/// ```
+///
 /// [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
 /// [arxivscheme]: https://info.arxiv.org/help/arxiv_identifier_for_services.html
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -618,7 +638,7 @@ impl ArticleId {
         raw::month(self.raw)
     }
 
-    /// Returns the archive if this is an old-style identifier, and otherwise `None`.
+    /// The archive if this is an old-style identifier, and otherwise `None`.
     #[inline]
     #[must_use]
     pub const fn archive(self) -> Option<Archive> {
@@ -635,7 +655,7 @@ impl ArticleId {
         }
     }
 
-    /// Returns the identifier style.
+    /// The identifier style.
     ///
     /// # Example
     /// ```
@@ -669,7 +689,7 @@ impl ArticleId {
         unsafe { NonZero::new_unchecked(n) }
     }
 
-    /// Returns the version, if present.
+    /// The version, if present.
     #[inline]
     #[must_use]
     pub const fn version(self) -> Option<NonZero<u16>> {
@@ -686,13 +706,15 @@ impl ArticleId {
     }
 
     /// Clear the version, leaving the remaining fields unchanged.
+    ///
+    /// Equivalent to `self.set_version(None)`.
     #[inline]
     #[must_use]
     pub const fn clear_version(self) -> Self {
         self.set_version(None)
     }
 
-    /// Serialize this value to a `u64`.
+    /// Serialize this value as a `u64`.
     ///
     /// # Examples
     /// ```
@@ -708,7 +730,10 @@ impl ArticleId {
         self.raw
     }
 
-    /// Deserialize the value from a `u64` previously obtained by [`ArticleId::serialize`].
+    /// Deserialize the value from a `u64`.
+    ///
+    /// Returns `None` if the `u64` does not correspond to the [in-memory
+    /// representation](#in-memory-representation) of a valid identifier.
     ///
     /// # Examples
     /// ```
@@ -784,15 +809,41 @@ impl ArticleId {
         Some(Self { raw })
     }
 
+    /// Deserialize from a `u64` without checking.
+    ///
+    /// Also see the [layout guarantees](#layout-guarantees) section.
+    ///
+    /// # Safety
+    /// The identifier must correspond to the [in-memory
+    /// representation](#in-memory-representation) of a valid identifier or this is *undefined
+    /// behaviour*.
+    ///
+    /// In most cases, this means that you previously obtained the `u64` from from an identifier.
+    /// ```
+    /// # use rsxiv::id::ArticleId;
+    /// let id = ArticleId::parse("5203.19523v792").unwrap();
+    /// let serialized = id.serialize();
+    ///
+    /// // SAFETY: layout of `ArticleId` is guaranteed to be equivalent to its
+    /// // serialized format.
+    /// let id_copy = unsafe {
+    ///     ArticleId::deserialize_unchecked(serialized)
+    /// };
+    /// assert_eq!(id_copy, id);
+    /// ```
+    pub const unsafe fn deserialize_unchecked(raw: u64) -> Self {
+        Self { raw }
+    }
+
     /// A bitmask indicating which bits are currently used in the [binary
     /// format](crate::id::ArticleId#in-memory-representation).
     ///
     /// The bitmask is set to `1` if the bit is used, and `0` if the bit is always 0.
     /// ```
-    /// # use rsxiv::id::ArticleId::SERIALIZED_BITMASK;
+    /// # use rsxiv::id::ArticleId;
     /// assert_eq!(
     ///     0b01111111_00001111_00111111_00000001_11111111_11111111_11111111_11111111,
-    ///     SERIALIZED_BITMASK,
+    ///     ArticleId::SERIALIZED_BITMASK,
     /// );
     /// ```
     ///
@@ -879,7 +930,7 @@ mod raw {
         (raw >> 48) as u8
     }
 
-    /// Returns the archive if this is an old-style identifier.
+    /// The archive if this is an old-style identifier.
     #[inline]
     pub const fn archive(raw: u64) -> u8 {
         // let [_, _, a, _, _, _, _, _] = self.raw.to_be_bytes();
@@ -895,7 +946,7 @@ mod raw {
         ((raw >> 16) as u32) & 0xFFFFFF
     }
 
-    /// Returns the version, if present.
+    /// The version, if present.
     #[inline]
     pub const fn version(raw: u64) -> u16 {
         // let [_, _, _, _, _, _, v1, v2] = self.raw.to_be_bytes();
