@@ -11,7 +11,8 @@
 //!    - serialization and deserialization, or otherwise plan to store and load
 //!      identifiers.
 //!    - `const fn` methods.
-//!    - identifier comparison with `PartialEq`, `Eq`, `Ord` implementations.
+//!    - efficient identifier comparison with `Eq` and `Ord` implementations (equivalent to
+//!      `u64` comparison)
 //! 2. [`Validated`]: A wrapper around an [`AsRef<str>`] type which has been validated by
 //!    the identifier rules. Use this format if you:
 //!    - only care that the identifier is valid but not about its contents.
@@ -69,8 +70,8 @@
 //!
 //! ## Maximum version
 //! In principle, the version could be any positive integer. In practice, the version is required
-//! to fit in a `u16`; that is, it can be at most `65535`. Since an arXiv version can only be
-//! incremented at most once per day, this gives about 179 years worth of version labels. Currently
+//! to fit in a `u16`; that is, it can be at most `65535`. Since an arXiv version can
+//! increment at most once per day, this gives about 179 years worth of version labels. Currently
 //! (August 15, 2025), the largest valid version of any article on arXiv is `0901.2093v152`.
 //!
 //! [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
@@ -355,7 +356,7 @@ impl Error for IdError {}
 /// ```
 /// The various parameters are defined as follows:
 ///
-/// - `years_since_epoch`: the value is the number of years since the arXiv epoch (`1991`, which is the constant [`ARXIV_EPOCH`]). For example,
+/// - `years_since_epoch`: the number of years since the arXiv epoch (`1991`, which is the constant [`ARXIV_EPOCH`]). For example,
 ///   `2` is equivalent to `1993`.
 /// - `month`: the month in the range `1..=12` starting with `Jan = 1`, etc.
 /// - `archive`: the `#[repr(u8)]` value of [`Archive`], with the special value `0` used
@@ -787,6 +788,13 @@ impl ArticleId {
     /// format](crate::id::ArticleId#in-memory-representation).
     ///
     /// The bitmask is set to `1` if the bit is used, and `0` if the bit is always 0.
+    /// ```
+    /// # use rsxiv::id::ArticleId::SERIALIZED_BITMASK;
+    /// assert_eq!(
+    ///     0b01111111_00001111_00111111_00000001_11111111_11111111_11111111_11111111,
+    ///     SERIALIZED_BITMASK,
+    /// );
+    /// ```
     ///
     /// ### Examples
     /// Masking with the bitmask never changes the serialized value.
