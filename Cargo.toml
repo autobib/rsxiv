@@ -2,13 +2,17 @@
 name = "rsxiv"
 description = "Tools for working with arXiv and the arXiv API"
 readme = "README.md"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2024"
 authors = ["Alex Rutar <alex@rutar.org>"]
 keywords = ["arxiv", "serde", "serialization"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/autobib/rsxiv"
 categories = ["text-processing", "api-bindings"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 serde = ["dep:serde", "chrono/serde", "quick-xml/serialize"]
