@@ -94,6 +94,7 @@ impl Archive {
     /// use rsxiv::id::Archive;
     /// assert_eq!(Archive::QuantPh.to_id(), "quant-ph");
     /// ```
+    #[inline]
     #[must_use]
     pub const fn to_id(&self) -> &'static str {
         match self {

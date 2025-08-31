@@ -26,7 +26,7 @@
 //!
 //! ## Detailed format description
 //! This is a reproduction of the [arXiv identifier documentation][arxivid], and gives a complete
-//! description of the parsing formt used in this module.
+//! description of the identifier syntax accepted by this module.
 //!
 //! - [Old-style](#old-style-august-1991-to-march-2007)
 //! - [New-style, short](#new-style-short-april-2007-to-december-2014)
@@ -210,8 +210,6 @@ impl Error for IdError {}
 /// string can be obtained again using its [`Display`] implementation, with the caveat that the [subject class will be removed](#no-subject-class). The [`ArticleId::parse`] method is
 /// equivalent to the [`FromStr`] implementation, with the added feature that [`ArticleId::parse`] is a
 /// `const fn`.
-///
-/// For example,
 /// ```
 /// use rsxiv::id::ArticleId;
 ///
@@ -236,6 +234,15 @@ impl Error for IdError {}
 /// let id = ArticleId::parse("1204.0012").unwrap();
 /// assert!(id.archive().is_none());
 /// ```
+/// It is also possible to look up how many characters the identifier will occupy without an
+/// intermediate allocation.
+/// ```
+/// # use rsxiv::id::ArticleId;
+/// let id_str = "astro-ph/0102099v9";
+/// let id = ArticleId::parse("astro-ph/0102099v9").unwrap();
+/// assert_eq!(id_str.len(), id.formatted_len());
+/// ```
+/// The value returned by [`ArticleId::formatted_len`] is always at most [`MAX_ID_FORMATTED_LEN`].
 ///
 /// ### Updating fields
 /// Generally speaking, fields cannot be updated in-place since the new values may not be valid for
@@ -428,6 +435,22 @@ pub const ARXIV_EPOCH: u16 = 1991;
 ///     MAX_ID_FORMATTED_LEN
 /// );
 /// ```
+/// Also see [`ArticleId::formatted_len`].
+///
+/// # Example
+/// Do not re-allocate when writing an identifier to a fixed buffer.
+/// ```
+/// # use rsxiv::id::{ArticleId, MAX_ID_FORMATTED_LEN};
+/// use std::fmt::Write;
+/// let mut buffer = String::with_capacity(MAX_ID_FORMATTED_LEN);
+///
+/// // 25 bytes! but the formatted length prunes the subject class, and
+/// // only occupies 22 bytes
+/// let id = ArticleId::parse("chao-dyn.ZZ/9212142v64817").unwrap();
+///
+/// write!(&mut buffer, "{id}");
+/// assert_eq!(buffer, "chao-dyn/9212142v64817");
+/// ```
 pub const MAX_ID_FORMATTED_LEN: usize = 22;
 
 impl ArticleId {
@@ -441,6 +464,10 @@ impl ArticleId {
     /// let id = ArticleId::parse(id_str).unwrap();
     /// assert_eq!(id_str, id.to_string());
     /// ```
+    ///
+    /// # [`FromStr`] implementation
+    /// This method is identical to the [`FromStr`] implementation. The only difference
+    /// is that this is also a `const fn`.
     #[inline]
     pub const fn parse(id: &str) -> Result<Self, IdError> {
         Self::parse_bytes(id.as_bytes())
@@ -471,7 +498,7 @@ impl ArticleId {
                 } else {
                     tri!(parse::number_and_version_len_5(number))
                 };
-                Ok(Self::from_raw(
+                Ok(Self::new_unchecked(
                     years_since_epoch,
                     month,
                     None,
@@ -495,7 +522,7 @@ impl ArticleId {
                         Ok(v) => v,
                         Err(e) => return Err(e),
                     };
-                    Ok(Self::from_raw(
+                    Ok(Self::new_unchecked(
                         years_since_epoch,
                         month,
                         Some(archive),
@@ -510,7 +537,7 @@ impl ArticleId {
 
     /// Construct a new identifier from components.
     ///
-    /// This constructs an new-style identifier if `archive` is `None`, and otherwise constructs an
+    /// This constructs a new-style identifier if `archive` is `None`, and otherwise constructs an
     /// old-style identifier with the given archive.
     ///
     /// # Examples
@@ -579,7 +606,7 @@ impl ArticleId {
             }
         }
 
-        Ok(Self::from_raw(
+        Ok(Self::new_unchecked(
             (year - ARXIV_EPOCH) as u8,
             month,
             archive,
@@ -591,7 +618,7 @@ impl ArticleId {
 
     /// Construct the identifier from raw parts.
     #[must_use]
-    const fn from_raw(
+    const fn new_unchecked(
         years_since_epoch: u8,
         month: u8,
         archive: Option<Archive>,
@@ -714,6 +741,93 @@ impl ArticleId {
         self.set_version(None)
     }
 
+    /// Returns the number of bytes that the formatted version of this string will occupy.
+    /// Equivalent to `id.to_string.len()` but substantially faster.
+    ///
+    /// The returned value is guaranteed to land in the range `9..=22`.
+    ///
+    /// Also see [`MAX_ID_FORMATTED_LEN`].
+    ///
+    /// # Examples
+    /// Compute the formatted length.
+    /// ```
+    /// use rsxiv::id::ArticleId;
+    ///
+    /// let s = "nucl-ex/0104002v312";
+    /// let id = ArticleId::parse(s).unwrap();
+    /// assert_eq!(id.formatted_len(), s.len());
+    /// ```
+    /// The subject class is [never included](#no-subject-class).
+    /// ```
+    /// # use rsxiv::id::ArticleId;
+    /// let s = "math.CA/0104002";
+    /// let id = ArticleId::parse(s).unwrap();
+    /// assert_eq!(id.formatted_len() + 3, s.len());
+    /// ```
+    #[must_use]
+    pub const fn formatted_len(self) -> usize {
+        /// Number of characters occupied by the version tag.
+        #[inline]
+        const fn version_formatted_len(v: u16) -> usize {
+            // specialized to be most efficient for small values of v (most common)
+            if v == 0 {
+                return 0;
+            }
+
+            if v <= 9 {
+                return 2;
+            }
+
+            // SAFETY: v != 0, and ilog10 is at most 6
+            unsafe { (v.checked_ilog10().unwrap_unchecked() as usize).unchecked_add(2) }
+        }
+
+        let l_version = version_formatted_len(raw::version(self.raw));
+
+        // There are three cases for the body length:
+        //
+        // - old style: len(archive) + 8
+        // - new short: 9
+        // - new long : 10
+        //
+        // So we start at 9, and then add len(archive) - 1 for old-style identifiers,
+        // (or 0 if the archive is None, i.e. the u8 value is 0) and add 1 for new-style
+        // identifiers.
+        //
+        // since [archive is not none] and [years_since_epoch > 23] are mutually
+        // exclusive, we can add the contributions simultaneously to save an extra
+        // branch
+
+        const BODY_OFFSET_LUT: [u8; 35] = [
+            0, 7, 7, 7, 5, // None..=AoSci
+            7, 6, 7, 7, 6, // AstroPh..=ChemPh
+            5, 7, 7, 1, 4, // CmpLg..=DgGa
+            7, 4, 5, 6, 5, // FunctAn..=HepPh
+            5, 3, 6, 6, 3, // HepTh..=Nlin
+            6, 6, 7, 6, 7, // NuclEx..=PlasmPh
+            4, 4, 7, 7, 7, // QAlg..=SuprCon
+        ];
+
+        let archive_raw = raw::archive(self.raw) as usize;
+        // SAFETY: archive_raw <= 34 since either it is 0, or corresponds to a valid Archive enum
+        // variant, so we save a bounds check
+        unsafe { std::hint::assert_unchecked(archive_raw <= 34) };
+        let l_body = BODY_OFFSET_LUT[archive_raw] as usize;
+
+        let new_style_offset = (self.years_since_epoch() > 23) as usize;
+
+        // SAFETY:
+        // l_version <= 6
+        // l_body <= 7
+        // new_style_offset <= 1
+        unsafe {
+            l_version
+                .unchecked_add(l_body)
+                .unchecked_add(new_style_offset)
+                .unchecked_add(9)
+        }
+    }
+
     /// Serialize this value as a `u64`.
     ///
     /// # Examples
@@ -765,11 +879,6 @@ impl ArticleId {
         }
 
         if number == 0 {
-            return None;
-        }
-
-        // invalid archive number
-        if archive > 34 {
             return None;
         }
 
@@ -851,7 +960,7 @@ impl ArticleId {
     /// Masking with the bitmask never changes the serialized value.
     /// ```
     /// use rsxiv::id::ArticleId;
-    /// let id = ArticleId::parse("math/0309136v2").unwrap();
+    /// let id = ArticleId::parse("0612.99999v65535").unwrap();
     /// let serialized = id.serialize();
     /// assert_eq!(serialized, serialized & ArticleId::SERIALIZED_BITMASK);
     /// ```
@@ -918,7 +1027,6 @@ mod raw {
     #[inline]
     pub const fn years_since_epoch(raw: u64) -> u8 {
         // let [years_since_epoch, _, _, _, _, _, _, _] = val.to_be_bytes();
-        // years_since_epoch
         (raw >> 56) as u8
     }
 
@@ -926,7 +1034,6 @@ mod raw {
     #[inline]
     pub const fn month(raw: u64) -> u8 {
         // let [_, month, _, _, _, _, _, _] = self.raw.to_be_bytes();
-        // month
         (raw >> 48) as u8
     }
 
@@ -957,8 +1064,6 @@ mod raw {
     /// Clear the version, leaving the remaining fields unchanged.
     #[inline]
     pub const fn set_version(raw: u64, v: u16) -> u64 {
-        // let [_, _, _, _, _, _, v1, v2] = self.raw.to_be_bytes();
-        // let v = u16::from_be_bytes([v1, v2]);
         (raw & 0xFFFF_FFFF_FFFF_0000) | (v as u64)
     }
 
@@ -999,7 +1104,6 @@ mod raw {
 /// assert_eq!(valid.identifier(), "math/9203001");
 /// // without a subject class, we can borrow from the internal buffer
 /// assert!(matches!(valid_no_sc.identifier(), Cow::Borrowed(_)));
-///
 /// ```
 ///
 /// ### Field access
@@ -1018,9 +1122,30 @@ pub struct Validated<S> {
     inner: S,
 }
 
-impl<S: AsRef<str>, I: Identifier> PartialEq<I> for Validated<S> {
-    fn eq(&self, other: &I) -> bool {
-        self.identifier().eq(&other.identifier())
+impl<S: AsRef<str>, T: AsRef<str>> PartialEq<Validated<T>> for Validated<S> {
+    fn eq(&self, other: &Validated<T>) -> bool {
+        // perform equality check without allocating by checking all 4 possible cases
+        let s_inner = self.inner.as_ref();
+        let other_inner = other.inner.as_ref();
+        let cases = unsafe {
+            (
+                split_subject_class_unchecked(s_inner),
+                split_subject_class_unchecked(other_inner),
+            )
+        };
+
+        match cases {
+            (None, None) => s_inner.eq(other_inner),
+            (None, Some((l, r))) => {
+                s_inner.get(0..l.len()).is_some_and(|v| v.eq(l))
+                    && s_inner.get(l.len()..).is_some_and(|v| v.eq(r))
+            }
+            (Some((l, r)), None) => {
+                other_inner.get(0..l.len()).is_some_and(|v| v.eq(l))
+                    && other_inner.get(l.len()..).is_some_and(|v| v.eq(r))
+            }
+            (Some((l, r)), Some((lp, rp))) => l.eq(lp) && r.eq(rp),
+        }
     }
 }
 
@@ -1122,12 +1247,14 @@ impl<S: AsRef<str>> Validated<S> {
     ///
     /// Equivalent to [`normalize`] but guaranteed to succeed since the internal string has already
     /// been validated.
+    #[inline]
     pub fn normalize(&self) -> Option<(&str, &str)> {
         // SAFETY: self.inner is valid for the identifier rules
         unsafe { split_subject_class_unchecked(self.inner.as_ref()) }
     }
 
     /// Return the unmodified inner component.
+    #[inline]
     pub fn into_inner(self) -> S {
         self.inner
     }

@@ -55,9 +55,37 @@ fn test_sort_order() {
     ]);
 }
 
+fn assert_validation_round_trip(id_sc: &str, id: &str) {
+    let a = ArticleId::from_str(id).unwrap();
+    let b = ArticleId::from_str(id_sc).unwrap();
+    let c = Validated::parse(id).unwrap();
+    let d = Validated::parse(id_sc).unwrap();
+    assert_eq!(c, d);
+
+    assert_eq!(a, (&c).into());
+    assert_eq!(a, (&d).into());
+    assert_eq!(b, (&c).into());
+    assert_eq!(b, (&d).into());
+
+    assert_eq!(a.to_string(), b.to_string());
+    assert_eq!(b.to_string(), c.to_string());
+    assert_eq!(c.to_string(), d.to_string());
+    assert_eq!(d.to_string(), a.to_string());
+
+    assert_eq!(a.to_string(), a.identifier());
+    assert_eq!(b.to_string(), b.identifier());
+    assert_eq!(c.to_string(), c.identifier());
+    assert_eq!(d.to_string(), d.identifier());
+
+    assert_eq!(id, Validated::<String>::from(a).to_string());
+    assert_eq!(id, Validated::<String>::from(b).to_string());
+}
+
 #[test]
 fn test_new_id() {
     fn assert_ok(id: &str, year: u16, month: u8, number: u32, version: Option<NonZero<u16>>) {
+        assert_validation_round_trip(id, id);
+
         // check the fields
         let new_id = ArticleId::from_str(id).unwrap();
         assert_eq!(new_id.year(), year);
@@ -69,6 +97,7 @@ fn test_new_id() {
         let displayed = new_id.to_string();
         assert_eq!(id, displayed);
         assert!(displayed.len() <= MAX_ID_FORMATTED_LEN);
+        assert_eq!(displayed.len(), new_id.formatted_len());
 
         // check that it is equal to constructing from parameters
         assert_eq!(
@@ -118,31 +147,6 @@ fn test_old_id() {
         assert_eq!(id.version(), version);
     }
 
-    fn assert_validation_round_trip(id_sc: &str, id: &str) {
-        let a = ArticleId::from_str(id).unwrap();
-        let b = ArticleId::from_str(id_sc).unwrap();
-        let c = Validated::parse(id).unwrap();
-        let d = Validated::parse(id_sc).unwrap();
-
-        assert_eq!(a, (&c).into());
-        assert_eq!(a, (&d).into());
-        assert_eq!(b, (&c).into());
-        assert_eq!(b, (&d).into());
-
-        assert_eq!(a.to_string(), b.to_string());
-        assert_eq!(b.to_string(), c.to_string());
-        assert_eq!(c.to_string(), d.to_string());
-        assert_eq!(d.to_string(), a.to_string());
-
-        assert_eq!(a.to_string(), a.identifier());
-        assert_eq!(b.to_string(), b.identifier());
-        assert_eq!(c.to_string(), c.identifier());
-        assert_eq!(d.to_string(), d.identifier());
-
-        assert_eq!(id, Validated::<String>::from(a).to_string());
-        assert_eq!(id, Validated::<String>::from(b).to_string());
-    }
-
     fn assert_ok(
         id: &str,
         archive: Archive,
@@ -161,6 +165,7 @@ fn test_old_id() {
         let displayed = old_id.to_string();
         assert_eq!(id, displayed);
         assert!(displayed.len() <= MAX_ID_FORMATTED_LEN);
+        assert_eq!(displayed.len(), old_id.formatted_len());
 
         let ser = old_id.serialize();
         // check round-trip (de)serialization
@@ -211,10 +216,38 @@ fn test_old_id() {
         1,
         NonZero::new(10000),
     );
+    for i in 1u8..=34u8 {
+        // SAFETY: this is the #[repr(u8)] range
+        let archive = unsafe { std::mem::transmute::<u8, Archive>(i) };
+        let s = archive.to_id().to_owned() + "/9108001v65535";
+        assert_ok(&s, archive, 1991, 8, 1, NonZero::new(65535));
+
+        for v in [1, 9, 10, 99, 100, 999, 1000, 9999, 10000, 65535] {
+            let tail = format!("/0001999v{v}");
+            let s = archive.to_id().to_owned() + &tail;
+            assert_ok(&s, archive, 2000, 1, 999, NonZero::new(v));
+        }
+
+        let s = archive.to_id().to_owned() + "/0001999";
+        assert_ok(&s, archive, 2000, 1, 999, NonZero::new(0));
+
+        let s1 = archive.to_id().to_owned() + ".XY";
+        let s2 = archive.to_id().to_owned() + ".UV";
+        let s3 = archive.to_id().to_owned();
+        assert_eq!(
+            Validated::parse(format!("{s1}/9108010v65535")).unwrap(),
+            Validated::parse(&format!("{s2}/9108010v65535")).unwrap(),
+        );
+        assert_validation_round_trip(&format!("{s1}/9310001"), &format!("{s3}/9310001"));
+    }
+    assert!(ArticleId::from_str("hep-lat.ZZ/9108001v65535").is_ok());
 
     // check that the subject class is pruned correctly
     assert_validation_round_trip("math.CA/9310001", "math/9310001");
     assert_validation_round_trip("nlin.ZZ/0101010v1", "nlin/0101010v1");
+    assert_validation_round_trip("nlin.ZZ/0101010", "nlin/0101010");
+    assert_validation_round_trip("nlin.ZZ/9108010", "nlin/9108010");
+    assert_validation_round_trip("nlin.ZZ/9108010v65535", "nlin/9108010v65535");
 
     assert!(ArticleId::from_str("nlin.Z/0101010v1").is_err());
     assert!(ArticleId::from_str("nlin.zz/0101010v1").is_err());
