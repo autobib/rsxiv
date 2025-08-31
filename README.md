@@ -8,9 +8,12 @@ A [Rust](https://www.rust-lang.org/) library to provide an interface for [arXiv 
 Key features:
 
 - [Typed and validated representations](https://docs.rs/rsxiv/latest/rsxiv/id/index.html) of arXiv identifiers.
-- An arXiv API [query builder](https://docs.rs/rsxiv/latest/rsxiv/query/index.html) to programmatically construct query URLs for the arXiv API.
-- An arXiv API [response parser](https://docs.rs/rsxiv/latest/rsxiv/response/index.html) to parse the API response.
-- A low-overhead [serde](https://serde.rs/) interface to [convert the arXiv API response](https://docs.rs/rsxiv/latest/rsxiv/de/index.html) to your own types.
+- A [query builder](https://docs.rs/rsxiv/latest/rsxiv/query/index.html) to programmatically construct query URLs for the arXiv API.
+- A [response parser](https://docs.rs/rsxiv/latest/rsxiv/response/index.html) to parse the API response.
+- A low-overhead [serde](https://serde.rs/) interface to [convert the API response](https://docs.rs/rsxiv/latest/rsxiv/de/index.html) to your own types.
+
+This crate will not make the network request itself.
+For that, you might use [ureq](https://crates.io/crates/ureq) or [reqwest](https://crates.io/crates/reqwest).
 
 ## Example
 Example using [ureq](https://crates.io/crates/ureq):
