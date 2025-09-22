@@ -1,7 +1,7 @@
 //! # ArXiv API query builder
 //!
 //! This module provides a interface interface to build query URLs for the [arXiv API][api]. The
-//! main entry point is the query builder [`Query`] struct.
+//! main entry point is the [`Query`] struct.
 //!
 //! [api]: https://info.arxiv.org/help/api/user-manual.html
 mod field;

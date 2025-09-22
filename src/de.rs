@@ -1,8 +1,10 @@
 //! # Response deserialization
 //!
-//! The [`Response<T>`] struct can the entry list in the API response into any container `T` of
-//! type `map` or `seq` in the [serde data model](https://serde.rs/data-model.html)
-//! which contains an [`Entry`](crate::response::Entry)-like `map` into which to deserialize each entry.
+//! This module describes the deserialization interface managed by the wrapper struct
+//! [`Response<T>`].
+//!
+//! Here, `T` is any container of type `map` or `seq` in the
+//! [serde data model](https://serde.rs/data-model.html), which itself contains an [`Entry`](crate::response::Entry)-like `map` into which to deserialize each entry.
 //!
 //! Jump to:
 //!
@@ -128,37 +130,6 @@
 //!     response.entries.get(&ArticleId::parse("1810.03952v2").unwrap()).unwrap().authors[2].to_string(),
 //!     "John Harlim"
 //! );
-//! ```
-//! ### Complete `Entry` struct
-//! This is an entry struct capturing as much data as possible from the arXiv response. Designed to
-//! be used as a `Vec<Entry>`.
-//! ```
-//! use std::borrow::Cow;
-//!
-//! use chrono::{DateTime, FixedOffset};
-//! use serde::Deserialize;
-//! use rsxiv::{id::ArticleId, response::AuthorName};
-//!
-//! #[derive(Deserialize)]
-//! pub struct Entry {
-//!     pub id: ArticleId,
-//!     pub updated: DateTime<FixedOffset>,
-//!     pub published: DateTime<FixedOffset>,
-//!     pub title: String,
-//!     pub summary: String,
-//!     pub authors: Vec<Author>,
-//!     pub doi: Option<String>,
-//!     pub comment: Option<String>,
-//!     pub journal_ref: Option<String>,
-//!     pub primary_category: String,
-//!     pub category: Vec<String>,
-//! }
-//!
-//! #[derive(Deserialize)]
-//! pub struct Author {
-//!     pub name: AuthorName,
-//!     pub affiliation: Option<String>,
-//! }
 //! ```
 
 mod de_impl;
