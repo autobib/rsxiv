@@ -16,7 +16,7 @@ This crate will not make the network request itself.
 For that, you might use [ureq](https://crates.io/crates/ureq) or [reqwest](https://crates.io/crates/reqwest).
 
 ## Example
-Example using [ureq](https://crates.io/crates/ureq):
+Example using [ureq](https://crates.io/crates/ureq) and the `serde` feature:
 ```rust
 use std::{borrow::Cow, collections::BTreeMap};
 
@@ -32,6 +32,7 @@ use ureq;
 struct Entry<'r> {
     // Built-in author name parsing
     authors: Vec<AuthorName>,
+    #[serde(borrow)]
     title: Cow<'r, str>,
 }
 
