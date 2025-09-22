@@ -42,6 +42,8 @@ use crate::id::ArticleId;
 
 /// A parsed arXiv API response.
 ///
+/// Typically constructed using the [`parse`] method or the [deserialize implementation](crate::de).
+///
 /// ### Customizing deserialization
 ///
 /// This struct is also designed as a deserialization wrapper target. Enable this with the `serde`
@@ -70,7 +72,7 @@ pub struct Pagination {
     pub items_per_page: u64,
 }
 
-/// Parse a [`Response<Entry<'r>>`] from the raw XML response returned by the arXiv API.
+/// Parse a [`Response<Vec<Entry<'r>>>`] from the raw XML response returned by the arXiv API.
 ///
 /// This implementation borrows as much as possible from the input data, but sometimes borrowing is
 /// impossible due to the presence of XML escape sequences.
@@ -340,6 +342,7 @@ impl AuthorName {
 
 /// Typed representation of a single entry in the arXiv API response.
 #[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(all(test, feature = "serde"), derive(serde::Deserialize))]
 pub struct Entry<'r> {
     /// The arXiv identifier of the entry.
     pub id: ArticleId,
@@ -394,6 +397,7 @@ pub enum ResponseError {
 
 /// An article author.
 #[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(all(test, feature = "serde"), derive(serde::Deserialize))]
 pub struct Author<'r> {
     /// The name of the author.
     pub name: AuthorName,
