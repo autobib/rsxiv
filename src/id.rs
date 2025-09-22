@@ -404,9 +404,12 @@ impl Error for IdError {}
 /// };
 /// assert_eq!(id_copy, id);
 ///
-/// let undefined = unsafe {
-///     std::mem::transmute::<u64, ArticleId>(12345) // undefined behavior! ⚠️
+/// // ⚠️ undefined behavior! do not do this
+/// /*
+/// unsafe {
+///     std::mem::transmute::<u64, ArticleId>(12345)
 /// };
+/// */
 /// ```
 ///
 /// [arxivid]: https://info.arxiv.org/help/arxiv_identifier.html
