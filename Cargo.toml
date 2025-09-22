@@ -14,9 +14,6 @@ categories = ["text-processing", "api-bindings"]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
-[features]
-serde = ["dep:serde"]
-
 [dependencies]
 chrono = "0.4"
 quick-xml = "0.38"
