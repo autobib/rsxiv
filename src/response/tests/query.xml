@@ -4,9 +4,9 @@
   <title type="html">ArXiv Query: search_query=all:electron AND all:proton&amp;id_list=&amp;start=0&amp;max_results=10</title>
   <id>http://arxiv.org/api/5SM+U4Y158JiJuDXkggxPJF18mw</id>
   <updated>2025-08-20T00:00:00-04:00</updated>
+  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
   <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">7370</opensearch:totalResults>
   <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
-  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
   <entry>
     <id>http://arxiv.org/abs/astro-ph/9904306v1</id>
     <updated>1999-04-22T15:54:59Z</updated>

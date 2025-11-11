@@ -65,7 +65,10 @@ impl<'r> ResponseReader<'r> {
     }
 
     fn read_updated(&mut self) -> Result<DateTime<FixedOffset>, ResponseError> {
-        let Some(datetime) = self.xml_reader.find_text_matching_tag(b"updated")? else {
+        let Some(datetime) = self
+            .xml_reader
+            .find_text_matching_tag(|t| t == b"updated")?
+        else {
             return Err(ResponseError::MissingTag("updated"));
         };
 
@@ -74,7 +77,10 @@ impl<'r> ResponseReader<'r> {
 
     /// Interpret the contents of a tag with the provided name as a `u64`.
     fn read_tag_u64(&mut self, name: &'static str) -> Result<u64, ResponseError> {
-        let Some(total_results) = self.xml_reader.find_text_matching_tag(name.as_bytes())? else {
+        let Some(total_results) = self
+            .xml_reader
+            .find_text_matching_tag(|t| t == name.as_bytes())?
+        else {
             return Err(ResponseError::MissingTag(name));
         };
 
@@ -87,9 +93,9 @@ impl<'r> ResponseReader<'r> {
 
     /// Parse pagination data from the response header information.
     fn read_pagination(&mut self) -> Result<Pagination, ResponseError> {
+        let items_per_page = self.read_tag_u64("opensearch:itemsPerPage")?;
         let total_results = self.read_tag_u64("opensearch:totalResults")?;
         let start_index = self.read_tag_u64("opensearch:startIndex")?;
-        let items_per_page = self.read_tag_u64("opensearch:itemsPerPage")?;
         Ok(Pagination {
             total_results,
             start_index,
@@ -106,10 +112,13 @@ impl<'r> ResponseReader<'r> {
     /// even contain an `<id>` identifier. Instead of trying to parse these entries or worry about
     /// errors, we just skip the entries automatically.
     pub fn next_id(&mut self) -> Result<Option<&'r [u8]>, ResponseError> {
-        match self.xml_reader.find_raw_matching_tag(b"id")? {
+        match self.xml_reader.find_raw_matching_tag(|t| t == b"id")? {
             Some(url) => {
                 if url.starts_with(b"http://arxiv.org/api/errors#") {
-                    match self.xml_reader.find_text_matching_tag(b"summary")? {
+                    match self
+                        .xml_reader
+                        .find_text_matching_tag(|t| t == b"summary")?
+                    {
                         Some(contents) => Err(ResponseError::Arxiv(contents.into())),
                         None => Err(ResponseError::InvalidError(
                             "missing `summary` tag".to_owned(),

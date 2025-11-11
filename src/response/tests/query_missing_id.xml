@@ -4,9 +4,9 @@
   <title type="html">ArXiv Query: search_query=&amp;id_list=2201.13452,2201.13453,2201.13454&amp;start=0&amp;max_results=10</title>
   <id>http://arxiv.org/api/OA7B+UhmTm6x8UNerl0uI5H0CII</id>
   <updated>2025-08-24T00:00:00-04:00</updated>
+  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
   <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">4</opensearch:totalResults>
   <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
-  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
   <entry>
     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="" scheme="http://arxiv.org/schemas/atom"/>
     <category term="" scheme="http://arxiv.org/schemas/atom"/>

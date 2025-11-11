@@ -97,10 +97,13 @@ impl<'r> Reader<'r> {
     }
 
     /// Find an opening tag with the provided tag name.
-    fn find_matching_tag(&mut self, tag: &[u8]) -> Result<Option<BytesStart<'r>>, Error> {
+    fn find_matching_tag(
+        &mut self,
+        mut f: impl FnMut(&[u8]) -> bool,
+    ) -> Result<Option<BytesStart<'r>>, Error> {
         self.find_before(
             |event| match event {
-                Event::Start(bytes_start) if bytes_start.name().0 == tag => Some(bytes_start),
+                Event::Start(bytes_start) if f(bytes_start.name().0) => Some(bytes_start),
                 _ => None,
             },
             |_| false,
@@ -108,8 +111,11 @@ impl<'r> Reader<'r> {
     }
 
     /// Returns the decoded text contents in the first tag matching the provided tag name.
-    pub fn find_text_matching_tag(&mut self, tag: &[u8]) -> Result<Option<Cow<'r, str>>, Error> {
-        if let Some(bytes_start) = self.find_matching_tag(tag)? {
+    pub fn find_text_matching_tag(
+        &mut self,
+        f: impl FnMut(&[u8]) -> bool,
+    ) -> Result<Option<Cow<'r, str>>, Error> {
+        if let Some(bytes_start) = self.find_matching_tag(f)? {
             // read the text
             Ok(Some(self.read_text(&bytes_start)?))
         } else {
@@ -118,8 +124,11 @@ impl<'r> Reader<'r> {
     }
 
     /// Returns the raw tag contents (as bytes) of the first tag matching the provided tag name.
-    pub fn find_raw_matching_tag(&mut self, tag: &[u8]) -> Result<Option<&'r [u8]>, Error> {
-        if let Some(bytes_start) = self.find_matching_tag(tag)? {
+    pub fn find_raw_matching_tag(
+        &mut self,
+        f: impl FnMut(&[u8]) -> bool,
+    ) -> Result<Option<&'r [u8]>, Error> {
+        if let Some(bytes_start) = self.find_matching_tag(f)? {
             // read the bytes
             let span = self.reader.read_to_end(bytes_start.to_end().name())?;
             Ok(self.xml.get(span.start as usize..span.end as usize))

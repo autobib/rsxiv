@@ -4,9 +4,9 @@
 #   <title type="html">ArXiv Query: search_query=cat:math.CA AND ti:diffuse&amp;id_list=&amp;start=0&amp;max_results=10</title>
 #   <id>http://arxiv.org/api/UbovMDQrOosYxZQzH/N9Sd9jTMY</id>
 #   <updated>2025-08-22T00:00:00-04:00</updated>
+#   <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
 #   <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">96</opensearch:totalResults>
 #   <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
-#   <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
 #   <entry>
 #     <id>http://arxiv.org/abs/1810.03952v2</id>
 #     <updated>2020-07-25T01:09:06Z</updated>

@@ -366,7 +366,7 @@ impl Error for IdError {}
 /// - `years_since_epoch`: the number of years since the arXiv epoch (`1991`, which is the constant [`ARXIV_EPOCH`]). For example,
 ///   `2` is equivalent to `1993`.
 /// - `month`: the month in the range `1..=12` starting with `Jan = 1`, etc.
-/// - `archive`: either the `#[repr(u8)]` value of [`Archive`], or `0` 
+/// - `archive`: either the `#[repr(u8)]` value of [`Archive`], or `0`
 ///   to indicate that the archive is not present (as is the case for new-style identifiers).
 /// - `number`: the article number, which fits in the range since `2^24 - 1 = 16_777_215` gives
 ///   sufficient space to store up to 7 digits.
