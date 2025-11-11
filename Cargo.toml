@@ -2,7 +2,7 @@
 name = "rsxiv"
 description = "Tools for working with arXiv and the arXiv API"
 readme = "README.md"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2024"
 authors = ["Alex Rutar <alex@rutar.org>"]
 keywords = ["arxiv", "serde", "serialization"]
