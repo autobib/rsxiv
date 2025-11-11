@@ -198,16 +198,16 @@ pub struct EntryDeserializer<'a, 'de> {
 
 static ALLOWED_FIELDS: [&str; 11] = [
     "id",
-    "updated",
-    "published",
     "title",
+    "updated",
     "summary",
+    "categories",
+    "published",
+    "comment",
+    "primary_category",
+    "journal_ref",
     "authors",
     "doi",
-    "comment",
-    "journal_ref",
-    "primary_category",
-    "categories",
 ];
 
 impl<'a, 'de> Deserializer<'de> for EntryDeserializer<'a, 'de> {
@@ -307,53 +307,53 @@ impl<'a, 'de> MapAccess<'de> for EntryMapAccess<'a, 'de> {
                     ))
                 }
             }
-            // updated
-            1 => seed.deserialize(StrTagDeserializer {
-                reader: &mut *self.reader,
-                getter: ResponseReader::next_updated,
-            }),
-            // published
-            2 => seed.deserialize(StrTagDeserializer {
-                reader: &mut *self.reader,
-                getter: ResponseReader::next_published,
-            }),
             // title
-            3 => seed.deserialize(StrTagDeserializer {
+            1 => seed.deserialize(StrTagDeserializer {
                 reader: &mut *self.reader,
                 getter: ResponseReader::next_title,
             }),
+            // updated
+            2 => seed.deserialize(StrTagDeserializer {
+                reader: &mut *self.reader,
+                getter: ResponseReader::next_updated,
+            }),
             // summary
-            4 => seed.deserialize(StrTagDeserializer {
+            3 => seed.deserialize(StrTagDeserializer {
                 reader: &mut *self.reader,
                 getter: ResponseReader::next_summary,
             }),
-            // authors..
-            5 => seed.deserialize(AuthorSeqAccess {
+            // category..
+            4 => seed.deserialize(CategorySeqAccess {
                 reader: &mut *self.reader,
             }),
-            // doi?
-            6 => seed.deserialize(StrTagOptDeserializer {
+            // published
+            5 => seed.deserialize(StrTagDeserializer {
                 reader: &mut *self.reader,
-                getter: ResponseReader::next_doi,
+                getter: ResponseReader::next_published,
             }),
             // comment?
-            7 => seed.deserialize(StrTagOptDeserializer {
+            6 => seed.deserialize(StrTagOptDeserializer {
                 reader: &mut *self.reader,
                 getter: ResponseReader::next_comment,
             }),
+            // primary_category
+            7 => {
+                let term = self.reader.next_primary_category()?;
+                seed.deserialize(TermDeserializer { term })
+            }
             // journal_ref?
             8 => seed.deserialize(StrTagOptDeserializer {
                 reader: &mut *self.reader,
                 getter: ResponseReader::next_journal_ref,
             }),
-            // primary_categories
-            9 => {
-                let term = self.reader.next_primary_category()?;
-                seed.deserialize(TermDeserializer { term })
-            }
-            // category..
-            10 => seed.deserialize(CategorySeqAccess {
+            // author..
+            9 => seed.deserialize(AuthorSeqAccess {
                 reader: &mut *self.reader,
+            }),
+            // doi?
+            10 => seed.deserialize(StrTagOptDeserializer {
+                reader: &mut *self.reader,
+                getter: ResponseReader::next_doi,
             }),
             _ => unreachable!(),
         };

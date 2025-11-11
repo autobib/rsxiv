@@ -1,41 +1,69 @@
-# r#"<?xml version="1.0" encoding="UTF-8"?>
-# <feed xmlns="http://www.w3.org/2005/Atom">
-#   <link href="http://arxiv.org/api/query?search_query%3Dcat%3Amath.CA%20AND%20ti%3Adiffuse%26id_list%3D%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
-#   <title type="html">ArXiv Query: search_query=cat:math.CA AND ti:diffuse&amp;id_list=&amp;start=0&amp;max_results=10</title>
-#   <id>http://arxiv.org/api/UbovMDQrOosYxZQzH/N9Sd9jTMY</id>
-#   <updated>2025-08-22T00:00:00-04:00</updated>
-#   <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
-#   <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">96</opensearch:totalResults>
-#   <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+# r#"<?xml version='1.0' encoding='UTF-8'?>
+# <feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+#   <id>https://arxiv.org/api/UbovMDQrOosYxZQzH/N9Sd9jTMY</id>
+#   <title>arXiv Query: search_query=cat:math.CA AND ti:diffuse&amp;id_list=&amp;start=0&amp;max_results=10</title>
+#   <updated>2025-11-11T18:35:54Z</updated>
+#   <link href="https://arxiv.org/api/query?search_query=cat:math.CA+AND+ti:diffuse&amp;start=0&amp;max_results=10&amp;id_list=" type="application/atom+xml"/>
+#   <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+#   <opensearch:totalResults>100</opensearch:totalResults>
+#   <opensearch:startIndex>0</opensearch:startIndex>
+#   <entry>
+#     <id>http://arxiv.org/abs/1506.07840v1</id>
+#     <title>Diffusion Nets</title>
+#     <updated>2015-06-26T00:12:32Z</updated>
+#     <link href="https://arxiv.org/abs/1506.07840v1"/>
+#     <link href="https://arxiv.org/pdf/1506.07840v1"/>
+#     <summary>Non-linear manifold learning enables high-dimensional data analysis, but requires out-of-sample-extension methods to process new data points. In this paper, we propose a manifold learning algorithm based on deep learning to create an encoder, which maps a high-dimensional dataset and its low-dimensional embedding, and a decoder, which takes the embedded data back to the high-dimensional space. Stacking the encoder and decoder together constructs an autoencoder, which we term a diffusion net, that performs out-of-sample-extension as well as outlier detection. We introduce new neural net constraints for the encoder, which preserves the local geometry of the points, and we prove rates of convergence for the encoder. Also, our approach is efficient in both computational complexity and memory requirements, as opposed to previous methods that require storage of all training points in both the high-dimensional and the low-dimensional spaces to calculate the out-of-sample-extension and the pre-image.</summary>
+#     <category term="stat.ML" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2015-06-25T18:13:49Z</published>
+#     <arxiv:comment>24 pages, 12 figures</arxiv:comment>
+#     <arxiv:primary_category term="stat.ML"/>
+#     <author>
+#       <name>Gal Mishne</name>
+#     </author>
+#     <author>
+#       <name>Uri Shaham</name>
+#     </author>
+#     <author>
+#       <name>Alexander Cloninger</name>
+#     </author>
+#     <author>
+#       <name>Israel Cohen</name>
+#     </author>
+#   </entry>
+#   <entry>
+#     <id>http://arxiv.org/abs/2311.05385v2</id>
+#     <title>Coupled reaction-diffusion equations with degenerate diffusivity: wavefront analysis</title>
+#     <updated>2024-04-30T00:17:16Z</updated>
+#     <link href="https://arxiv.org/abs/2311.05385v2"/>
+#     <link href="https://arxiv.org/pdf/2311.05385v2"/>
+#     <summary>We investigate traveling wave solutions for a nonlinear system of two coupled reaction-diffusion equations characterized by double degenerate diffusivity: \[n_t= -f(n,b), \quad b_t=[g(n)h(b)b_x]_x+f(n,b).\] These systems mainly appear in modeling spatial-temporal patterns during bacterial growth. Central to our study is the diffusion term $g(n)h(b)$, which degenerates at $n=0$ and $b=0$; and the reaction term $f(n,b)$, which is positive, except for $n=0$ or $b=0$. Specifically, the existence of traveling wave solutions composed by a couple of strictly monotone functions for every wave speed in a closed half-line is proved, and some threshold speed estimates are given. Moreover, the regularity of the traveling wave solutions is discussed in connection with the wave speed.</summary>
+#     <category term="math.AP" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2023-11-09T14:10:18Z</published>
+#     <arxiv:primary_category term="math.AP"/>
+#     <author>
+#       <name>Eduardo Muñoz-Hernández</name>
+#     </author>
+#     <author>
+#       <name>Elisa Sovrano</name>
+#     </author>
+#     <author>
+#       <name>Valentina Taddei</name>
+#     </author>
+#   </entry>
 #   <entry>
 #     <id>http://arxiv.org/abs/1810.03952v2</id>
-#     <updated>2020-07-25T01:09:06Z</updated>
-#     <published>2018-10-09T13:19:21Z</published>
 #     <title>Fractional Diffusion Maps</title>
-#     <summary>  In this paper, we extend the diffusion maps algorithm on a family of heat
-# kernels that are either local (having exponential decay) or nonlocal (having
-# polynomial decay), arising in various applications. For example, these kernels
-# have been used as a regularizer in various supervised learning tasks for
-# denoising images. Importantly, these heat kernels give rise to operators that
-# include (but are not restricted to) the generators of the classical Laplacian
-# associated to Brownian processes as well as the fractional Laplacian associated
-# with $\beta$-stable L\'evy processes. For local kernels, while the method is a
-# version of the diffusion maps algorithm, we show that the applications with
-# non-Gaussian local heat kernels approximate temporally rescaled
-# Laplace-Beltrami operators. For the non-local heat kernels, we modify the
-# diffusion maps algorithm to estimate fractional Laplacian operators. Here, the
-# graph distance is used to approximate the geodesic distance with appropriate
-# error bounds. While this approximation becomes numerically expensive as the
-# number of data points increases, it produces an accurate operator estimation
-# that is robust to the choice of the kernel bandwidth parameter value. In
-# contrast, the local kernels are numerically more efficient but more sensitive
-# to the choice of kernel bandwidth parameter value. In an application to
-# estimate non-smooth regression functions, we find that using the nonlocal
-# kernel as a regularizer produces a more robust and accurate estimate than using
-# local kernels. For manifolds with boundary, we find that the proposed
-# fractional diffusion maps framework implemented with non-local kernels
-# approximates the regional fractional Laplacian.
-# </summary>
+#     <updated>2020-07-28T00:06:08Z</updated>
+#     <link href="https://arxiv.org/abs/1810.03952v2"/>
+#     <link href="https://arxiv.org/pdf/1810.03952v2"/>
+#     <summary>In this paper, we extend the diffusion maps algorithm on a family of heat kernels that are either local (having exponential decay) or nonlocal (having polynomial decay), arising in various applications. For example, these kernels have been used as a regularizer in various supervised learning tasks for denoising images. Importantly, these heat kernels give rise to operators that include (but are not restricted to) the generators of the classical Laplacian associated to Brownian processes as well as the fractional Laplacian associated with $β$-stable Lévy processes. For local kernels, while the method is a version of the diffusion maps algorithm, we show that the applications with non-Gaussian local heat kernels approximate temporally rescaled Laplace-Beltrami operators. For the non-local heat kernels, we modify the diffusion maps algorithm to estimate fractional Laplacian operators. Here, the graph distance is used to approximate the geodesic distance with appropriate error bounds. While this approximation becomes numerically expensive as the number of data points increases, it produces an accurate operator estimation that is robust to the choice of the kernel bandwidth parameter value. In contrast, the local kernels are numerically more efficient but more sensitive to the choice of kernel bandwidth parameter value. In an application to estimate non-smooth regression functions, we find that using the nonlocal kernel as a regularizer produces a more robust and accurate estimate than using local kernels. For manifolds with boundary, we find that the proposed fractional diffusion maps framework implemented with non-local kernels approximates the regional fractional Laplacian.</summary>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2018-10-09T13:19:21Z</published>
+#     <arxiv:primary_category term="math.CA"/>
 #     <author>
 #       <name>Harbir Antil</name>
 #     </author>
@@ -45,209 +73,137 @@
 #     <author>
 #       <name>John Harlim</name>
 #     </author>
-#     <link href="http://arxiv.org/abs/1810.03952v2" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1810.03952v2" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
 #   </entry>
 #   <entry>
-#     <id>http://arxiv.org/abs/1509.07707v1</id>
-#     <updated>2015-09-25T13:16:13Z</updated>
-#     <published>2015-09-25T13:16:13Z</published>
-#     <title>Iterated Diffusion Maps for Feature Identification</title>
-#     <summary>  Recently, the theory of diffusion maps was extended to a large class of local
-# kernels with exponential decay which were shown to represent various Riemannian
-# geometries on a data set sampled from a manifold embedded in Euclidean space.
-# Moreover, local kernels were used to represent a diffeomorphism, H, between a
-# data set and a feature of interest using an anisotropic kernel function,
-# defined by a covariance matrix based on the local derivatives, DH. In this
-# paper, we generalize the theory of local kernels to represent degenerate
-# mappings where the intrinsic dimension of the data set is higher than the
-# intrinsic dimension of the feature space. First, we present a rigorous method
-# with asymptotic error bounds for estimating DH from the training data set and
-# feature values. We then derive scaling laws for the singular values of the
-# local linear structure of the data, which allows the identification the tangent
-# space and improved estimation of the intrinsic dimension of the manifold and
-# the bandwidth parameter of the diffusion maps algorithm. Using these numerical
-# tools, our approach to feature identification is to iterate the diffusion map
-# with appropriately chosen local kernels that emphasize the features of
-# interest. We interpret the iterated diffusion map (IDM) as a discrete
-# approximation to an intrinsic geometric flow which smoothly changes the
-# geometry of the data space to emphasize the feature of interest. When the data
-# lies on a product manifold of the feature manifold with an irrelevant manifold,
-# we show that the IDM converges to the quotient manifold which is isometric to
-# the feature manifold, thereby eliminating the irrelevant dimensions. We will
-# also demonstrate empirically that if we apply the IDM to features that are not
-# a quotient of the data space, the algorithm identifies an intrinsically
-# lower-dimensional set embedding of the data which better represents the
-# features.
-# </summary>
-#     <author>
-#       <name>Tyrus Berry</name>
-#     </author>
-#     <author>
-#       <name>John Harlim</name>
-#     </author>
-#     <link href="http://arxiv.org/abs/1509.07707v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1509.07707v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <id>http://arxiv.org/abs/1706.08197v2</id>
+#     <title>Variational characterization of the speed of reaction diffusion fronts for gradient dependent diffusion</title>
+#     <updated>2018-07-06T00:09:23Z</updated>
+#     <link href="https://arxiv.org/abs/1706.08197v2"/>
+#     <link href="https://arxiv.org/pdf/1706.08197v2"/>
+#     <summary>We study the asymptotic speed of traveling fronts of the scalar reaction diffusion for positive reaction terms and with a diffusion coefficient depending nonlinearly on the concentration and on its gradient. We restrict our study to diffusion coefficients of the form $D(u,u_x) = m u^{m-1} u_x^{m(p-2)}$ for which existence and convergence to traveling fronts has been established. We formulate a variational principle for the asymptotic speed of the fronts. Upper and lower bounds for the speed valid for any $m\ge0, p\ge 1$ are constructed. When $m=1, p=2$ the problem reduces to the constant diffusion problem and the bounds correspond to the classic Zeldovich Frank-Kamenetskii lower bound and the Aronson-Weinberger upper bound respectively. In the special case $m(p-1) = 1$ a local lower bound can be constructed which coincides with the aforementioned upper bound. The speed in this case is completely determined in agreement with recent results.</summary>
+#     <category term="math.AP" scheme="http://arxiv.org/schemas/atom"/>
 #     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2017-06-26T00:24:05Z</published>
+#     <arxiv:comment>11 pages</arxiv:comment>
+#     <arxiv:primary_category term="math.AP"/>
+#     <author>
+#       <name>R. D. Benguria</name>
+#     </author>
+#     <author>
+#       <name>M. C. Depassier</name>
+#     </author>
+#     <arxiv:doi>10.1007/s00023-018-0692-4</arxiv:doi>
+#     <link rel="related" href="https://doi.org/10.1007/s00023-018-0692-4"/>
+#   </entry>
+#   <entry>
+#     <id>http://arxiv.org/abs/1704.03514v1</id>
+#     <title>Diffusion on Fractal Cesàro Curve</title>
+#     <updated>2017-04-13T00:01:25Z</updated>
+#     <link href="https://arxiv.org/abs/1704.03514v1"/>
+#     <link href="https://arxiv.org/pdf/1704.03514v1"/>
+#     <summary>In this paper, we apply F-calculus on fractal Koch and Cesàro curves with different dimensions. Generalized Newton's second law on the fractal Koch and Cesàro curves is suggested. Density of moving particles which absorbed on fractal Cesàro are derived. More, illustrative examples are given to present the details of F-integrals and F-derivatives.</summary>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math-ph" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2017-04-07T06:07:01Z</published>
+#     <arxiv:primary_category term="math.CA"/>
+#     <author>
+#       <name>Alireza K. Golmankhaneh</name>
+#     </author>
+#   </entry>
+#   <entry>
+#     <id>http://arxiv.org/abs/1209.0245v3</id>
+#     <title>Diffusion maps for changing data</title>
+#     <updated>2015-03-20T17:39:10Z</updated>
+#     <link href="https://arxiv.org/abs/1209.0245v3"/>
+#     <link href="https://arxiv.org/pdf/1209.0245v3"/>
+#     <summary>Graph Laplacians and related nonlinear mappings into low dimensional spaces have been shown to be powerful tools for organizing high dimensional data. Here we consider a data set X in which the graph associated with it changes depending on some set of parameters. We analyze this type of data in terms of the diffusion distance and the corresponding diffusion map. As the data changes over the parameter space, the low dimensional embedding changes as well. We give a way to go between these embeddings, and furthermore, map them all into a common space, allowing one to track the evolution of X in its intrinsic geometry. A global diffusion distance is also defined, which gives a measure of the global behavior of the data over the parameter space. Approximation theorems in terms of randomly sampled data are presented, as are potential applications.</summary>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="cs.IT" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math.PR" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math.SP" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2012-09-03T04:54:39Z</published>
+#     <arxiv:comment>38 pages. 9 figures. To appear in Applied and Computational Harmonic Analysis. v2: Several minor changes beyond just typos. v3: Minor typo corrected, added DOI</arxiv:comment>
+#     <arxiv:primary_category term="math.CA"/>
+#     <arxiv:journal_ref>Applied and Computational Harmonic Analysis, Volume 36, Issue 1, January 2014, Pages 79-107</arxiv:journal_ref>
+#     <author>
+#       <name>Ronald R. Coifman</name>
+#     </author>
+#     <author>
+#       <name>Matthew J. Hirn</name>
+#     </author>
+#     <arxiv:doi>10.1016/j.acha.2013.03.001</arxiv:doi>
+#     <link rel="related" href="https://doi.org/10.1016/j.acha.2013.03.001"/>
+#   </entry>
+#   <entry>
+#     <id>http://arxiv.org/abs/1608.03628v3</id>
+#     <title>Time Coupled Diffusion Maps</title>
+#     <updated>2019-11-27T01:04:09Z</updated>
+#     <link href="https://arxiv.org/abs/1608.03628v3"/>
+#     <link href="https://arxiv.org/pdf/1608.03628v3"/>
+#     <summary>We consider a collection of $n$ points in $\mathbb{R}^d$ measured at $m$ times, which are encoded in an $n \times d \times m$ data tensor. Our objective is to define a single embedding of the $n$ points into Euclidean space which summarizes the geometry as described by the data tensor. In the case of a fixed data set, diffusion maps (and related graph Laplacian methods) define such an embedding via the eigenfunctions of a diffusion operator constructed on the data. Given a sequence of $m$ measurements of $n$ points, we construct a corresponding sequence of diffusion operators and study their product. Via this product, we introduce the notion of time coupled diffusion distance and time coupled diffusion maps which have natural geometric and probabilistic interpretations. To frame our method in the context of manifold learning, we model evolving data as samples from an underlying manifold with a time dependent metric, and we describe a connection of our method to the heat equation over a manifold with time dependent metric.</summary>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="cs.IT" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math.PR" scheme="http://arxiv.org/schemas/atom"/>
+#     <category term="math.SP" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2016-08-11T22:37:36Z</published>
+#     <arxiv:comment>17 pages, 3 figures</arxiv:comment>
+#     <arxiv:primary_category term="math.CA"/>
+#     <arxiv:journal_ref>Applied and Computational Harmonic Analysis, Volume 45, Issue 3, November 2018, Pages 709-728</arxiv:journal_ref>
+#     <author>
+#       <name>Nicholas F. Marshall</name>
+#     </author>
+#     <author>
+#       <name>Matthew J. Hirn</name>
+#     </author>
+#     <arxiv:doi>10.1016/j.acha.2017.11.003</arxiv:doi>
+#     <link rel="related" href="https://doi.org/10.1016/j.acha.2017.11.003"/>
 #   </entry>
 #   <entry>
 #     <id>http://arxiv.org/abs/2006.09211v1</id>
-#     <updated>2020-06-16T14:43:24Z</updated>
-#     <published>2020-06-16T14:43:24Z</published>
 #     <title>A Note on the Axisymmetric Diffusion equation</title>
-#     <summary>  We consider the explicit solution to the axisymmetric diffusion equation. We
-# recast the solution in the form of a Mellin inversion formula, and outline a
-# method to compute a formula for $u(r,t)$ as a series using the Cauchy residue
-# theorem. As a consequence, we are able to represent the solution to the
-# axisymmetric diffusion equation as rapidly converging series.
-# </summary>
+#     <updated>2021-10-07T00:20:11Z</updated>
+#     <link href="https://arxiv.org/abs/2006.09211v1"/>
+#     <link href="https://arxiv.org/pdf/2006.09211v1"/>
+#     <summary>We consider the explicit solution to the axisymmetric diffusion equation. We recast the solution in the form of a Mellin inversion formula, and outline a method to compute a formula for $u(r,t)$ as a series using the Cauchy residue theorem. As a consequence, we are able to represent the solution to the axisymmetric diffusion equation as rapidly converging series.</summary>
+#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2020-06-16T14:43:24Z</published>
+#     <arxiv:primary_category term="math.CA"/>
+#     <arxiv:journal_ref>The ANZIAM Journal, Volume 63, Issue 3, July 2021, pp. 333--341</arxiv:journal_ref>
 #     <author>
 #       <name>Alexander E Patkowski</name>
 #     </author>
-#     <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1017/S1446181121000110</arxiv:doi>
-#     <link title="doi" href="http://dx.doi.org/10.1017/S1446181121000110" rel="related"/>
-#     <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">The ANZIAM Journal, Volume 63, Issue 3, July 2021, pp. 333--341</arxiv:journal_ref>
-#     <link href="http://arxiv.org/abs/2006.09211v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/2006.09211v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <arxiv:doi>10.1017/S1446181121000110</arxiv:doi>
+#     <link rel="related" href="https://doi.org/10.1017/S1446181121000110"/>
 #   </entry>
 #   <entry>
-#     <id>http://arxiv.org/abs/1005.2786v1</id>
-#     <updated>2010-05-17T00:18:01Z</updated>
-#     <published>2010-05-17T00:18:01Z</published>
-#     <title>Positive travelling fronts for reaction-diffusion systems with
-#   distributed delay</title>
-#     <summary>  We give sufficient conditions for the existence of positive travelling wave
-# solutions for multi-dimensional autonomous reaction-diffusion systems with
-# distributed delay. To prove the existence of travelling waves, we give an
-# abstract formulation of the equation for the wave profiles in some suitable
-# Banach spaces, and apply known results about the index of some associated
-# Fredholm operators. After a Liapunov-Schmidt reduction, these waves are
-# obtained via the Banach contraction principle, as perturbations of a positive
-# heteroclinic solution for the associated system without diffusion, whose
-# existence is proven under some requirements. By a careful analysis of the
-# exponential decay of the travelling wave profiles at $-\infty$, their
-# positiveness is deduced. The existence of positive travelling waves is
-# important in terms of applications to biological models. Our method applies to
-# systems of delayed reaction-diffusion equations whose nonlinearities are not
-# required to satisfy a quasi-monotonicity condition. Applications are given, and
-# include the delayed Fisher-KPP equation.
-# </summary>
-#     <author>
-#       <name>Teresa Faria</name>
-#     </author>
-#     <author>
-#       <name>Sergei Trofimchuk</name>
-#     </author>
-#     <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1088/0951-7715/23/10/006</arxiv:doi>
-#     <link title="doi" href="http://dx.doi.org/10.1088/0951-7715/23/10/006" rel="related"/>
-#     <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">28 pages, submitted</arxiv:comment>
-#     <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Nonlinearity 23 (2010) 2457-2481</arxiv:journal_ref>
-#     <link href="http://arxiv.org/abs/1005.2786v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1005.2786v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <id>http://arxiv.org/abs/math/0702122v1</id>
+#     <title>An Indefinite Convection-Diffusion Operator</title>
+#     <updated>2007-02-07T01:00:18Z</updated>
+#     <link href="https://arxiv.org/abs/math/0702122v1"/>
+#     <link href="https://arxiv.org/pdf/math/0702122v1"/>
+#     <summary>  We give a mathematically rigorous analysis which confirms the surprising results in a recent paper of Benilov, O'Brien and Sazonov about the spectrum of a highly singular non-self-adjoint operator that arises in a problem in fluid mechanics.</summary>
+#     <category term="math.SP" scheme="http://arxiv.org/schemas/atom"/>
 #     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="35K57, 35R10 (Primary), 92D25 (Secondary)" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2007-02-05T21:02:22Z</published>
+#     <arxiv:comment>Preprint, 13 pages</arxiv:comment>
+#     <arxiv:primary_category term="math.SP"/>
+#     <author>
+#       <name>E B Davies</name>
+#     </author>
 #   </entry>
 #   <entry>
-#     <id>http://arxiv.org/abs/1711.09634v1</id>
-#     <updated>2017-11-27T11:54:06Z</updated>
-#     <published>2017-11-27T11:54:06Z</published>
-#     <title>About the chemostat model with a lateral diffusive compartment</title>
-#     <summary>  We consider the classical chemostat model with an additional compartment
-# connected by pure diffusion, and analyze its asymptotic properties. We
-# investigate conditions under which this spatial structure is beneficial for
-# species survival and yield conversion, compared to single chemostat. Moreover
-# we look for the best structure (volume repartition and diffusion rate) which
-# minimizes the volume required to attain a desired yield conversion. The
-# analysis reveals that configurations with a single tank connected by diffusion
-# to the input stream can be the most efficient.
-# </summary>
-#     <author>
-#       <name>María Crespo</name>
-#     </author>
-#     <author>
-#       <name>Alain Rapaport</name>
-#     </author>
-#     <link href="http://arxiv.org/abs/1711.09634v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1711.09634v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <id>http://arxiv.org/abs/math/0604473v2</id>
+#     <title>Fractional reaction-diffusion equations</title>
+#     <updated>2009-11-11T03:26:07Z</updated>
+#     <link href="https://arxiv.org/abs/math/0604473v2"/>
+#     <link href="https://arxiv.org/pdf/math/0604473v2"/>
+#     <summary>  In a series of papers, Saxena, Mathai, and Haubold (2002, 2004a, 2004b) derived solutions of a number of fractional kinetic equations in terms of generalized Mittag-Leffler functions which provide the extension of the work of Haubold and Mathai (1995, 2000). The subject of the present paper is to investigate the solution of a fractional reaction-diffusion equation. The results derived are of general nature and include the results reported earlier by many authors, notably by Jespersen, Metzler, and Fogedby (1999) for anomalous diffusion and del-Castillo-Negrete, Carreras, and Lynch (2003) for reaction-diffusion systems with Lévy flights. The solution has been developed in terms of the H-function in a compact form with the help of Laplace and Fourier transforms. Most of the results obtained are in a form suitable for numerical computation.</summary>
 #     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#   </entry>
-#   <entry>
-#     <id>http://arxiv.org/abs/1911.03261v2</id>
-#     <updated>2020-08-13T16:31:32Z</updated>
-#     <published>2019-11-08T13:49:35Z</published>
-#     <title>Regularity of the solution to fractional diffusion, advection, reaction
-#   equations</title>
-#     <summary>  In this report we investigate the regularity of the solution to the
-# fractional diffusion, advection, reaction equation on a bounded domain in
-# $\mathbb{R}^{1}$. The analysis is performed in the weighted Sobolev spaces,
-# $H_{(a , b)}^{s}(\mathrm{I})$. Three different characterizations of $H_{(a ,
-# b)}^{s}(\mathrm{I})$ are presented, together with needed embedding theorems for
-# these spaces. The analysis shows that the regularity of the solution is bounded
-# by the endpoint behavior of the solution, which is determined by the parameters
-# $\alpha$ and $r$ defining the fractional diffusion operator. Additionally, the
-# analysis shows that for a sufficiently smooth right hand side function, the
-# regularity of the solution to fractional diffusion reaction equation is lower
-# than that of the fractional diffusion equation. Also, the regularity of the
-# solution to fractional diffusion advection reaction equation is two orders
-# lower than that of the fractional diffusion reaction equation.
-# </summary>
-#     <author>
-#       <name>V. J. Ervin</name>
-#     </author>
-#     <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">40 pages</arxiv:comment>
-#     <link href="http://arxiv.org/abs/1911.03261v2" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1911.03261v2" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="35R11, 35B65, 46E35" scheme="http://arxiv.org/schemas/atom"/>
-#   </entry>
-#   <entry>
-#     <id>http://arxiv.org/abs/1805.09398v1</id>
-#     <updated>2018-05-23T19:38:13Z</updated>
-#     <published>2018-05-23T19:38:13Z</published>
-#     <title>On Fractional Diffusion-Advection-Reaction Equation In $\mathbb{R}$</title>
-#     <summary>  We present an analysis of existence, uniqueness, and smoothness of the
-# solution to a class of fractional ordinary differential equations posed on the
-# whole real line that models a steady state behavior of a certain anomalous
-# diffusion, advection, and reaction. The anomalous diffusion is modeled by the
-# fractional Riemann-Liouville differential operators. The strong solution of the
-# equation is sought in a Sobolev space defined by means of Fourier Transform.
-# The key component of the analysis hinges on a characterization of this Sobolev
-# space with the Riemann-Liouville derivatives that are understood in a weak
-# sense. The existence, uniqueness, and smoothness of the solution is
-# demonstrated with the assistance of several tools from functional and harmonic
-# analyses.
-# </summary>
-#     <author>
-#       <name>V. Ginting</name>
-#     </author>
-#     <author>
-#       <name>Y. Li</name>
-#     </author>
-#     <link href="http://arxiv.org/abs/1805.09398v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1805.09398v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#   </entry>
-#   <entry>
-#     <id>http://arxiv.org/abs/0704.1916v2</id>
-#     <updated>2007-08-07T16:15:22Z</updated>
-#     <published>2007-04-15T19:20:52Z</published>
-#     <title>Solutions of certain fractional kinetic equations and a fractional
-#   diffusion equation</title>
-#     <summary>  In view of the usefulness and importance of the kinetic equation in certain
-# physical problems, the authors derive the explicit solution of a fractional
-# kinetic equation of general character, that unifies and extends earlier
-# results. Further, an alternative shorter method based on a result developed by
-# the authors is given to derive the solution of a fractional diffusion equation.
-# </summary>
+#     <category term="math-ph" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2006-04-21T19:39:31Z</published>
+#     <arxiv:comment>LaTeX, 17 pages, corrected typos</arxiv:comment>
+#     <arxiv:primary_category term="math.CA"/>
+#     <arxiv:journal_ref>Astrophysics and Space Science 305(2006)289-296</arxiv:journal_ref>
 #     <author>
 #       <name>R. K. Saxena</name>
 #     </author>
@@ -257,79 +213,7 @@
 #     <author>
 #       <name>H. J. Haubold</name>
 #     </author>
-#     <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1063/1.3496829</arxiv:doi>
-#     <link title="doi" href="http://dx.doi.org/10.1063/1.3496829" rel="related"/>
-#     <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">10 pages, LaTeX,corrected typos</arxiv:comment>
-#     <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Journal of Mathematical Physics 51(2010)103506</arxiv:journal_ref>
-#     <link href="http://arxiv.org/abs/0704.1916v2" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/0704.1916v2" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="33C20, 33C90" scheme="http://arxiv.org/schemas/atom"/>
-#   </entry>
-#   <entry>
-#     <id>http://arxiv.org/abs/0802.0463v1</id>
-#     <updated>2008-02-04T17:43:42Z</updated>
-#     <published>2008-02-04T17:43:42Z</published>
-#     <title>The multi-dimensional pencil phenomenon for Laguerre heat-diffusion
-#   maximal operators</title>
-#     <summary>  We investigate in detail the mapping properties of the maximal operator
-# associated with the heat-diffusion semigroup corresponding to expansions with
-# respect to multi-dimensional standard Laguerre functions.
-# </summary>
-#     <author>
-#       <name>Adam Nowak</name>
-#     </author>
-#     <author>
-#       <name>Peter Sjögren</name>
-#     </author>
-#     <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">30 pages with 1 figure. This paper was published as Preprint 2007:35,
-#   Department of Mathematical Sciences, Chalmers University of Technology and
-#   University of Gothenburg</arxiv:comment>
-#     <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Math. Ann. 344 (2009), 213-248.</arxiv:journal_ref>
-#     <link href="http://arxiv.org/abs/0802.0463v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/0802.0463v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="42C10 (Primary); 42B25 (Secondary)" scheme="http://arxiv.org/schemas/atom"/>
-#   </entry>
-#   <entry>
-#     <id>http://arxiv.org/abs/1509.04789v1</id>
-#     <updated>2015-09-16T02:02:27Z</updated>
-#     <published>2015-09-16T02:02:27Z</published>
-#     <title>Monotone waves for non-monotone and non-local monostable
-#   reaction-diffusion equations</title>
-#     <summary>  We propose a criterion for the existence of monotone wavefronts in
-# non-monotone and non-local monostable diffusive equations of the Mackey-Glass
-# type. This extends recent results by Gomez et al proved for the particular case
-# of equations with local delayed reaction. In addition, we demonstrate the
-# uniqueness (up to a translation) of obtained monotone wavefront within the
-# class of all monotone wavefronts (such a kind of conditional uniqueness was
-# recently established for the non-local KPP-Fisher equation by Fang and Zhao).
-# Moreover, we show that if delayed reaction is local then this uniqueness
-# actually holds within the class of all wavefronts and therefore the minimal
-# fronts under consideration (either pulled or pushed) should be monotone.
-# Similarly to the case of the KPP-Fisher equations, our approach is based on the
-# construction of an appropriate fundamental solution for associated boundary
-# value problem for linear integral-differential equation.
-# </summary>
-#     <author>
-#       <name>Elena Trofimchuk</name>
-#     </author>
-#     <author>
-#       <name>Manuel Pinto</name>
-#     </author>
-#     <author>
-#       <name>Sergei Trofimchuk</name>
-#     </author>
-#     <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1016/j.jde.2016.03.039</arxiv:doi>
-#     <link title="doi" href="http://dx.doi.org/10.1016/j.jde.2016.03.039" rel="related"/>
-#     <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">23 pages, submitted</arxiv:comment>
-#     <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Journal of Differential Equations 261 (2016) pp. 1203-1236</arxiv:journal_ref>
-#     <link href="http://arxiv.org/abs/1509.04789v1" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/1509.04789v1" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="34K12, 35K57, 92D25" scheme="http://arxiv.org/schemas/atom"/>
+#     <arxiv:doi>10.1007/s10509-006-9189-6</arxiv:doi>
+#     <link rel="related" href="https://doi.org/10.1007/s10509-006-9189-6"/>
 #   </entry>
 # </feed>"#;

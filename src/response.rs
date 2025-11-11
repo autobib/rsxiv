@@ -85,10 +85,26 @@ pub fn parse<'r>(xml: &'r [u8]) -> Result<Response<Vec<Entry<'r>>>, ResponseErro
 
     while let Some(id) = reader.next_id()? {
         let id = ArticleId::parse_bytes(id)?;
-        let updated = DateTime::parse_from_rfc3339(&reader.next_updated()?)?;
-        let published = DateTime::parse_from_rfc3339(&reader.next_published()?)?;
+
         let title = reader.next_title()?;
+
+        let updated = DateTime::parse_from_rfc3339(&reader.next_updated()?)?;
+
         let summary = reader.next_summary()?;
+
+        let mut categories = Vec::new();
+        while let Some(term) = reader.next_category()? {
+            categories.push(term.get()?.into_owned().into())
+        }
+
+        let published = DateTime::parse_from_rfc3339(&reader.next_published()?)?;
+
+        let comment = reader.next_comment()?;
+
+        let primary_category = reader.next_primary_category()?.get()?.into_owned().into();
+
+        let journal_ref = reader.next_journal_ref()?;
+
         let mut authors = Vec::new();
         while reader.next_author()? {
             let name = AuthorName::from_arxiv(&reader.next_author_name()?);
@@ -96,13 +112,6 @@ pub fn parse<'r>(xml: &'r [u8]) -> Result<Response<Vec<Entry<'r>>>, ResponseErro
             authors.push(Author { name, affiliation });
         }
         let doi = reader.next_doi()?;
-        let comment = reader.next_comment()?;
-        let journal_ref = reader.next_journal_ref()?;
-        let primary_category = reader.next_primary_category()?.get()?.into_owned().into();
-        let mut categories = Vec::new();
-        while let Some(term) = reader.next_category()? {
-            categories.push(term.get()?.into_owned().into())
-        }
 
         entries.push(Entry {
             id,

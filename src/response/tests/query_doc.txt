@@ -1,42 +1,30 @@
-# r#"<?xml version="1.0" encoding="UTF-8"?>
-# <feed xmlns="http://www.w3.org/2005/Atom">
-#   <link href="http://arxiv.org/api/query?search_query%3D%26id_list%3D2206.06921%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
-#   <title type="html">ArXiv Query: search_query=&amp;id_list=2206.06921&amp;start=0&amp;max_results=10</title>
-#   <id>http://arxiv.org/api/G79xvO0tGdRYEe8vHn0XokC5HLI</id>
-#   <updated>2025-08-21T00:00:00-04:00</updated>
-#   <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
-#   <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">1</opensearch:totalResults>
-#   <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+# r#"<?xml version='1.0' encoding='UTF-8'?>
+# <feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+#   <id>https://arxiv.org/api/G79xvO0tGdRYEe8vHn0XokC5HLI</id>
+#   <title>arXiv Query: search_query=&amp;id_list=2206.06921&amp;start=0&amp;max_results=10</title>
+#   <updated>2025-11-11T18:30:58Z</updated>
+#   <link href="https://arxiv.org/api/query?search_query=&amp;start=0&amp;max_results=10&amp;id_list=2206.06921" type="application/atom+xml"/>
+#   <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+#   <opensearch:totalResults>1</opensearch:totalResults>
+#   <opensearch:startIndex>0</opensearch:startIndex>
 #   <entry>
 #     <id>http://arxiv.org/abs/2206.06921v3</id>
-#     <updated>2024-08-12T11:56:51Z</updated>
-#     <published>2022-06-14T15:35:46Z</published>
 #     <title>Attainable forms of Assouad spectra</title>
-#     <summary>  Let $d\in\mathbb{N}$ and let $\varphi\colon(0,1)\to[0,d]$. We prove that
-# there exists a set $F\subset\mathbb{R}^d$ such that
-# $\operatorname{dim}_A^\theta F=\varphi(\theta)$ for all $\theta\in(0,1)$ if and
-# only if for every $0&lt;\lambda&lt;\theta&lt;1$, \[0\leq
-# (1-\lambda)\varphi(\lambda)-(1-\theta)\varphi(\theta)\leq
-# (\theta-\lambda)\varphi\Bigl(\frac{\lambda}{\theta}\Bigr).\] In particular, the
-# following behaviours which have not previously been witnessed in any examples
-# are possible: the Assouad spectrum can be non-monotonic on every open set, and
-# can fail to be H\"older in a neighbourhood of 1.
-# </summary>
-#     <author>
-#       <name>Alex Rutar</name>
-#     </author>
-#     <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1512/iumj.2024.73.9928</arxiv:doi>
-#     <link title="doi" href="http://dx.doi.org/10.1512/iumj.2024.73.9928" rel="related"/>
-#     <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">25 pages, 5 figures. v3: Many typo fixes and substantially improved
-#   exposition, especially in non-monotonic construction. Some numbering changes
-#   from v2. Results unchanged</arxiv:comment>
-#     <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Indiana Univ. Math. J. 73 (2024), 1331-1356</arxiv:journal_ref>
-#     <link href="http://arxiv.org/abs/2206.06921v3" rel="alternate" type="text/html"/>
-#     <link title="pdf" href="http://arxiv.org/pdf/2206.06921v3" rel="related" type="application/pdf"/>
-#     <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
+#     <updated>2025-01-30T01:23:42Z</updated>
+#     <link href="https://arxiv.org/abs/2206.06921v3"/>
+#     <link href="https://arxiv.org/pdf/2206.06921v3"/>
+#     <summary>Let $d\in\mathbb{N}$ and let $\varphi\colon(0,1)\to[0,d]$. We prove that there exists a set $F\subset\mathbb{R}^d$ such that $\operatorname{dim}_A^θF=\varphi(θ)$ for all $θ\in(0,1)$ if and only if for every $0&lt;λ&lt;θ&lt;1$, \[0\leq (1-λ)\varphi(λ)-(1-θ)\varphi(θ)\leq (θ-λ)\varphi\Bigl(\fracλθ\Bigr).\] In particular, the following behaviours which have not previously been witnessed in any examples are possible: the Assouad spectrum can be non-monotonic on every open set, and can fail to be Hölder in a neighbourhood of 1.</summary>
 #     <category term="math.CA" scheme="http://arxiv.org/schemas/atom"/>
 #     <category term="math.DS" scheme="http://arxiv.org/schemas/atom"/>
 #     <category term="math.MG" scheme="http://arxiv.org/schemas/atom"/>
-#     <category term="28A80 (Primary) 39B62 (Secondary)" scheme="http://arxiv.org/schemas/atom"/>
+#     <published>2022-06-14T15:35:46Z</published>
+#     <arxiv:comment>25 pages, 5 figures. v3: Many typo fixes and substantially improved exposition, especially in non-monotonic construction. Some numbering changes from v2. Results unchanged</arxiv:comment>
+#     <arxiv:primary_category term="math.CA"/>
+#     <arxiv:journal_ref>Indiana Univ. Math. J. 73 (2024), 1331-1356</arxiv:journal_ref>
+#     <author>
+#       <name>Alex Rutar</name>
+#     </author>
+#     <arxiv:doi>10.1512/iumj.2024.73.9928</arxiv:doi>
+#     <link rel="related" href="https://doi.org/10.1512/iumj.2024.73.9928"/>
 #   </entry>
 # </feed>"#;

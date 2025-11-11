@@ -1,207 +1,237 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-  <link href="http://arxiv.org/api/query?search_query%3Dall%3Aelectron%20AND%20all%3Aproton%26id_list%3D%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
-  <title type="html">ArXiv Query: search_query=all:electron AND all:proton&amp;id_list=&amp;start=0&amp;max_results=10</title>
-  <id>http://arxiv.org/api/5SM+U4Y158JiJuDXkggxPJF18mw</id>
-  <updated>2025-08-20T00:00:00-04:00</updated>
-  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
-  <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">7370</opensearch:totalResults>
-  <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/5SM+U4Y158JiJuDXkggxPJF18mw</id>
+  <title>arXiv Query: search_query=all:electron AND all:proton&amp;id_list=&amp;start=0&amp;max_results=10</title>
+  <updated>2025-11-11T18:29:40Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=all:electron+AND+all:proton&amp;start=0&amp;max_results=10&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+  <opensearch:totalResults>7432</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
   <entry>
-    <id>http://arxiv.org/abs/astro-ph/9904306v1</id>
-    <updated>1999-04-22T15:54:59Z</updated>
-    <published>1999-04-22T15:54:59Z</published>
-    <title>Improved scenario of baryogenesis</title>
-    <summary>  It is assumed that, in the primordial plasma, at the temperatures above the
-mass of electron, fermions are in the neutral state being the superposition of
-particle and antiparticle. There exists neutral proton-electron symmetry.
-Proton-electron equilibrium is defined by the proton-electron mass difference.
-At the temperature equal to the mass of electron, pairs of neutral electrons
-annihilate into photons, and pairs of neutral protons and electrons survive as
-protons and electrons.
-</summary>
-    <author>
-      <name>D. L. Khokhlov</name>
-    </author>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">3 pages LaTeX</arxiv:comment>
-    <link href="http://arxiv.org/abs/astro-ph/9904306v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/astro-ph/9904306v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
-  </entry>
-  <entry>
-    <id>http://arxiv.org/abs/hep-ph/9411242v1</id>
-    <updated>1994-11-08T11:19:41Z</updated>
-    <published>1994-11-08T11:19:41Z</published>
-    <title>Proton-ring and Electron-linac Collider (PRELC) as a (first)
-  TeV-rangeelectron-proton or photon-proton collider</title>
-    <summary>  The use of the existing proton storage rings combined with electron linear
-accelerator as a ring-linac type electron-proton or photon-proton collider is
-investigated. The total CM-energy of Proton-ring and Electron-linac Collider
-(PRELC) is in the range of 1.0 TeV. The most important physical issues are
-listed and the most critical machine aspects of the PRELC are studied. It is
-shown that the luminosities in the range of $10^{31}$ to $10^{32}$ could be
-achieved. The PRELC could be used simultaneously with the $e^+e^-$-collider if
-the refocused electron beam could be used as the electron beam for the PRELC.
-</summary>
-    <author>
-      <name>Raimo Vuopionperä</name>
-      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">SEFT, Univ. Helsinki</arxiv:affiliation>
-    </author>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">4 pages, revtex</arxiv:comment>
-    <link href="http://arxiv.org/abs/hep-ph/9411242v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/hep-ph/9411242v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <id>http://arxiv.org/abs/nucl-ex/0408020v1</id>
+    <title>Two-photon exchange and elastic scattering of electrons/positrons on the proton. (Proposal for an experiment at VEPP-3)</title>
+    <updated>2005-09-17T15:04:24Z</updated>
+    <link href="https://arxiv.org/abs/nucl-ex/0408020v1"/>
+    <link href="https://arxiv.org/pdf/nucl-ex/0408020v1"/>
+    <summary>  It has been suggested that two-photon exchange corrections could explain the discrepancy between Rosenbluth extractions of the proton form factors and recent polarization transfer measurements. We propose a precise comparison of electron-proton and positron-proton scattering at Q^2=1.6 GeV^2 to determine if two-photon exchange at moderate Q^2 values is in fact able to explain the discrepancy.</summary>
+    <category term="nucl-ex" scheme="http://arxiv.org/schemas/atom"/>
     <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2004-08-18T23:13:32Z</published>
+    <arxiv:comment>13 pages, 10 figures. Proposal for a comparison of electron-proton and positron-proton scattering at VEPP-3</arxiv:comment>
+    <arxiv:primary_category term="nucl-ex"/>
+    <author>
+      <name>J. Arrington</name>
+    </author>
+    <author>
+      <name>V. F. Dmitriev</name>
+    </author>
+    <author>
+      <name>R. J. Holt</name>
+    </author>
+    <author>
+      <name>D. M. Nikolenko</name>
+    </author>
+    <author>
+      <name>I. A. Rachek</name>
+    </author>
+    <author>
+      <name>Yu. V. Shestakov</name>
+    </author>
+    <author>
+      <name>V. N. Stibunov</name>
+    </author>
+    <author>
+      <name>D. K. Toporkov</name>
+    </author>
+    <author>
+      <name>H. de Vries</name>
+    </author>
   </entry>
   <entry>
-    <id>http://arxiv.org/abs/1706.01836v2</id>
-    <updated>2017-09-24T14:21:38Z</updated>
-    <published>2017-06-06T16:12:51Z</published>
-    <title>Development of a Practical Multicomponent Density Functional for
-  Electron-Proton Correlation to Produce Accurate Proton Densities</title>
-    <summary>  Multicomponent density functional theory (DFT) enables the consistent quantum
-mechanical treatment of both electrons and protons. A major challenge has been
-the design of electron-proton correlation functionals that produce even
-qualitatively accurate proton densities. Herein an electron-proton correlation
-functional, epc17, is derived analogously to the Colle-Salvetti formalism for
-electron correlation and is implemented within the nuclear-electronic orbital
-(NEO) framework. The NEO-DFT/epc17 method produces accurate proton densities
-efficiently and is promising for diverse applications.
-</summary>
+    <id>http://arxiv.org/abs/1309.4668v1</id>
+    <title>Electron cloud observations at the ISIS Proton Synchrotron</title>
+    <updated>2013-09-19T00:07:10Z</updated>
+    <link href="https://arxiv.org/abs/1309.4668v1"/>
+    <link href="https://arxiv.org/pdf/1309.4668v1"/>
+    <summary>The build up of electron clouds inside a particle accelerator vacuum chamber can produce strong transverse and longitudinal beam instabilities which in turn can lead to high levels of beam loss often requiring the accelerator to be run below its design specification. To study the behaviour of electron clouds at the ISIS Proton Synchrotron, a Micro-Channel Plate (MCP) based electron cloud detector has been developed. The detector is based on the Retarding Field Analyser (RFA) design and consists of a retarding grid, which allows energy analysis of the electron signal, and a MCP assembly placed in front of the collector plate. The MCP assembly provides a current gain over the range 300 to 25K, thereby increasing the signal to noise ratio and dynamic range of the measurements. This paper presents the first electron cloud observations at the ISIS Proton Synchrotron. These results are compared against signals from a beam position monitor and a fast beam loss monitor installed at the same location.</summary>
+    <category term="physics.acc-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2013-09-18T14:54:19Z</published>
+    <arxiv:comment>4 pages, contribution to the Joint INFN-CERN-EuCARD-AccNet Workshop on Electron-Cloud Effects: ECLOUD'12; 5-9 Jun 2012, La Biodola, Isola d'Elba, Italy</arxiv:comment>
+    <arxiv:primary_category term="physics.acc-ph"/>
+    <arxiv:journal_ref>CERN Yellow Report CERN-2013-002, pp.237-240</arxiv:journal_ref>
     <author>
-      <name>Yang Yang</name>
+      <name>A. Pertica</name>
+      <arxiv:affiliation>Rutherford</arxiv:affiliation>
     </author>
     <author>
-      <name>Kurt R. Brorsen</name>
+      <name>S. J. Payne</name>
+      <arxiv:affiliation>Rutherford</arxiv:affiliation>
     </author>
-    <author>
-      <name>Tanner Culpitt</name>
-    </author>
-    <author>
-      <name>Michael V. Pak</name>
-    </author>
-    <author>
-      <name>Sharon Hammes-Schiffer</name>
-    </author>
-    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1063/1.4996038</arxiv:doi>
-    <link title="doi" href="http://dx.doi.org/10.1063/1.4996038" rel="related"/>
-    <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">The Journal of Chemical Physics 147, 114113 (2017)</arxiv:journal_ref>
-    <link href="http://arxiv.org/abs/1706.01836v2" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/1706.01836v2" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="physics.chem-ph" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="physics.chem-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <arxiv:doi>10.5170/CERN-2013-002.237</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.5170/CERN-2013-002.237"/>
   </entry>
   <entry>
-    <id>http://arxiv.org/abs/astro-ph/9901367v1</id>
-    <updated>1999-01-26T16:05:34Z</updated>
-    <published>1999-01-26T16:05:34Z</published>
-    <title>Scenario of baryogenesis</title>
-    <summary>  Scenario of baryogenesis is considered in which primordial plasma starting
-from the Planck scale consists of primordial particles being the precursors of
-electrons and clusters of particles being the precursors of protons.
-Equilibrium between the precursors of protons and the precursors of electrons
-is defined by the proton-electron mass difference. At the temperature equal to
-the mass of electron, primordial particles transit into protons, electrons,
-photons.
-</summary>
+    <id>http://arxiv.org/abs/1606.02159v1</id>
+    <title>Avoiding common pitfalls and misconceptions in extractions of the proton radius</title>
+    <updated>2016-06-08T00:10:47Z</updated>
+    <link href="https://arxiv.org/abs/1606.02159v1"/>
+    <link href="https://arxiv.org/pdf/1606.02159v1"/>
+    <summary>In a series of recent publications, different authors produce a wide range of electron radii when reanalyzing electron proton scattering data. In the light of the proton radius puzzle, this is a most unfortunate situation. However, we find flaws in most analyses that result in radii around 0.84 fm. In this paper, we explain our reasoning and try to illustrate the most common pitfalls.</summary>
+    <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="nucl-ex" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2016-06-07T18:32:01Z</published>
+    <arxiv:comment>Preliminary version as discussion basis for the ECT* workshop on 'The proton radius puzzle', Trento 2016</arxiv:comment>
+    <arxiv:primary_category term="nucl-th"/>
     <author>
-      <name>D. L. Khokhlov</name>
+      <name>Jan C. Bernauer</name>
     </author>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">2 pages, LaTeX</arxiv:comment>
-    <link href="http://arxiv.org/abs/astro-ph/9901367v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/astro-ph/9901367v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="astro-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <author>
+      <name>Michael O. Distler</name>
+    </author>
   </entry>
   <entry>
-    <id>http://arxiv.org/abs/1207.3978v1</id>
-    <updated>2012-07-17T12:58:05Z</updated>
-    <published>2012-07-17T12:58:05Z</published>
-    <title>Relativistic Ohm and Fourier laws for binary mixtures of electrons with
-  protons and photons</title>
-    <summary>  Binary mixtures of electrons with protons and of electrons with photons
-subjected to external electromagnetic fields are analyzed by using the Anderson
-and Witting model equation. The relativistic laws of Ohm and Fourier are
-determined as well as general expressions for the electrical and thermal
-conductivities for relativistic ionized gas mixtures. Explicit expressions for
-the transport coefficients are given for the particular cases: a
-non-relativistic mixture of protons and non-degenerate electrons; an
-ultra-relativistic mixture of photons and non-degenerate electrons; a
-non-relativistic mixture of protons and completely degenerate electrons; an
-ultra-relativistic mixture of photons and completely degenerate electrons and a
-mixture of non-relativistic protons and ultra-relativistic completely
-degenerate electrons.
-</summary>
+    <id>http://arxiv.org/abs/1610.08734v3</id>
+    <title>High quality electron beam generation in a proton-driven hollow plasma wakefield accelerator</title>
+    <updated>2018-05-10T00:01:43Z</updated>
+    <link href="https://arxiv.org/abs/1610.08734v3"/>
+    <link href="https://arxiv.org/pdf/1610.08734v3"/>
+    <summary>Simulations of proton-driven plasma wakefield accelerators have demonstrated substantially higher accelerating gradients compared to conventional accelerators and the viability of accelerating electrons to the energy frontier in a single plasma stage. However, due to the strong intrinsic transverse fields varying both radially and in time, the witness beam quality is still far from suitable for practical application in future colliders. Here we demonstrate efficient acceleration of electrons in proton-driven wakefields in a hollow plasma channel. In this regime, the witness bunch is positioned in the region with a strong accelerating field, free from plasma electrons and ions. We show that the electron beam carrying the charge of about 10% of 1 TeV proton driver charge can be accelerated to 0.6 TeV with preserved normalized emittance in a single channel of 700 m. This high quality and high charge beam may pave the way for the development of future plasma-based energy frontier colliders.</summary>
+    <category term="physics.acc-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="physics.plasm-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2016-10-27T12:08:30Z</published>
+    <arxiv:comment>10 pages, 7 figures</arxiv:comment>
+    <arxiv:primary_category term="physics.acc-ph"/>
+    <arxiv:journal_ref>Li, Y., Xia, G., Lotov, K. V., Sosedkin, A. P., Hanahoe, K., &amp; Mete-Apsimon, O. (2017). High-quality electron beam generation in a proton-driven hollow plasma wakefield accelerator. Physical Review Accelerators and Beams, 20(10), 101301</arxiv:journal_ref>
     <author>
-      <name>Gilberto M. Kremer</name>
+      <name>Yangmei Li</name>
     </author>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">17 pages</arxiv:comment>
-    <link href="http://arxiv.org/abs/1207.3978v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/1207.3978v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cond-mat.stat-mech" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="cond-mat.stat-mech" scheme="http://arxiv.org/schemas/atom"/>
+    <author>
+      <name>Guoxing Xia</name>
+    </author>
+    <author>
+      <name>Konstantin V. Lotov</name>
+    </author>
+    <author>
+      <name>Alexander P. Sosedkin</name>
+    </author>
+    <author>
+      <name>Kieran Hanahoe</name>
+    </author>
+    <author>
+      <name>Oznur Mete-Apsimon</name>
+    </author>
+    <arxiv:doi>10.1103/PhysRevAccelBeams.20.101301</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1103/PhysRevAccelBeams.20.101301"/>
   </entry>
   <entry>
-    <id>http://arxiv.org/abs/0806.3233v1</id>
-    <updated>2008-06-19T16:39:33Z</updated>
-    <published>2008-06-19T16:39:33Z</published>
-    <title>Shuttle-mediated proton pumping across the inner mitochondrial membrane</title>
-    <summary>  Shuttle-assisted charge transfer is pivotal for the efficient energy
-transduction from the food-stuff electrons to protons in the respiratory chain
-of animal cells and bacteria. The respiratory chain consists of four
-metalloprotein Complexes (I-IV) embedded in the inner membrane of a
-mitochondrion. Three of these complexes pump protons across the membrane,
-fuelled by the energy of food-stuff electrons. Despite extensive biochemical
-and biophysical studies, the physical mechanism of this proton pumping is still
-not well understood. Here we present a nanoelectromechanical model of the
-electron-driven proton pump related to the second loop of the respiratory
-chain, where a lipid-soluble ubiquinone molecule shuttles between the Complex I
-and Complex III, carrying two electrons and two protons. We show that the
-energy of electrons can be converted to the transmembrane proton potential
-gradient via the electrostatic interaction between electrons and protons on the
-shuttle. We find that the system can operate either as a proton pump, or, in
-the reverse regime, as an electron pump. For membranes with various
-viscosities, we demonstrate that the uphill proton current peaks near the body
-temperature $T \approx 37 ^{\circ}$C.
-</summary>
+    <id>http://arxiv.org/abs/2102.00018v2</id>
+    <title>Self-consistent determination of proton and nuclear PDFs at the Electron Ion Collider</title>
+    <updated>2021-05-19T13:38:25Z</updated>
+    <link href="https://arxiv.org/abs/2102.00018v2"/>
+    <link href="https://arxiv.org/pdf/2102.00018v2"/>
+    <summary>We quantify the impact of unpolarized lepton-proton and lepton-nucleus inclusive deep-inelastic scattering (DIS) cross section measurements from the future Electron-Ion Collider (EIC) on the proton and nuclear parton distribution functions (PDFs). To this purpose we include neutral- and charged-current DIS pseudodata in a self-consistent set of proton and nuclear global PDF determinations based on the NNPDF methodology. We demonstrate that the EIC measurements will reduce the uncertainty of the light quark PDFs of the proton at large values of the momentum fraction $x$, and, more significantly, of the quark and gluon PDFs of heavy nuclei, especially at small and large $x$. We illustrate the implications of the improved precision of nuclear PDFs for the interaction of ultra-high energy cosmic neutrinos with matter.</summary>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2021-01-29T19:00:16Z</published>
+    <arxiv:comment>11 pages, 5 figures, In the context of the Electron-Ion collider yellow report</arxiv:comment>
+    <arxiv:primary_category term="hep-ph"/>
+    <arxiv:journal_ref>Phys. Rev. D 103, 096005 (2021)</arxiv:journal_ref>
     <author>
-      <name>Anatoly Yu. Smirnov</name>
+      <name>Rabah Abdul Khalek</name>
     </author>
     <author>
-      <name>Sergey E. Savel'ev</name>
+      <name>Jacob J. Ethier</name>
     </author>
     <author>
-      <name>Franco Nori</name>
+      <name>Emanuele R. Nocera</name>
     </author>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">22 pages, 6 figures</arxiv:comment>
-    <link href="http://arxiv.org/abs/0806.3233v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/0806.3233v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cond-mat.other" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="cond-mat.other" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="physics.bio-ph" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="q-bio.SC" scheme="http://arxiv.org/schemas/atom"/>
+    <author>
+      <name>Juan Rojo</name>
+    </author>
+    <arxiv:doi>10.1103/PhysRevD.103.096005</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1103/PhysRevD.103.096005"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/0803.1617v1</id>
+    <title>Jirim kuark - mikroskopi elektron attoskala ke atas proton</title>
+    <updated>2008-11-26T18:43:06Z</updated>
+    <link href="https://arxiv.org/abs/0803.1617v1"/>
+    <link href="https://arxiv.org/pdf/0803.1617v1"/>
+    <summary>  We review experiments colliding electrons(/positrons) on protons at high energies at HERA, focussing on the ZEUS experiment. We describe the ZEUS detector, including its data acquisition system, and look at a specific part, namely the electronic system for its calorimeter readout control, in more detail. Data analysis is described, and results pertaining the proton structure is given. It is found that the naive quark model cannot explain the results obtained at small fractional momentum, and this requires quantum chromodynamics. Also it is found that diffractive reactions, with large rapidity gaps, contribute substantially; efforts are being carried out to understand them.</summary>
+    <category term="hep-ex" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2008-03-11T16:04:45Z</published>
+    <arxiv:comment>"Quark matter - attoscale electron microscopy of the proton". In Malay. Invited plenary paper at Persidangan Fizik Kebangsaan (PERFIK) 2007, Pulau Duyong, Kuala Terengganu, Malaysia, 26-28 December 2007. Shortened English version available from author</arxiv:comment>
+    <arxiv:primary_category term="hep-ex"/>
+    <arxiv:journal_ref>AIPConf.Proc.1017:10-17,2008</arxiv:journal_ref>
+    <author>
+      <name>Wan Ahmad Tajuddin Wan Abdullah</name>
+      <arxiv:affiliation>Jabatan Fizik, Universiti Malaya, Kuala Lumpur</arxiv:affiliation>
+    </author>
+    <arxiv:doi>10.1063/1.2940608</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1063/1.2940608"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1205.6628v2</id>
+    <title>The size of the proton - closing in on the radius puzzle</title>
+    <updated>2012-11-07T01:02:51Z</updated>
+    <link href="https://arxiv.org/abs/1205.6628v2"/>
+    <link href="https://arxiv.org/pdf/1205.6628v2"/>
+    <summary>We analyze the recent electron-proton scattering data from Mainz using a dispersive framework that respects the constraints from analyticity and unitarity on the nucleon structure. We also perform a continued fraction analysis of these data. We find a small electric proton charge radius, r_E^p = 0.84_{-0.01}^{+0.01} fm, consistent with the recent determination from muonic hydrogen measurements and earlier dispersive analyses. We also extract the proton magnetic radius, r_M^p = 0.86_{-0.03}^{+0.02} fm, consistent with earlier determinations based on dispersion relations.</summary>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="nucl-ex" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2012-05-30T10:55:49Z</published>
+    <arxiv:comment>4 pages, 2 figures, fit improved, small modifications, section on continued fractions modified, conclusions on the proton charge radius unchanged, version accepted for publication in European Physical Journal A</arxiv:comment>
+    <arxiv:primary_category term="hep-ph"/>
+    <arxiv:journal_ref>Eur. Phys. J. A, 48 11 (2012) 151</arxiv:journal_ref>
+    <author>
+      <name>I. T. Lorenz</name>
+    </author>
+    <author>
+      <name>H. -W. Hammer</name>
+    </author>
+    <author>
+      <name>Ulf-G. Meißner</name>
+    </author>
+    <arxiv:doi>10.1140/epja/i2012-12151-1</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1140/epja/i2012-12151-1"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/nucl-th/9910021v3</id>
+    <title>Solar proton burning, neutrino disintegration of the deuteron and pep process in the relativistic field theory model of the deuteron</title>
+    <updated>2005-09-17T15:06:56Z</updated>
+    <link href="https://arxiv.org/abs/nucl-th/9910021v3"/>
+    <link href="https://arxiv.org/pdf/nucl-th/9910021v3"/>
+    <summary>  The astrophysical factor S_pp(0) for the solar proton burning, p + p -&gt; D + positron + neutrino, is recalculated in the relativistic field theory model of the deuteron (RFMD). We obtain S_pp(0) = 4.08 x 10^{-25} MeV b which agrees good with the recommended value S_pp(0) = 4.00 x 10^{-25} MeV b. The amplitude of low-energy elastic proton-proton (pp) scattering in the singlet S-wave state with the Coulomb repulsion contributing to the amplitude of the solar proton burning is described in terms of the S-wave scattering length and the effective range. This takes away the problem pointed out by Bahcall and Kamionkowski (Nucl. Phys. A625 (1997) 893) that in the RFMD one cannot describe low-energy elastic pp scattering with the Coulomb repulsion in agreement with low-energy nuclear phenomenology. The cross section for the neutrino disintegration of the deuteron, neutrino + D -&gt; electron + p + p, is calculated with respect to S_pp(0) for neutrino energies from threshold to 10 MeV. The results can be used for the analysis of the data which will be obtained in the experiments planned by SNO. The astrophysical factor S_pep(0) for the pep process, p + electron + p -&gt; neutrino + D, is calculated relative to S_pp(0) in complete agreement with the result obtained by Bahcall and May (ApJ. 155 (1969) 501).</summary>
+    <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+    <published>1999-10-07T12:46:09Z</published>
+    <arxiv:comment>18 pages, no figures, Latex, the status of nucl-th/9811012 and the enhancement of the astrophysical factor for the solar proton burning obtained in nucl-th/9811012 are changed, mispints are corrected</arxiv:comment>
+    <arxiv:primary_category term="nucl-th"/>
+    <author>
+      <name>A. N. Ivanov</name>
+    </author>
+    <author>
+      <name>H. Oberhummer</name>
+    </author>
+    <author>
+      <name>N. I. Troitskaya</name>
+    </author>
+    <author>
+      <name>M. Faber</name>
+    </author>
   </entry>
   <entry>
     <id>http://arxiv.org/abs/1602.03411v1</id>
-    <updated>2016-02-10T15:36:31Z</updated>
+    <title>Effects of electron temperature anisotropy on proton mirror instability evolution</title>
+    <updated>2016-07-27T13:32:18Z</updated>
+    <link href="https://arxiv.org/abs/1602.03411v1"/>
+    <link href="https://arxiv.org/pdf/1602.03411v1"/>
+    <summary>Proton mirror modes are large amplitude nonpropagating structures frequently observed in the magnetosheath. It has been suggested that electron temperature anisotropy can enhance the proton mirror instability growth rate while leaving the proton cyclotron instability largely unaffected, therefore causing the proton mirror instability to dominate the proton cyclotron instability in Earth's magnetosheath. Here, we use particle-in-cell simulations to investigate the electron temperature anisotropy effects on proton mirror instability evolution. Contrary to the hypothesis, electron temperature anisotropy leads to excitement of the electron whistler instability. Our results show that the electron whistler instability grows much faster than the proton mirror instability and quickly consumes the electron free energy, so that there is no electron temperature anisotropy left to significantly impact the evolution of the proton mirror instability.</summary>
+    <category term="physics.plasm-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="physics.space-ph" scheme="http://arxiv.org/schemas/atom"/>
     <published>2016-02-10T15:36:31Z</published>
-    <title>Effects of electron temperature anisotropy on proton mirror instability
-  evolution</title>
-    <summary>  Proton mirror modes are large amplitude nonpropagating structures frequently
-observed in the magnetosheath. It has been suggested that electron temperature
-anisotropy can enhance the proton mirror instability growth rate while leaving
-the proton cyclotron instability largely unaffected, therefore causing the
-proton mirror instability to dominate the proton cyclotron instability in
-Earth's magnetosheath. Here, we use particle-in-cell simulations to investigate
-the electron temperature anisotropy effects on proton mirror instability
-evolution. Contrary to the hypothesis, electron temperature anisotropy leads to
-excitement of the electron whistler instability. Our results show that the
-electron whistler instability grows much faster than the proton mirror
-instability and quickly consumes the electron free energy, so that there is no
-electron temperature anisotropy left to significantly impact the evolution of
-the proton mirror instability.
-</summary>
+    <arxiv:comment>11 pages, 19 figures</arxiv:comment>
+    <arxiv:primary_category term="physics.plasm-ph"/>
     <author>
       <name>Narges Ahmadi</name>
     </author>
@@ -211,110 +241,27 @@ the proton mirror instability.
     <author>
       <name>Joachim Raeder</name>
     </author>
-    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1002/2016JA022429</arxiv:doi>
-    <link title="doi" href="http://dx.doi.org/10.1002/2016JA022429" rel="related"/>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">11 pages, 19 figures</arxiv:comment>
-    <link href="http://arxiv.org/abs/1602.03411v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/1602.03411v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="physics.plasm-ph" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="physics.plasm-ph" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="physics.space-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <arxiv:doi>10.1002/2016JA022429</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1002/2016JA022429"/>
   </entry>
   <entry>
-    <id>http://arxiv.org/abs/2507.06488v1</id>
-    <updated>2025-07-09T02:18:06Z</updated>
-    <published>2025-07-09T02:18:06Z</published>
-    <title>High Proton Conductivity of HxWO3 at Intermediate Temperatures:
-  Unlocking Its Application as a Mixed Ionic-Electronic Conductor</title>
-    <summary>  Hydrogen tungsten bronzes (HxWO3), known for their mixed protonic-electronic
-conduction near room temperature, are extensively studied for electrochromic
-and gasochromic applications. However, their proton transport properties at
-elevated temperatures, particularly in the intermediate-temperature range
-(200-500 {\deg}C), remain unexplored. This study revealed the proton transport
-behavior of HxWO3, focusing on its potential as a proton-conducting mixed
-ionic-electronic conductor (MIEC) for intermediate-temperature electrochemical
-applications. By employing a proton-conducting phosphate glass as an
-electron-blocking electrode, we selectively measured the partial proton
-conductivity of sintered HxWO3. Hydrogen incorporation into the sintered WO3
-pellet was found to occur preferentially near the surface, forming an
-approximately 500-micrometer-thick hydrogen-rich region. This region reached a
-composition of x = 0.24 and exhibited proton conductivity exceeding 10^-1 S/cm
-at 275 {\deg}C, well above those of state-of-the-art perovskite proton
-conductors. Impedance spectroscopy revealed distinct features of proton
-transport, including an isotope effect. The proton diffusion coefficient was
-100-1000 times greater than that of H0.0001TiO2, which exhibits mixed
-protonic-electronic conduction via hydrogen dissolution. The larger proton
-diffusion coefficient of H0.24WO3 suggests that large polaron formation
-enhances proton mobility.These findings unlock new functionality of HxWO3 as a
-MIEC in the intermediate-temperature range, paving the way for the development
-of next-generation hydrogen energy conversion systems.
-</summary>
-    <author>
-      <name>Rantaro Matsuo</name>
-    </author>
-    <author>
-      <name>Tomoyuki Yamasaki</name>
-    </author>
-    <author>
-      <name>Takahisa Omata</name>
-    </author>
-    <link href="http://arxiv.org/abs/2507.06488v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/2507.06488v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cond-mat.mtrl-sci" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="cond-mat.mtrl-sci" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="cond-mat.dis-nn" scheme="http://arxiv.org/schemas/atom"/>
-  </entry>
-  <entry>
-    <id>http://arxiv.org/abs/1403.6944v1</id>
-    <updated>2014-03-27T08:10:23Z</updated>
-    <published>2014-03-27T08:10:23Z</published>
-    <title>Particle production from the Color Glass Condensate: proton-nucleus
-  collisions in light of the HERA data</title>
-    <summary>  We compute single inclusive hadron production in proton-proton and
-proton-nucleus collisions consistently within the CGC framework. The parameters
-in the calculations are obtained from electron-proton DIS and standard nuclear
-geometry. We obtain a good description of the DIS data without an anomalous
-dimension in the initial condition of the BK evolution and get a good agreement
-with the available single inclusive proton-proton and proton-nucleus data.
-</summary>
-    <author>
-      <name>T. Lappi</name>
-    </author>
-    <author>
-      <name>H. Mäntysaari</name>
-    </author>
-    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1016/j.nuclphysa.2014.08.038</arxiv:doi>
-    <link title="doi" href="http://dx.doi.org/10.1016/j.nuclphysa.2014.08.038" rel="related"/>
-    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">4 pages, 4 figures, talk given at the 6th International Conference on
-  Hard and Electromagnetic Probes of High-Energy Nuclear Collisions (Hard
-  Probes 2013), November 4-8, 2013 (Cape Town, South Africa)</arxiv:comment>
-    <link href="http://arxiv.org/abs/1403.6944v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/1403.6944v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <id>http://arxiv.org/abs/1401.3666v2</id>
+    <title>Light Sea Fermions in Electron-Proton and Muon-Proton Interactions</title>
+    <updated>2014-01-17T01:14:02Z</updated>
+    <link href="https://arxiv.org/abs/1401.3666v2"/>
+    <link href="https://arxiv.org/pdf/1401.3666v2"/>
+    <summary>The proton radius conundrum [R. Pohl et al., Nature vol.466, p.213 (2010) and A. Antognini et al., Science vol.339, p.417 (2013)] highlights the need to revisit any conceivable sources of electron-muon nonuniversality in lepton-proton interactions within the Standard Model. Superficially, a number of perturbative processes could appear to lead to such a nonunversality. One of these is a coupling of the scattered electron into an electronic as opposed to a muonic vacuum polarization loop in the photon exchange of two valence quarks, which is present only for electron projectiles as opposed to muon projectiles. However, we can show that this effect actually is part of the radiative correction to the proton's polarizability contribution to the Lamb shift, equivalent to a radiative correction to double scattering. We conclude that any conceivable genuine nonuniversality must be connected with a nonperturbative feature of the proton's structure, e.g., with the possible presence of light sea fermions as constituent components of the proton. If we assume an average of roughly 0.7*10^(-7) light sea positrons per valence quark, then we can show that virtual electron-positron annihiliation processes lead to an extra term in the electron-proton versus muon-proton interaction, which has the right sign and magnitude to explain the proton radius discrepancy.</summary>
+    <category term="physics.atom-ph" scheme="http://arxiv.org/schemas/atom"/>
     <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
     <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
-  </entry>
-  <entry>
-    <id>http://arxiv.org/abs/2407.11707v1</id>
-    <updated>2024-07-16T13:25:36Z</updated>
-    <published>2024-07-16T13:25:36Z</published>
-    <title>The neutron skin-thickness of 208 Pb determined by electron and proton
-  scattering</title>
-    <summary>  The consistency between electron-scattering and proton-scattering is examined
-through the fourth moment of the charge distribution.
-</summary>
+    <published>2014-01-15T16:58:15Z</published>
+    <arxiv:comment>6 pages; RevTeX; published in Physical Review A in 2013; as compare to the journal version, we have added a note at the end of the paper which pertains to the (new) Ref. [42]; otherwise unchanged</arxiv:comment>
+    <arxiv:primary_category term="physics.atom-ph"/>
+    <arxiv:journal_ref>Phys.Rev.A 88 (2013) 062514</arxiv:journal_ref>
     <author>
-      <name>Toshio Suzuki</name>
+      <name>U. D. Jentschura</name>
     </author>
-    <author>
-      <name>Rika Danjo</name>
-    </author>
-    <author>
-      <name>Toshimi Suda</name>
-    </author>
-    <link href="http://arxiv.org/abs/2407.11707v1" rel="alternate" type="text/html"/>
-    <link title="pdf" href="http://arxiv.org/pdf/2407.11707v1" rel="related" type="application/pdf"/>
-    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
-    <category term="nucl-th" scheme="http://arxiv.org/schemas/atom"/>
+    <arxiv:doi>10.1103/PhysRevA.88.062514</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1103/PhysRevA.88.062514"/>
   </entry>
 </feed>

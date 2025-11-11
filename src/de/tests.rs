@@ -33,7 +33,6 @@ fn test_malfored_query() {
     );
 }
 
-#[cfg(feature = "serde")]
 #[test]
 fn test_query_de() {
     use serde::Deserialize;
@@ -87,31 +86,50 @@ fn test_query_de() {
     let response = Response::<Vec<Entry>>::from_xml(contents).unwrap();
     assert_eq!(
         Ok(response.updated),
-        chrono::DateTime::parse_from_rfc3339("2025-08-20T00:00:00-04:00")
+        chrono::DateTime::parse_from_rfc3339("2025-11-11T18:29:40+00:00")
     );
-    assert_eq!(response.pagination.total_results, 7370,);
+    assert_eq!(response.pagination.total_results, 7432,);
     assert_eq!(response.pagination.start_index, 0);
     assert_eq!(response.pagination.items_per_page, 10);
     assert_eq!(
         Ok(response.entries[0].id),
-        crate::id::ArticleId::parse("astro-ph/9904306v1")
+        crate::id::ArticleId::parse("nucl-ex/0408020v1")
     );
     assert_eq!(response.entries.len(), 10);
     assert_eq!(
         response.entries[9].authors[0].name,
         AuthorName {
-            firstnames: "Toshio".to_owned(),
-            keyname: "Suzuki".to_owned(),
+            firstnames: "U. D.".to_owned(),
+            keyname: "Jentschura".to_owned(),
             suffix: String::new()
         }
     );
+
+    assert_eq!(response.entries[8].primary_category, "physics.plasm-ph");
+    assert_eq!(
+        response.entries[8].comment.as_ref().unwrap(),
+        "11 pages, 19 figures"
+    );
+    assert_eq!(response.entries[8].journal_ref, None);
+    assert_eq!(response.entries[8].authors.len(), 3);
+
     assert_eq!(response.entries[9].authors[0].affiliation, None);
+    assert_eq!(
+        response.entries[9].doi.as_ref().unwrap(),
+        "10.1103/PhysRevA.88.062514"
+    );
+
+    assert_eq!(response.entries[9].categories[2], "nucl-th");
+    assert_eq!(
+        response.entries[9].published,
+        chrono::DateTime::parse_from_rfc3339("2014-01-15T16:58:15Z").unwrap()
+    );
 
     let contents = include_str!("../response/tests/query_empty.xml").as_bytes();
     let response = Response::<Vec<Entry>>::from_xml(contents).unwrap();
     assert_eq!(
         Ok(response.updated),
-        chrono::DateTime::parse_from_rfc3339("2025-08-20T00:00:00-04:00")
+        chrono::DateTime::parse_from_rfc3339("2025-11-11T18:34:08+00:00")
     );
     assert!(response.entries.is_empty());
 }

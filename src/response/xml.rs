@@ -162,28 +162,20 @@ impl<'r> ResponseReader<'r> {
         }
     }
 
-    /// Returns the contents of the next `<updated>' tag in the entry, but not reading beyond the
-    /// current entry.
-    #[inline]
-    pub fn next_updated(&mut self) -> Result<Cow<'r, str>, ResponseError> {
-        self.next_tag_with_name_limit("updated", "entry")
-            .and_not_missing("updated")
-    }
-
-    /// Returns the contents of the next `<published>' tag in the entry, but not reading beyond the
-    /// current entry.
-    #[inline]
-    pub fn next_published(&mut self) -> Result<Cow<'r, str>, ResponseError> {
-        self.next_tag_with_name_limit("published", "entry")
-            .and_not_missing("published")
-    }
-
     /// Returns the contents of the next `<title>' tag in the entry, but not reading beyond the
     /// current entry.
     #[inline]
     pub fn next_title(&mut self) -> Result<Cow<'r, str>, ResponseError> {
         self.next_tag_with_name_limit("title", "entry")
             .and_not_missing("title")
+    }
+
+    /// Returns the contents of the next `<updated>' tag in the entry, but not reading beyond the
+    /// current entry.
+    #[inline]
+    pub fn next_updated(&mut self) -> Result<Cow<'r, str>, ResponseError> {
+        self.next_tag_with_name_limit("updated", "entry")
+            .and_not_missing("updated")
     }
 
     /// Returns the contents of the next `<summary>' tag in the entry, but not reading beyond the
@@ -194,6 +186,94 @@ impl<'r> ResponseReader<'r> {
             .and_not_missing("summary")
     }
 
+    /// Find an empty tag with the given name, not exceeding any event on which to halt.
+    fn next_term<H>(&mut self, name: &str, halt: H) -> Result<Option<Term<'r>>, ResponseError>
+    where
+        H: FnMut(&Event<'r>) -> bool,
+    {
+        match self.xml_reader.find_before(
+            |event| match event {
+                Event::Empty(bytes_start) if bytes_start.name().0 == name.as_bytes() => {
+                    Some(bytes_start)
+                }
+                _ => None,
+            },
+            halt,
+        )? {
+            Some(bytes_start) => Ok(Some(Term { inner: bytes_start })),
+            None => Ok(None),
+        }
+    }
+
+    /// Read the next `category` tag.
+    pub fn next_category(&mut self) -> Result<Option<Term<'r>>, ResponseError> {
+        self.next_term("category", |event| match event {
+            Event::Start(bytes_start) => bytes_start.name().0 == b"published",
+            Event::End(bytes_end) => bytes_end.name().0 == b"entry",
+            _ => false,
+        })
+    }
+
+    /// Returns the contents of the next `<published>' tag in the entry, but not reading beyond the
+    /// current entry.
+    #[inline]
+    pub fn next_published(&mut self) -> Result<Cow<'r, str>, ResponseError> {
+        self.next_tag_with_name_limit("published", "entry")
+            .and_not_missing("published")
+    }
+
+    /// Read the next `comment` tag.
+    ///
+    /// This will not read past any of the following tags:
+    /// - `Empty(arxiv:primary_category)`
+    pub fn next_comment(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
+        match self.xml_reader.find_before(
+            |entry| match entry {
+                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:comment" => {
+                    Some(bytes_start)
+                }
+                _ => None,
+            },
+            |entry| matches!(entry, Event::Empty(bytes_start) if bytes_start.name().0 == b"arxiv:primary_category"),
+        )? {
+            Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
+            None => Ok(None),
+        }
+    }
+
+    /// Read the next `primary_category` tag.
+    pub fn next_primary_category(&mut self) -> Result<Term<'r>, ResponseError> {
+        self.next_term("arxiv:primary_category", |entry| match entry {
+            Event::End(bytes_end) => bytes_end.name().0 == b"entry",
+            _ => false,
+        })
+        .and_not_missing("arxiv:primary_category")
+    }
+
+    /// Read the next `journal_ref` tag.
+    pub fn next_journal_ref(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
+        match self.xml_reader.find_before(
+            |entry| match entry {
+                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:journal_ref" => {
+                    Some(bytes_start)
+                }
+                _ => None,
+            },
+            |entry| match entry {
+                Event::Start(bytes_start) => {
+                    matches!(bytes_start.name().0, b"author" | b"arxiv:doi")
+                }
+                Event::End(bytes_start) => {
+                    matches!(bytes_start.name().0, b"entry")
+                }
+                _ => false,
+            },
+        )? {
+            Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
+            None => Ok(None),
+        }
+    }
+
     /// Enter the next `<author>` tag if present, not reading beyond the current entry.
     ///
     /// If this function returns `Ok(true)`, an `<author>` tag was found and the cursor is
@@ -202,10 +282,7 @@ impl<'r> ResponseReader<'r> {
     /// If this function returns `Ok(false)`, the next tag is not an `<author>` tag.
     ///
     /// This will not read past any of the following tags:
-    /// - `Start(arxiv:comment)`
     /// - `Start(arxiv:doi)`
-    /// - `Start(arxiv:journal_ref)`
-    /// - `Empty(arxiv:primary_category)`
     pub fn next_author(&mut self) -> Result<bool, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
@@ -213,18 +290,11 @@ impl<'r> ResponseReader<'r> {
                 _ => None,
             },
             |entry| match entry {
-                Event::Start(bytes_start) => {
-                    matches!(
-                        bytes_start.name().0,
-                        b"arxiv:comment" | b"arxiv:doi" | b"arxiv:journal_ref"
-                    )
-                }
-                Event::Empty(bytes_start) => {
-                    matches!(bytes_start.name().0, b"arxiv:primary_category")
-                }
+                Event::Start(bytes_start) => bytes_start.name().0 == b"arxiv:doi",
                 Event::End(bytes_start) => {
                     matches!(bytes_start.name().0, b"entry")
                 }
+                Event::Empty(_) => false,
             },
         )? {
             Some(()) => Ok(true),
@@ -262,73 +332,6 @@ impl<'r> ResponseReader<'r> {
                 _ => None,
             },
             |entry| match entry {
-                Event::Start(bytes_start) => {
-                    matches!(
-                        bytes_start.name().0,
-                        b"arxiv:journal_ref" | b"arxiv:comment"
-                    )
-                }
-                Event::Empty(bytes_start) => {
-                    matches!(bytes_start.name().0, b"arxiv:primary_category")
-                }
-                Event::End(bytes_start) => {
-                    matches!(bytes_start.name().0, b"entry")
-                }
-            },
-        )? {
-            Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
-            None => Ok(None),
-        }
-    }
-
-    /// Read the next `comment` tag.
-    ///
-    /// This will not read past any of the following tags:
-    /// - `Start(arxiv:journal_ref)`
-    /// - `Empty(arxiv:primary_category)`
-    pub fn next_comment(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
-        match self.xml_reader.find_before(
-            |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:comment" => {
-                    Some(bytes_start)
-                }
-                _ => None,
-            },
-            |entry| match entry {
-                Event::Start(bytes_start) => {
-                    matches!(bytes_start.name().0, b"arxiv:journal_ref")
-                }
-                Event::Empty(bytes_start) => {
-                    matches!(bytes_start.name().0, b"arxiv:primary_category")
-                }
-                Event::End(bytes_start) => {
-                    matches!(bytes_start.name().0, b"entry")
-                }
-            },
-        )? {
-            Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
-            None => Ok(None),
-        }
-    }
-
-    /// Read the next `journal_ref` tag.
-    ///
-    /// This will not read past any of the following tags:
-    /// - `Empty(arxiv:primary_category)`
-    pub fn next_journal_ref(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
-        // do not skip any of the following tags:
-        //  Empty(arxiv:primary_category)
-        match self.xml_reader.find_before(
-            |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:journal_ref" => {
-                    Some(bytes_start)
-                }
-                _ => None,
-            },
-            |entry| match entry {
-                Event::Empty(bytes_start) => {
-                    matches!(bytes_start.name().0, b"arxiv:primary_category")
-                }
                 Event::End(bytes_start) => {
                     matches!(bytes_start.name().0, b"entry")
                 }
@@ -338,36 +341,6 @@ impl<'r> ResponseReader<'r> {
             Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
             None => Ok(None),
         }
-    }
-
-    /// Find an empty tag with the given name, not exceeding the current `entry`.
-    fn next_term(&mut self, name: &str) -> Result<Option<Term<'r>>, ResponseError> {
-        match self.xml_reader.find_before(
-            |event| match event {
-                Event::Empty(bytes_start) if bytes_start.name().0 == name.as_bytes() => {
-                    Some(bytes_start)
-                }
-                _ => None,
-            },
-            |event| {
-                matches!(event,
-                Event::End(bytes_end) if bytes_end.name().0 == b"entry")
-            },
-        )? {
-            Some(bytes_start) => Ok(Some(Term { inner: bytes_start })),
-            None => Ok(None),
-        }
-    }
-
-    /// Read the next `primary_category` tag.
-    pub fn next_primary_category(&mut self) -> Result<Term<'r>, ResponseError> {
-        self.next_term("arxiv:primary_category")
-            .and_not_missing("arxiv:primary_category")
-    }
-
-    /// Read the next `category` tag.
-    pub fn next_category(&mut self) -> Result<Option<Term<'r>>, ResponseError> {
-        self.next_term("category")
     }
 }
 
@@ -381,48 +354,73 @@ mod tests {
         let (updated, pagination, mut reader) = ResponseReader::init(xml)?;
         assert_eq!(
             updated,
-            DateTime::parse_from_rfc3339("2025-08-20T00:00:00-04:00").unwrap()
+            DateTime::parse_from_rfc3339("2025-11-11T18:29:40+00:00").unwrap()
         );
         assert_eq!(
             pagination,
             Pagination {
-                total_results: 7370,
+                total_results: 7432,
                 start_index: 0,
                 items_per_page: 10,
             }
         );
 
-        assert_eq!(reader.next_id()?, Some("astro-ph/9904306v1".as_bytes()),);
-        assert_eq!(reader.next_published()?, "1999-04-22T15:54:59Z");
-        assert_eq!(reader.next_comment()?, Some(Cow::Borrowed("3 pages LaTeX")));
+        // first entry
+        assert_eq!(reader.next_id()?, Some("nucl-ex/0408020v1".as_bytes()),);
         assert_eq!(
             reader
                 .next_category()?
                 .map(|term| String::from(term.get().unwrap())),
-            Some("astro-ph".to_string())
+            Some("nucl-ex".to_string())
+        );
+        assert_eq!(
+            reader
+                .next_category()?
+                .map(|term| String::from(term.get().unwrap())),
+            Some("hep-ph".to_string())
         );
         assert!(reader.next_category()?.is_none());
 
-        assert!(reader.next_id()?.is_some());
-        assert_eq!(reader.next_id()?, Some("1706.01836v2".as_bytes()));
+        assert_eq!(reader.next_published()?, "2004-08-18T23:13:32Z");
 
-        assert_eq!(reader.next_comment()?, None);
         assert_eq!(
-            reader.next_journal_ref()?.unwrap(),
-            "The Journal of Chemical Physics 147, 114113 (2017)"
+            reader.next_comment()?,
+            Some(Cow::Borrowed(
+                "13 pages, 10 figures. Proposal for a comparison of electron-proton and positron-proton scattering at VEPP-3"
+            ))
         );
 
-        assert!(!reader.next_author()?);
-        assert!(!reader.next_author()?);
-        assert!(reader.next_comment()?.is_none());
+        // second entry; skip
+        assert!(reader.next_id()?.is_some());
 
-        assert_eq!(reader.next_id()?.unwrap(), "astro-ph/9901367v1".as_bytes());
+        // third entry
+        assert_eq!(reader.next_id()?, Some("1606.02159v1".as_bytes()));
+
+        assert_eq!(reader.next_journal_ref()?, None);
+
         assert!(reader.next_author()?);
-        assert_eq!(reader.next_author_name()?, "D. L. Khokhlov");
-        assert_eq!(reader.next_author_affiliation()?, None);
-        assert_eq!(reader.next_author_affiliation()?, None);
+        assert!(reader.next_author()?);
         assert!(!reader.next_author()?);
-        assert_eq!(reader.next_comment()?.unwrap(), "2 pages, LaTeX");
+
+        // fourth entry
+        assert_eq!(reader.next_id()?.unwrap(), "1610.08734v3".as_bytes());
+        assert!(reader.next_author()?);
+        assert_eq!(reader.next_author_name()?, "Yangmei Li");
+        assert_eq!(reader.next_author_affiliation()?, None);
+        assert_eq!(reader.next_author_affiliation()?, None);
+        assert_eq!(
+            reader.next_doi()?.unwrap(),
+            "10.1103/PhysRevAccelBeams.20.101301"
+        );
+        assert!(reader.next_doi()?.is_none());
+        assert!(reader.next_doi()?.is_none());
+
+        // fifth entry
+        assert_eq!(reader.next_id()?.unwrap(), "2102.00018v2".as_bytes());
+        assert_eq!(
+            reader.next_journal_ref()?.unwrap(),
+            "Phys. Rev. D 103, 096005 (2021)"
+        );
 
         Ok(())
     }
