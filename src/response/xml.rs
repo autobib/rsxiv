@@ -193,7 +193,9 @@ impl<'r> ResponseReader<'r> {
     {
         match self.xml_reader.find_before(
             |event| match event {
-                Event::Empty(bytes_start) if bytes_start.name().0 == name.as_bytes() => {
+                Event::Empty(bytes_start)
+                    if bytes_start.local_name().as_ref() == name.as_bytes() =>
+                {
                     Some(bytes_start)
                 }
                 _ => None,
@@ -225,16 +227,16 @@ impl<'r> ResponseReader<'r> {
     /// Read the next `comment` tag.
     ///
     /// This will not read past any of the following tags:
-    /// - `Empty(arxiv:primary_category)`
+    /// - `Empty(primary_category)`
     pub fn next_comment(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:comment" => {
+                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == b"comment" => {
                     Some(bytes_start)
                 }
                 _ => None,
             },
-            |entry| matches!(entry, Event::Empty(bytes_start) if bytes_start.name().0 == b"arxiv:primary_category"),
+            |entry| matches!(entry, Event::Empty(bytes_start) if bytes_start.local_name().as_ref() == b"primary_category"),
         )? {
             Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
             None => Ok(None),
@@ -243,25 +245,27 @@ impl<'r> ResponseReader<'r> {
 
     /// Read the next `primary_category` tag.
     pub fn next_primary_category(&mut self) -> Result<Term<'r>, ResponseError> {
-        self.next_term("arxiv:primary_category", |entry| match entry {
+        self.next_term("primary_category", |entry| match entry {
             Event::End(bytes_end) => bytes_end.name().0 == b"entry",
             _ => false,
         })
-        .and_not_missing("arxiv:primary_category")
+        .and_not_missing("primary_category")
     }
 
     /// Read the next `journal_ref` tag.
     pub fn next_journal_ref(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:journal_ref" => {
+                Event::Start(bytes_start)
+                    if bytes_start.local_name().as_ref() == b"journal_ref" =>
+                {
                     Some(bytes_start)
                 }
                 _ => None,
             },
             |entry| match entry {
                 Event::Start(bytes_start) => {
-                    matches!(bytes_start.name().0, b"author" | b"arxiv:doi")
+                    matches!(bytes_start.local_name().as_ref(), b"author" | b"doi")
                 }
                 Event::End(bytes_start) => {
                     matches!(bytes_start.name().0, b"entry")
@@ -282,7 +286,7 @@ impl<'r> ResponseReader<'r> {
     /// If this function returns `Ok(false)`, the next tag is not an `<author>` tag.
     ///
     /// This will not read past any of the following tags:
-    /// - `Start(arxiv:doi)`
+    /// - `Start(doi)`
     pub fn next_author(&mut self) -> Result<bool, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
@@ -290,7 +294,7 @@ impl<'r> ResponseReader<'r> {
                 _ => None,
             },
             |entry| match entry {
-                Event::Start(bytes_start) => bytes_start.name().0 == b"arxiv:doi",
+                Event::Start(bytes_start) => bytes_start.local_name().as_ref() == b"doi",
                 Event::End(bytes_start) => {
                     matches!(bytes_start.name().0, b"entry")
                 }
@@ -320,13 +324,13 @@ impl<'r> ResponseReader<'r> {
     /// Read the next `doi` tag.
     ///
     /// This will not read past any of the following tags:
-    /// - `Start(arxiv:comment)`
-    /// - `Start(arxiv:journal_ref)`
-    /// - `Empty(arxiv:primary_category)`
+    /// - `Start(comment)`
+    /// - `Start(journal_ref)`
+    /// - `Empty(primary_category)`
     pub fn next_doi(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.name().0 == b"arxiv:doi" => {
+                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == b"doi" => {
                     Some(bytes_start)
                 }
                 _ => None,
