@@ -4,6 +4,7 @@
 use std::borrow::Cow;
 
 use chrono::{DateTime, FixedOffset};
+use quick_xml::XmlVersion;
 
 use super::{Pagination, ResponseError};
 use crate::xml::{Event, Reader};
@@ -32,8 +33,8 @@ impl<'r> Term<'r> {
     /// resulting `Cow` os tied to the lifetime of the buffer itself, rather than the underlying
     /// record.
     pub fn get(&self) -> Result<Cow<'_, str>, ResponseError> {
-        match self.inner.try_get_attribute(b"term")? {
-            Some(attribute) => Ok(attribute.unescape_value()?),
+        match self.inner.try_get_attribute("term")? {
+            Some(attribute) => Ok(attribute.normalized_value(XmlVersion::Implicit1_0)?),
             None => Err(ResponseError::MissingTerm),
         }
     }
@@ -65,10 +66,7 @@ impl<'r> ResponseReader<'r> {
     }
 
     fn read_updated(&mut self) -> Result<DateTime<FixedOffset>, ResponseError> {
-        let Some(datetime) = self
-            .xml_reader
-            .find_text_matching_tag(|t| t == b"updated")?
-        else {
+        let Some(datetime) = self.xml_reader.find_text_matching_tag(|t| t == "updated")? else {
             return Err(ResponseError::MissingTag("updated"));
         };
 
@@ -77,10 +75,7 @@ impl<'r> ResponseReader<'r> {
 
     /// Interpret the contents of a tag with the provided name as a `u64`.
     fn read_tag_u64(&mut self, name: &'static str) -> Result<u64, ResponseError> {
-        let Some(total_results) = self
-            .xml_reader
-            .find_text_matching_tag(|t| t == name.as_bytes())?
-        else {
+        let Some(total_results) = self.xml_reader.find_text_matching_tag(|t| t == name)? else {
             return Err(ResponseError::MissingTag(name));
         };
 
@@ -112,13 +107,10 @@ impl<'r> ResponseReader<'r> {
     /// even contain an `<id>` identifier. Instead of trying to parse these entries or worry about
     /// errors, we just skip the entries automatically.
     pub fn next_id(&mut self) -> Result<Option<&'r [u8]>, ResponseError> {
-        match self.xml_reader.find_raw_matching_tag(|t| t == b"id")? {
+        match self.xml_reader.find_raw_matching_tag(|t| t == "id")? {
             Some(url) => {
                 if url.starts_with(b"http://arxiv.org/api/errors#") {
-                    match self
-                        .xml_reader
-                        .find_text_matching_tag(|t| t == b"summary")?
-                    {
+                    match self.xml_reader.find_text_matching_tag(|t| t == "summary")? {
                         Some(contents) => Err(ResponseError::Arxiv(contents.into())),
                         None => Err(ResponseError::InvalidError(
                             "missing `summary` tag".to_owned(),
@@ -147,14 +139,14 @@ impl<'r> ResponseReader<'r> {
     ) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |event| match event {
-                Event::Start(bytes_start) if bytes_start.name().0 == name.as_bytes() => {
+                Event::Start(bytes_start) if bytes_start.name().as_ref() == name => {
                     Some(bytes_start)
                 }
                 _ => None,
             },
             |event| {
                 matches!(event,
-                Event::End(bytes_end) if bytes_end.name().0 == limit.as_bytes())
+                Event::End(bytes_end) if bytes_end.name().as_ref() == limit)
             },
         )? {
             Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
@@ -193,9 +185,7 @@ impl<'r> ResponseReader<'r> {
     {
         match self.xml_reader.find_before(
             |event| match event {
-                Event::Empty(bytes_start)
-                    if bytes_start.local_name().as_ref() == name.as_bytes() =>
-                {
+                Event::Empty(bytes_start) if bytes_start.local_name().as_ref() == name => {
                     Some(bytes_start)
                 }
                 _ => None,
@@ -210,8 +200,8 @@ impl<'r> ResponseReader<'r> {
     /// Read the next `category` tag.
     pub fn next_category(&mut self) -> Result<Option<Term<'r>>, ResponseError> {
         self.next_term("category", |event| match event {
-            Event::Start(bytes_start) => bytes_start.name().0 == b"published",
-            Event::End(bytes_end) => bytes_end.name().0 == b"entry",
+            Event::Start(bytes_start) => bytes_start.name().as_ref() == "published",
+            Event::End(bytes_end) => bytes_end.name().as_ref() == "entry",
             _ => false,
         })
     }
@@ -231,12 +221,12 @@ impl<'r> ResponseReader<'r> {
     pub fn next_comment(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == b"comment" => {
+                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == "comment" => {
                     Some(bytes_start)
                 }
                 _ => None,
             },
-            |entry| matches!(entry, Event::Empty(bytes_start) if bytes_start.local_name().as_ref() == b"primary_category"),
+            |entry| matches!(entry, Event::Empty(bytes_start) if bytes_start.local_name().as_ref() == "primary_category"),
         )? {
             Some(bytes_start) => Ok(Some(self.xml_reader.read_text(&bytes_start)?)),
             None => Ok(None),
@@ -246,7 +236,7 @@ impl<'r> ResponseReader<'r> {
     /// Read the next `primary_category` tag.
     pub fn next_primary_category(&mut self) -> Result<Term<'r>, ResponseError> {
         self.next_term("primary_category", |entry| match entry {
-            Event::End(bytes_end) => bytes_end.name().0 == b"entry",
+            Event::End(bytes_end) => bytes_end.name().as_ref() == "entry",
             _ => false,
         })
         .and_not_missing("primary_category")
@@ -256,19 +246,17 @@ impl<'r> ResponseReader<'r> {
     pub fn next_journal_ref(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start)
-                    if bytes_start.local_name().as_ref() == b"journal_ref" =>
-                {
+                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == "journal_ref" => {
                     Some(bytes_start)
                 }
                 _ => None,
             },
             |entry| match entry {
                 Event::Start(bytes_start) => {
-                    matches!(bytes_start.local_name().as_ref(), b"author" | b"doi")
+                    matches!(bytes_start.local_name().as_ref(), "author" | "doi")
                 }
                 Event::End(bytes_start) => {
-                    matches!(bytes_start.name().0, b"entry")
+                    matches!(bytes_start.name().as_ref(), "entry")
                 }
                 _ => false,
             },
@@ -290,13 +278,13 @@ impl<'r> ResponseReader<'r> {
     pub fn next_author(&mut self) -> Result<bool, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.name().0 == b"author" => Some(()),
+                Event::Start(bytes_start) if bytes_start.name().as_ref() == "author" => Some(()),
                 _ => None,
             },
             |entry| match entry {
-                Event::Start(bytes_start) => bytes_start.local_name().as_ref() == b"doi",
+                Event::Start(bytes_start) => bytes_start.local_name().as_ref() == "doi",
                 Event::End(bytes_start) => {
-                    matches!(bytes_start.name().0, b"entry")
+                    matches!(bytes_start.name().as_ref(), "entry")
                 }
                 Event::Empty(_) => false,
             },
@@ -330,14 +318,14 @@ impl<'r> ResponseReader<'r> {
     pub fn next_doi(&mut self) -> Result<Option<Cow<'r, str>>, ResponseError> {
         match self.xml_reader.find_before(
             |entry| match entry {
-                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == b"doi" => {
+                Event::Start(bytes_start) if bytes_start.local_name().as_ref() == "doi" => {
                     Some(bytes_start)
                 }
                 _ => None,
             },
             |entry| match entry {
                 Event::End(bytes_start) => {
-                    matches!(bytes_start.name().0, b"entry")
+                    matches!(bytes_start.name().as_ref(), "entry")
                 }
                 _ => false,
             },

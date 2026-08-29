@@ -60,7 +60,9 @@ impl<'r> Reader<'r> {
 
     /// Read the text between the provided start tag and the matching end tag.
     pub fn read_text(&mut self, start: &BytesStart<'_>) -> Result<Cow<'r, str>, Error> {
-        self.reader.read_text(start.to_end().name())
+        self.reader
+            .read_text(start.to_end().name())
+            .map(|text| text.into_inner())
     }
 
     /// Find an event, but halting if `halt` applied to the upcoming element returns `true`,
@@ -99,11 +101,11 @@ impl<'r> Reader<'r> {
     /// Find an opening tag with the provided tag name.
     fn find_matching_tag(
         &mut self,
-        mut f: impl FnMut(&[u8]) -> bool,
+        mut f: impl FnMut(&str) -> bool,
     ) -> Result<Option<BytesStart<'r>>, Error> {
         self.find_before(
             |event| match event {
-                Event::Start(bytes_start) if f(bytes_start.name().0) => Some(bytes_start),
+                Event::Start(bytes_start) if f(bytes_start.name().as_ref()) => Some(bytes_start),
                 _ => None,
             },
             |_| false,
@@ -113,7 +115,7 @@ impl<'r> Reader<'r> {
     /// Returns the decoded text contents in the first tag matching the provided tag name.
     pub fn find_text_matching_tag(
         &mut self,
-        f: impl FnMut(&[u8]) -> bool,
+        f: impl FnMut(&str) -> bool,
     ) -> Result<Option<Cow<'r, str>>, Error> {
         if let Some(bytes_start) = self.find_matching_tag(f)? {
             // read the text
@@ -126,7 +128,7 @@ impl<'r> Reader<'r> {
     /// Returns the raw tag contents (as bytes) of the first tag matching the provided tag name.
     pub fn find_raw_matching_tag(
         &mut self,
-        f: impl FnMut(&[u8]) -> bool,
+        f: impl FnMut(&str) -> bool,
     ) -> Result<Option<&'r [u8]>, Error> {
         if let Some(bytes_start) = self.find_matching_tag(f)? {
             // read the bytes
