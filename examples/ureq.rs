@@ -6,7 +6,6 @@ use rsxiv::{
     response::AuthorName,
 };
 use serde::Deserialize;
-use ureq;
 
 #[derive(Deserialize)]
 struct Entry<'r> {

@@ -572,7 +572,7 @@ impl<'a, 'de> Deserializer<'de> for AuthorDeserializer<'a, 'de> {
         V: Visitor<'de>,
     {
         match self.reader.next_author_name()? {
-            Cow::Borrowed(name) => visitor.visit_borrowed_str(&name),
+            Cow::Borrowed(name) => visitor.visit_borrowed_str(name),
             Cow::Owned(name) => visitor.visit_string(name),
         }
     }
@@ -681,7 +681,7 @@ impl<'a, 'de> Deserializer<'de> for StrTagDeserializer<'a, 'de> {
         V: Visitor<'de>,
     {
         match (self.getter)(&mut *self.reader)? {
-            Cow::Borrowed(name) => visitor.visit_borrowed_str(&name),
+            Cow::Borrowed(name) => visitor.visit_borrowed_str(name),
             Cow::Owned(name) => visitor.visit_string(name),
         }
     }
@@ -768,7 +768,7 @@ impl<'a, 'de> Deserializer<'de> for StrTagOptDeserializer<'a, 'de> {
         V: Visitor<'de>,
     {
         match (self.getter)(&mut *self.reader)? {
-            Some(Cow::Borrowed(v)) => visitor.visit_borrowed_str(&v),
+            Some(Cow::Borrowed(v)) => visitor.visit_borrowed_str(v),
             Some(Cow::Owned(v)) => visitor.visit_string(v),
             None => visitor.visit_none(),
         }

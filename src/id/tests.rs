@@ -143,7 +143,7 @@ fn test_old_id() {
         assert_eq!(id.archive(), Some(archive));
         assert_eq!(id.year(), year);
         assert_eq!(id.month(), month);
-        assert_eq!(id.number().get(), number.into());
+        assert_eq!(id.number().get(), number);
         assert_eq!(id.version(), version);
     }
 

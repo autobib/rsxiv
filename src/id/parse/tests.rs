@@ -50,32 +50,26 @@ fn test_version() {
 
 #[test]
 fn test_date_old() {
-    assert_eq!(date_old([b'0', b'7', b'0', b'3']), Ok((16, 3)));
-    assert_eq!(date_old([b'0', b'4', b'1', b'0']), Ok((13, 10)));
-    assert_eq!(date_old([b'9', b'1', b'0', b'8']), Ok((0, 8)));
-    assert_eq!(date_old([b'9', b'9', b'0', b'8']), Ok((8, 8)));
+    assert_eq!(date_old(*b"0703"), Ok((16, 3)));
+    assert_eq!(date_old(*b"0410"), Ok((13, 10)));
+    assert_eq!(date_old(*b"9108"), Ok((0, 8)));
+    assert_eq!(date_old(*b"9908"), Ok((8, 8)));
 
-    assert_eq!(
-        date_old([b'0', b'7', b'0', b'4']),
-        Err(IdError::DateOutOfRange)
-    );
-    assert_eq!(
-        date_old([b'9', b'1', b'0', b'7']),
-        Err(IdError::DateOutOfRange)
-    );
-    assert!(date_old([b'0', b'4', b'0', b'0']).is_err());
-    assert!(date_old([b'6', b'9', b'0', b'1']).is_err());
-    assert!(date_old([b'0', b'0', b'2', b'0']).is_err());
+    assert_eq!(date_old(*b"0704"), Err(IdError::DateOutOfRange));
+    assert_eq!(date_old(*b"9107"), Err(IdError::DateOutOfRange));
+    assert!(date_old(*b"0400").is_err());
+    assert!(date_old(*b"6901").is_err());
+    assert!(date_old(*b"0020").is_err());
 }
 
 #[test]
 fn test_date_new() {
-    assert_eq!(date_new([b'1', b'4', b'1', b'2']), Ok((23, 12)));
-    assert_eq!(date_new([b'0', b'7', b'0', b'4']), Ok((16, 4)));
-    assert_eq!(date_new([b'0', b'8', b'0', b'4']), Ok((17, 4)));
-    assert_eq!(date_new([b'0', b'0', b'0', b'1']), Ok((109, 1)));
-    assert_eq!(date_new([b'0', b'7', b'0', b'3']), Ok((116, 3)));
-    assert_eq!(date_new([b'0', b'1', b'0', b'1']), Ok((110, 1)));
+    assert_eq!(date_new(*b"1412"), Ok((23, 12)));
+    assert_eq!(date_new(*b"0704"), Ok((16, 4)));
+    assert_eq!(date_new(*b"0804"), Ok((17, 4)));
+    assert_eq!(date_new(*b"0001"), Ok((109, 1)));
+    assert_eq!(date_new(*b"0703"), Ok((116, 3)));
+    assert_eq!(date_new(*b"0101"), Ok((110, 1)));
 
     // check all good dates are ok
     for y1 in b'0'..=b'9' {
@@ -90,12 +84,12 @@ fn test_date_new() {
     }
 
     // check bad dates are not ok
-    assert!(date_new([b'0', b'0', b'0', b'0']).is_err());
-    assert!(date_new([b'0', b'0', b'2', b'0']).is_err());
-    assert!(date_new([b'0', b'/', b'0', b'1']).is_err());
-    assert!(date_new([b'0', b'-', b'0', b'1']).is_err());
-    assert!(date_new([b'/', b'0', b'0', b'1']).is_err());
-    assert!(date_new([b'0', b'0', b'/', b'1']).is_err());
+    assert!(date_new(*b"0000").is_err());
+    assert!(date_new(*b"0020").is_err());
+    assert!(date_new(*b"0/01").is_err());
+    assert!(date_new(*b"0-01").is_err());
+    assert!(date_new(*b"/001").is_err());
+    assert!(date_new(*b"00/1").is_err());
 
     for b in 0..=u8::MAX {
         if !(b'1'..=b'9').contains(&b) {
@@ -108,12 +102,12 @@ fn test_date_new() {
             assert!(date_new([b'0', b'0', b, b'2']).is_err());
         }
 
-        if !(b'0'..=b'9').contains(&b) {
+        if !b.is_ascii_digit() {
             println!("{b}");
             assert!(date_new([b'0', b, b'0', b'2']).is_err());
         }
 
-        if !(b'0'..=b'9').contains(&b) {
+        if !b.is_ascii_digit() {
             println!("{b}");
             assert!(date_new([b, b'0', b'0', b'2']).is_err());
         }
